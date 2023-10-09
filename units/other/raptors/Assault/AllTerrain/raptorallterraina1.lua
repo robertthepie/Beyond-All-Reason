@@ -33,7 +33,7 @@ return {
 		movementclass = "RAPTORALLTERRAINBIGHOVER",
 		noautofire = false,
 		nochasecategory = "VTOL",
-		objectname = "Raptors/raptorallterraina1epie.s3o",
+		objectname = "Raptors/rpclmnt/raptorallterraina1.s3o",
 		onlytargetcategory2 = "VTOL",
 		script = "Raptors/raptorallterraina1epie.cob",
 		seismicsignature = 0,
