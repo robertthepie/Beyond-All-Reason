@@ -67,15 +67,38 @@ if gadgetHandler:IsSyncedCode() then
 	-- any groups that are not found to have a valid faction do not expand the pool.
 	-- if the pool is insufficent for the number of teams, then the list is read looping back from the start
 	local factionStrings = include("gamedata/sidedata.lua")
+	-- legion is not inside the sidedata file
 	if Spring.GetModOptions().experimentallegionfaction then
 		factionStrings[#factionStrings + 1] = {
 			name = "Legion",
 			startunit = 'legcom'
 		}
 	end
+
+	-- allow for custom faction/start unit options via custom parameters
+	-- format: <UniDef>.customparams.customfaction = "factionName"
+			-- Custom Faction names should be longer than 3 characters long
+			-- Don't forget to include <UniDef>.customparams.iscommander = true to ensure game end functioanlity
+	for name, def in pairs(UnitDefs) do
+		if def.customParams and def.customParams.customfaction then
+			if string.find(def.name, "_scav") == nil then
+				if type(def.customParams.customfaction) == "string" then
+					factionStrings[#factionStrings+1] = {
+						name = def.customParams.customfaction,
+						startunit = def.name
+					}
+					validStartUnits[name] = true
+					Spring.Echo("gadgets/game_inital_spawn: Valid Start Unit Added: "..def.name.." id: "..name.." under faction: "..def.customParams.customfaction, 1, 3)
+				end
+			end
+		end
+	end
+	
+	-- Clean up the faction names to lower case
 	for _,factionData in pairs(factionStrings) do
 		factionData.name = string.lower(factionData.name)
 	end
+	-- process the faction to team locking
 	local faction_limiter = Spring.GetModOptions().faction_limiter
 	local faction_limiter_valid = false
 	local faction_limited_options = {}
@@ -184,7 +207,7 @@ if gadgetHandler:IsSyncedCode() then
 	function gadget:RecvLuaMsg(msg, playerID)
 		local startUnit = tonumber(msg:match(changeStartUnitRegex))
 		local _, _, playerIsSpec, playerTeam, allyTeamID = Spring.GetPlayerInfo(playerID, false)
-		if startUnit and ((validStartUnits[startUnit] and faction_limiter_valid == false) or (faction_limited_options[ allyTeamID % #faction_limited_options + 1][startUnit] and faction_limiter_valid == true)) then
+		if startUnit and ((faction_limiter_valid == false and validStartUnits[startUnit]) or (faction_limiter_valid == true and faction_limited_options[ allyTeamID % #faction_limited_options + 1][startUnit])) then
 			if not playerIsSpec then
 				playerStartingUnits[playerID] = startUnit
 				spSetTeamRulesParam(playerTeam, startUnitParamName, startUnit, { allied = true, public = false }) -- visible to allies only, set visible to all on GameStart

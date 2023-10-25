@@ -17,6 +17,24 @@ if Spring.GetModOptions().experimentallegionfaction then
 	factions[#factions+1] = { startUnit = UnitDefNames.legcom.id, faction = 'leg' }
 end
 
+	-- allow for custom faction/start unit options via custom parameters
+	-- format: <UniDef>.customparams.customfaction = "factionName"
+			-- Custom Faction names should be longer than 3 characters long
+			-- Don't forget to include <UniDef>.customparams.iscommander = true to ensure game end functioanlity
+	for name, def in pairs(UnitDefs) do
+		if def.customParams and def.customParams.customfaction then
+			if string.find(def.name, "_scav") == nil then
+				if type(def.customParams.customfaction) == "string" then
+					factions[#factions+1] = {
+						startUnit = name,
+						faction = string.sub(def.customParams.customfaction, 1, 3)
+					}
+					Spring.Echo("Widgets/gui_factionpicker: Unit Added to start UI: "..def.name.." id: "..name.." under: "..string.sub(def.customParams.customfaction, 1, 3))
+				end
+			end
+		end
+	end
+
 local doUpdate
 local playSounds = true
 local posY = 0.75
