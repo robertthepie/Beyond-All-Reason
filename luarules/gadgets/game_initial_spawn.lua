@@ -155,13 +155,8 @@ if gadgetHandler:IsSyncedCode() then
 					elseif teamSide == 'legion' and faction_limited_options[ teamAllyID % #faction_limited_options + 1][legcomDefID] then
 						comDefID = legcomDefID
 					elseif faction_limited_options[teamAllyID % #faction_limited_options + 1][armcomDefID] ~= true then
-						if faction_limited_options[ teamAllyID % #faction_limited_options + 1][corcomDefID] then
-							comDefID = corcomDefID
-						elseif faction_limited_options[teamAllyID % #faction_limited_options + 1][legcomDefID] then
-							comDefID = legcomDefID
-						else
-							Spring.Echo("gadget/game_initial_spawn - how did we get here?")
-						end
+						-- the limter should have never activated if this table was never given an entry
+						comDefID, _ = next(faction_limited_options[teamAllyID % #faction_limited_options + 1], nil)
 					end
 				-- otherwise default behaviour
 				else
