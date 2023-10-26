@@ -75,29 +75,24 @@ local GL_ONE = GL.ONE
 local font, font2, bgpadding, dlistGuishader, dlistFactionpicker, bpWidth, bpHeight, rectMargin, fontSize
 
 local RectRound, UiElement, UiUnit
+local cellSize, contentPadding
 
 local function drawFactionpicker()
-	UiElement(backgroundRect[1], backgroundRect[2], backgroundRect[3], backgroundRect[4], 1, 1, ((posY - height > 0 or posX <= 0) and 1 or 0), 0)
-
-	local contentPadding = math.floor((height * vsy * 0.09) * (1 - ((1 - ui_scale) * 0.5)))
+	
 	font2:Begin()
 	font2:SetTextColor(1, 1, 1, 1)
 	font2:SetOutlineColor(0, 0, 0, 0.66)
 	font2:Print(Spring.I18N('ui.factionPicker.pick'), backgroundRect[1] + contentPadding, backgroundRect[4] - contentPadding - (fontSize * 0.7), fontSize, "o")
+	UiElement(backgroundRect[1], backgroundRect[2], backgroundRect[3], backgroundRect[4], 1, 1, ((posY - height > 0 or posX <= 0) and 1 or 0), 0)
 
-	local contentWidth = math.floor(backgroundRect[3] - backgroundRect[1] - contentPadding)
-	local contentHeight = math.floor(backgroundRect[4] - backgroundRect[2] - (contentPadding * 1.33))
-	local maxCellHeight = math.floor((contentHeight - (fontSize * 1.1)) + 0.5)
-	local maxCellWidth = math.floor((contentWidth / #factions) + 0.5)
-	local cellSize = math.min(maxCellHeight, maxCellWidth)
 	local padding = bgpadding
 
 	for i, faction in pairs(factions) do
 		factionRect[i] = {
-			math.floor(backgroundRect[3] - padding - (cellSize * i)),
-			math.floor(backgroundRect[2]),
-			math.floor(backgroundRect[3] - padding - (cellSize * (i - 1))),
-			math.floor(backgroundRect[2] + cellSize)
+			math.floor(backgroundRect[3] - padding - (cellSize * ((i-1) % 4+1))),
+			math.floor(backgroundRect[2] + (cellSize * math.floor((i-1)*0.25))),
+			math.floor(backgroundRect[3] - padding - (cellSize * (((i-1) % 4+1) - 1))),
+			math.floor(backgroundRect[2] + (cellSize * math.floor((i-1)*0.25)) + cellSize)
 		}
 		local disabled = Spring.GetTeamRulesParam(myTeamID, 'startUnit') ~= factions[i].startUnit
 		if disabled then
@@ -206,6 +201,18 @@ function widget:ViewResize()
 	doUpdate = true
 
 	fontSize = (height * vsy * 0.125) * (1 - ((1 - ui_scale) * 0.5))
+	
+	-- code used to be formally under drawFactionpicker, migrated here to resize background rect where more approprate
+	contentPadding = math.floor((height * vsy * 0.09) * (1 - ((1 - ui_scale) * 0.5)))
+	local contentWidth = math.floor(backgroundRect[3] - backgroundRect[1] - contentPadding)
+	local contentHeight = math.floor(backgroundRect[4] - backgroundRect[2] - (contentPadding * 1.33))
+	local maxCellHeight = math.floor((contentHeight - (fontSize * 1.1)) + 0.5)
+	local maxCellWidth = math.floor((contentWidth / math.min(#factions,4)) + 0.5)
+	cellSize = math.min(maxCellHeight, maxCellWidth)
+	-- expand the background rectangle by number of factions if needed
+	backgroundRect[4] = backgroundRect[4] + cellSize * math.floor( (#factions-1) * 0.25 )
+	-- end of great southern migration
+
 end
 
 function widget:Initialize()
