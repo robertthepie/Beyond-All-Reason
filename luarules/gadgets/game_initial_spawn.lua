@@ -81,7 +81,8 @@ if gadgetHandler:IsSyncedCode() then
 			-- Don't forget to include <UniDef>.customparams.iscommander = true to ensure game end functioanlity
 	for name, def in pairs(UnitDefs) do
 		if def.customParams and def.customParams.customfaction then
-			if string.find(def.name, "_scav") == nil then
+			-- exclude scavanger units unless exempt
+			if string.find(def.name, "_scav") == nil and def.customParams.customfactionscav == nil then
 				if type(def.customParams.customfaction) == "string" then
 					factionStrings[#factionStrings+1] = {
 						name = def.customParams.customfaction,
@@ -121,7 +122,21 @@ if gadgetHandler:IsSyncedCode() then
 				teamGroupID = teamGroupID + 1
 			end
 		end
+		if faction_limiter_valid then
+			Spring.SetGameRulesParam("faction_list_count", #faction_limited_options)
+			local msg
+			for i = 1, #faction_limited_options do
+				msg = ""
+				for lim, _ in pairs(faction_limited_options[i]) do
+					msg = msg..lim..","
+				end
+				Spring.Echo("EPIETEST: planned msg: "..msg.." for: "..i)
+				Spring.SetGameRulesParam("faction_list_"..i, msg)
+			end
+		end
 	end
+	-- END OF Team Faction Locker - list setup
+	---------------------------------------------------------------------------------------------------
 
 	----------------------------------------------------------------
 	-- Start Point Guesser
@@ -148,7 +163,8 @@ if gadgetHandler:IsSyncedCode() then
 				-- set & broadcast (current) start unit
 				local _, _, _, _, teamSide, teamAllyID = spGetTeamInfo(teamID, false)
 				local comDefID = armcomDefID
-				-- we try to give you your faction, if we can't, we find the first available faction, loops around if the list isn't long enough to include current team
+
+				-- we try to give you your faction's commanders, if we can't, we find the first available faction/unit
 				if faction_limiter_valid then
 					if teamSide == 'cortex' and faction_limited_options[ teamAllyID % #faction_limited_options + 1][corcomDefID] then
 						comDefID = corcomDefID
@@ -158,7 +174,8 @@ if gadgetHandler:IsSyncedCode() then
 						-- the limter should have never activated if this table was never given an entry
 						comDefID, _ = next(faction_limited_options[teamAllyID % #faction_limited_options + 1], nil)
 					end
-				-- otherwise default behaviour
+
+				-- otherwise default start commander behaviour
 				else
 					if teamSide == 'cortex' then
 						comDefID = corcomDefID

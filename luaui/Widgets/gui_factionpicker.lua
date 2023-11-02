@@ -9,32 +9,76 @@ function widget:GetInfo()
 		enabled = true
 	}
 end
+
+-------------------------------------------------------------
+-- Faction list, and faction restriction related code/vars --
+-------------------------------------------------------------
+-- faction list
 local factions = {
-	{ startUnit = UnitDefNames.corcom.id, faction = 'cor' },
-	{ startUnit = UnitDefNames.armcom.id, faction = 'arm' },
+	{ startUnit = UnitDefNames.corcom.id, faction = 'cor', enabled = true },
+	{ startUnit = UnitDefNames.armcom.id, faction = 'arm', enabled = true },
 }
 if Spring.GetModOptions().experimentallegionfaction then
-	factions[#factions+1] = { startUnit = UnitDefNames.legcom.id, faction = 'leg' }
+	factions[#factions+1] = { startUnit = UnitDefNames.legcom.id, faction = 'leg', enabled = true }
 end
 
-	-- allow for custom faction/start unit options via custom parameters
-	-- format: <UniDef>.customparams.customfaction = "factionName"
-			-- Custom Faction names should be longer than 3 characters long
-			-- Don't forget to include <UniDef>.customparams.iscommander = true to ensure game end functioanlity
-	for name, def in pairs(UnitDefs) do
-		if def.customParams and def.customParams.customfaction then
-			if string.find(def.name, "_scav") == nil then
-				if type(def.customParams.customfaction) == "string" then
-					factions[#factions+1] = {
-						startUnit = name,
-						faction = string.sub(def.customParams.customfaction, 1, 3)
-					}
-					Spring.Echo("Widgets/gui_factionpicker: Unit Added to start UI: "..def.name.." id: "..name.." under: "..string.sub(def.customParams.customfaction, 1, 3))
+-- custom factions
+-- allow for custom faction/start unit options via custom parameters
+-- format: <UniDef>.customparams.customfaction = "factionName"
+		-- Custom Faction names should be longer than 3 characters long
+		-- Don't forget to include <UniDef>.customparams.iscommander = true to ensure game end functioanlity
+for name, def in pairs(UnitDefs) do
+	if def.customParams and def.customParams.customfaction then
+		-- exclude scavanger units unless exempt
+		if string.find(def.name, "_scav") == nil and def.customParams.customfactionscav == nil then
+			if type(def.customParams.customfaction) == "string" then
+				factions[#factions+1] = {
+					startUnit = name,
+					faction = string.lower(def.customParams.customfaction),
+					--faction = string.sub(def.customParams.customfaction, 1, 3),
+					enabled = true
+				}
+				Spring.Echo("Widgets/gui_factionpicker: Unit Added to start UI: "..def.name.." id: "..name.." under: "..string.sub(def.customParams.customfaction, 1, 3))
+			end
+		end
+	end
+end
+
+-- faction restrictions
+-- acquire relevant, faction locks, if any
+do
+	local lim = Spring.GetGameRulesParam("faction_list_count")
+	if lim then
+		local tm = Spring.GetLocalAllyTeamID() % lim + 1
+		Spring.Echo("EPIETEST: lim: "..tm)
+		local list = Spring.GetGameRulesParam("faction_list_"..tm)
+		-- need to split the list, as to not find units that aren't in the list, e.g. 10 in 110
+		local listSplit = string.split(list,",")
+		local tmp
+		for i = 1, #factions do
+			tmp = factions[i]
+			tmp.enabled = false
+			for j = 1, #listSplit do
+				if tmp.startUnit == tonumber(listSplit[j]) then
+					Spring.Echo("me:"..tmp.startUnit.." vs:"..listSplit[j].." pass")
+					tmp.enabled = true
+					break
+				else
+					Spring.Echo("me:"..tmp.startUnit.." vs:"..listSplit[j].." fail")
 				end
 			end
 		end
 	end
+end
 
+-- clean up faction names for language file use
+for i = 1, #factions do
+	factions[i].faction = string.sub(factions[i].faction, 1, 3)
+end
+
+----------------------------------------------------------------
+-- faction picker grid sizeing
+----------------------------------------------------------------
 local doUpdate
 local playSounds = true
 local posY = 0.75
@@ -94,11 +138,15 @@ local function drawFactionpicker()
 			math.floor(backgroundRect[3] - padding - (cellSize * (((i-1) % 4+1) - 1))),
 			math.floor(backgroundRect[2] + (cellSize * math.floor((i-1)*0.25)) + cellSize)
 		}
-		local disabled = Spring.GetTeamRulesParam(myTeamID, 'startUnit') ~= factions[i].startUnit
-		if disabled then
-			glColor(0.55, 0.55, 0.55, 1)
+		if factions[i].enabled then
+			local disabled = Spring.GetTeamRulesParam(myTeamID, 'startUnit') ~= factions[i].startUnit
+			if disabled then
+				glColor(0.55, 0.55, 0.55, 1)
+			else
+				glColor(1, 1, 1, 1)
+			end
 		else
-			glColor(1, 1, 1, 1)
+			glColor(0.25, 0.25, 0.25, 1)
 		end
 		UiUnit(factionRect[i][1] + bgpadding, factionRect[i][2] + bgpadding, factionRect[i][3], factionRect[i][4],
 			nil,
