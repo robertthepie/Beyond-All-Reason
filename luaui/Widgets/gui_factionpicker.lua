@@ -38,7 +38,6 @@ for name, def in pairs(UnitDefs) do
 					--faction = string.sub(def.customParams.customfaction, 1, 3),
 					enabled = true
 				}
-				Spring.Echo("Widgets/gui_factionpicker: Unit Added to start UI: "..def.name.." id: "..name.." under: "..string.sub(def.customParams.customfaction, 1, 3))
 			end
 		end
 	end
@@ -50,7 +49,6 @@ do
 	local lim = Spring.GetGameRulesParam("faction_list_count")
 	if lim then
 		local tm = Spring.GetLocalAllyTeamID() % lim + 1
-		Spring.Echo("EPIETEST: lim: "..tm)
 		local list = Spring.GetGameRulesParam("faction_list_"..tm)
 		-- need to split the list, as to not find units that aren't in the list, e.g. 10 in 110
 		local listSplit = string.split(list,",")
@@ -60,11 +58,8 @@ do
 			tmp.enabled = false
 			for j = 1, #listSplit do
 				if tmp.startUnit == tonumber(listSplit[j]) then
-					Spring.Echo("me:"..tmp.startUnit.." vs:"..listSplit[j].." pass")
 					tmp.enabled = true
 					break
-				else
-					Spring.Echo("me:"..tmp.startUnit.." vs:"..listSplit[j].." fail")
 				end
 			end
 		end

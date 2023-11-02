@@ -130,7 +130,6 @@ if gadgetHandler:IsSyncedCode() then
 				for lim, _ in pairs(faction_limited_options[i]) do
 					msg = msg..lim..","
 				end
-				Spring.Echo("EPIETEST: planned msg: "..msg.." for: "..i)
 				Spring.SetGameRulesParam("faction_list_"..i, msg)
 			end
 		end
