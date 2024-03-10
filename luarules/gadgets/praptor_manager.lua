@@ -1,6 +1,4 @@
-if not gadgetHandler:IsSyncedCode() then
-	return
-end
+if gadgetHandler:IsSyncedCode() then
 function gadget:GetInfo()
 	return {
 		name		= "Playable Raptors Extra Behaviour Handler",
@@ -14,21 +12,46 @@ function gadget:GetInfo()
 end
 
 local reclaimable = {}
--- weird way to make sure these units exist individually
-for unit, hide in pairs({
-	praptor_nest=-1,
-	praptor_hive=0,
-}) do
-	local temp = UnitDefNames[unit].id
-	if temp then
-		reclaimable[temp]={hide,UnitDefs.id.metalcost}
+for unitDefID, unitDef in pairs(UnitDefs) do
+	if unitDef.customParams and unitDef.customParams.upgradable then
+		reclaimable[unitDefID] = true
 	end
 end
--- @TODO add a custom param support, maybe mirgate entierly?
+
+local function isUpgradee(unitID)
+	local x, _, z = Spring.GetUnitPosition(unitID)
+	local units = Spring.GetUnitsInCylinder(x, z, 10)
+	for _, uID in pairs(units) do
+		if uID ~= unitID then
+			local uDefID = Spring.GetUnitDefID(uID)
+			if reclaimable[uDefID] then
+				return uID, uDefID
+			end
+		end
+	end
+	return false
+end
 
 function gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
-	local builderDefID = Spring.GetUnitDefID(builderID)
-	if reclaimable[builderDefID] then
-		
+	if builderID then
+		local builderDefID = Spring.GetUnitDefID(builderID)
+		if reclaimable[builderDefID] and reclaimable[unitDefID] then
+			Spring.SetUnitNoSelect(unitID, true)
+		end
 	end
+end
+
+function gadget:UnitFinished(unitID, unitDefID, unitTeam)
+	if reclaimable[unitDefID] then
+		local parent, parentDef = isUpgradee(unitID)
+		if parent then
+			local env = Spring.UnitScript.GetScriptEnv(unitID)
+			if env then -- otherwise this unit either doesn't exist? or uses cob
+				Spring.UnitScript.CallAsUnit(unitID, env.growOut)
+			end
+			Spring.SetUnitNoSelect(unitID, false)
+			Spring.DestroyUnit(parent, false, true)
+		end
+	end
+end
 end

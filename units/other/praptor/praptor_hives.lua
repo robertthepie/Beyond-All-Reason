@@ -1,11 +1,11 @@
 if Spring.GetModOptions().praptors == true or true then
 	return {
-		praptor_nest = {
+		prap_nest = {
 			activatewhenbuilt = true,
 			autoheal = 1.8,
 			builder = true,
 			buildpic = "raptors/raptor_hive.DDS",
-			buildtime = 7250,
+			buildtime = 725,
 			capturable = false,
 			canmove = true,
 			category = "ALL NOTSUB NOTSHIP NOTAIR NOTHOVER SURFACE RAPTOR EMPABLE",
@@ -38,10 +38,11 @@ if Spring.GetModOptions().praptors == true or true then
 				[1] = "armca",
 			},
 			customparams = {
-				subfolder = "other/raptors",
+				subfolder = "other/raptor",
 				model_author = "FireStorm, Beherith",
 				normalmaps = "yes",
 				normaltex = "unittextures/chicken_l_normals.png",
+				upgradable = "yeet",
 				--treeshader = "yes",
 			},
 			featuredefs = {},
@@ -58,12 +59,12 @@ if Spring.GetModOptions().praptors == true or true then
 				},
 			},
 		},
-		praptor_hive = {
+		prap_hive = {
 			activatewhenbuilt = true,
 			autoheal = 1.8,
 			builder = true,
 			buildpic = "raptors/raptor_hive.DDS",
-			buildtime = 6500,
+			buildtime = 650,
 			capturable = false,
 			canmove = true,
 			category = "ALL NOTSUB NOTSHIP NOTAIR NOTHOVER SURFACE RAPTOR EMPABLE",
@@ -83,9 +84,9 @@ if Spring.GetModOptions().praptors == true or true then
 			maxdec = 0,
 			metalcost = 650,
 			maxslope = 15,
-			objectname = "Raptors/raptor_hive.s3o",
-			--script = "Raptors/praptors/praptor_hive_lus.lua",
-			script = "Units/ARMLAB.cob",
+			objectname = "Raptors/praptors/praptor_hive.s3o",
+			script = "Raptors/praptors/praptor_hive_lus.lua",
+			--script = "Units/ARMLAB.cob",
 			seismicsignature = 0,
 			selfdestructas = "ROOST_DEATH",
 			sightdistance = 510,
@@ -94,13 +95,14 @@ if Spring.GetModOptions().praptors == true or true then
 			workertime = 300,
 			yardmap = "yyyyyyyyyyyy yyyyooooyyyy yyyooooooyyy yyooooooooyy yooooooooooy yooooooooooy yooooooooooy yooooooooooy yyooooooooyy yyyooooooyyy yyyyooooyyyy yyyyyyyyyyyy",
 			buildoptions = {
-				[1] = "praptor_nest",
+				[1] = "prap_nest",
 			},
 			customparams = {
-				subfolder = "other/raptors",
+				subfolder = "other/raptor",
 				model_author = "FireStorm, Beherith",
 				normalmaps = "yes",
 				normaltex = "unittextures/chicken_l_normals.png",
+				upgradable = "yes",
 				--treeshader = "yes",
 			},
 			featuredefs = {},

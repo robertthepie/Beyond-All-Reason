@@ -1,6 +1,6 @@
 local body, t1, t2, t3, t4, t5, nest = piece("MainBody","NestStrut","NestStrut1","NestStrut2","NestStrut3","NestStrut4","Nest")
 
-local nestID = UnitDefNames["praptor_hive"].id
+local nestID = UnitDefNames["prap_hive"].id
 
 local function isUpgradee()
 	local x, _, z = Spring.GetUnitPosition(unitID)
@@ -13,6 +13,61 @@ local function isUpgradee()
 	return false
 end
 
+local function actuallyGrowOut()
+	Show(body)
+	Show(t1)
+	Show(t2)
+	Show(t3)
+	Show(t4)
+	Show(t5)
+	Show(nest)
+
+	Move(t1, 2, 0, 11.25)
+	Move(t2, 2, 0, 11.25)
+	Move(t3, 2, 0, 11.25)
+	Move(t4, 2, 0, 11.25)
+	Move(t5, 2, 0, 11.25)
+	Turn(nest, 1, 0, 0.19635)
+	Turn(nest, 2, 0, 0.01418075)
+
+	Spin(t1, 2, -0.78539816339744830961566084581988)
+	Spin(t2, 2, -0.78539816339744830961566084581988)
+	Spin(t3, 2, -0.78539816339744830961566084581988)
+	Spin(t4, 2, -0.78539816339744830961566084581988)
+	Spin(t5, 2, -0.78539816339744830961566084581988)
+
+	Sleep(6000) -- sorta timed so that it is far enough into the spin that this finished the 360 spin
+	Turn(t1, 2, 0, 0.78539816339744830961566084581988)
+	Turn(t2, 2, 0, 0.78539816339744830961566084581988)
+	Turn(t3, 2, 0, 0.78539816339744830961566084581988)
+	Turn(t4, 2, 0, 0.78539816339744830961566084581988)
+	Turn(t5, 2, 0, 0.78539816339744830961566084581988)
+end
+
+
+function growOut()
+	StartThread(actuallyGrowOut)
+end
+
+function script.Create()
+	if isUpgradee() then
+		Move(t1, 2, -90, nil)
+		Move(t2, 2, -90, nil)
+		Move(t3, 2, -90, nil)
+		Move(t4, 2, -90, nil)
+		Move(t5, 2, -90, nil)
+		Turn(nest, 1, -1.5708, nil)
+		Turn(nest, 2, 0.113446, nil)
+		Hide(body)
+		Hide(t1)
+		Hide(t2)
+		Hide(t3)
+		Hide(t4)
+		Hide(t5)
+		Hide(nest)
+	end
+end
+	--[[
 function script.Create()
 	local isUpgradeee = isUpgradee()
 	-- custom build animation if an upgrade
@@ -47,6 +102,7 @@ function script.Create()
 		Show(t4)
 		Show(t5)
 		Show(nest)
+		Show(body)
 
 		-- rotate pieces
 		-- distance 90, angle 90 / 1.5708 rad, duration 8, precaculated, t1-t5 spin needs a fully 360
@@ -69,6 +125,6 @@ function script.Create()
 		Turn(t3, 2, 0, 0.78539816339744830961566084581988)
 		Turn(t4, 2, 0, 0.78539816339744830961566084581988)
 		Turn(t5, 2, 0, 0.78539816339744830961566084581988)
-		Show(body)
 	end
 end
+]]--

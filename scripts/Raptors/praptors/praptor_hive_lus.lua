@@ -1,22 +1,22 @@
-local body, hand = piece("base", "armbase")
+local body = piece("base")
 
 function script.Create()
-	Spring.Echo("EPIEhive spawned")
+	--Spring.Echo("EPIEhive spawned")
+	Spring.UnitScript.SetUnitValue(COB.INBUILDSTANCE, true)
 end
 
 function script.StartBuilding()
-	Spring.Echo("EPIEstart build called")
+	--Spring.Echo("EPIEstart build called")
 	Spring.UnitScript.SetUnitValue(COB.INBUILDSTANCE, true)
-	Spring.SetUnitNanoPieces(unitID, {hand})
+	Spring.SetUnitNanoPieces(unitID, {body})
 	return true
 end
 
 function script.QueryBuildInfo()
-	Spring.Echo("EPIEquery called")
-	return hand
+	return body
 end
 
 function script.QueryNanopiece()
-	Spring.Echo("EPIEnanopiece called")
-	return hand
+	--Spring.Echo("EPIEnanopiece called")
+	return body
 end
