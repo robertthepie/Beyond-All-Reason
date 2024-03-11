@@ -23,7 +23,7 @@ end
 local reclaimable = {}
 for unitDefID, unitDef in pairs(UnitDefs) do
 	if unitDef.customParams and unitDef.customParams.upgradable then
-		reclaimable[unitDefID] = true
+		reclaimable[unitDefID] = unitDef.customParams.upgradable
 	end
 end
 
@@ -50,16 +50,17 @@ function gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
 			if env then -- otherwise this unit either doesn't exist? or uses cob
 				Spring.UnitScript.CallAsUnit(unitID, env.prepGrow)
 			end
-			local env2 = Spring.UnitScript.GetScriptEnv(builderID)
-			if env2 then -- otherwise this unit either doesn't exist? or uses cob
-				Spring.UnitScript.CallAsUnit(builderID, env2.upgradeState)
+			env = Spring.UnitScript.GetScriptEnv(builderID)
+			if env then -- otherwise this unit either doesn't exist? or uses cob
+				Spring.UnitScript.CallAsUnit(builderID, env.upgradeState)
 			end
 		end
 	end
 end
 
 function gadget:UnitFinished(unitID, unitDefID, unitTeam)
-	if reclaimable[unitDefID] then
+	local upgradable = reclaimable[unitDefID]
+	if upgradable then
 		local parent, parentDef = isUpgradee(unitID)
 		if parent then
 			local env = Spring.UnitScript.GetScriptEnv(unitID)
@@ -67,7 +68,13 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 				Spring.UnitScript.CallAsUnit(unitID, env.growOut)
 			end
 			Spring.SetUnitNoSelect(unitID, false)
-			Spring.DestroyUnit(parent, false, true)
+			Spring.SetUnitNoSelect(parent, true) -- TODO clear unit's queue
+			env = Spring.UnitScript.GetScriptEnv(parent)
+			if env then -- otherwise this unit either doesn't exist? or uses cob
+				Spring.Echo(upgradable)
+				Spring.UnitScript.CallAsUnit(parent, env[upgradable])
+			end
+			--Spring.DestroyUnit(parent, false, true)
 		end
 	end
 end

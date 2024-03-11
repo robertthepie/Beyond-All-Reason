@@ -1,6 +1,20 @@
 local body,f1,f2,f3,f4,f5 = piece("base","flare1","flare2","flare3","flare4","flare5")
 local lastPrint, upgrading, point = 4, 0, 4
 
+function replace()
+	Spring.DestroyUnit(unitID, false, true)
+end
+
+function _shrink()
+	Sleep(4800)
+	Spring.DestroyUnit(unitID, false, true)
+end
+
+function shrink()
+	Move(body,2,-90,11.25)
+	StartThread(_shrink)
+end
+
 function script.Create()
 	Spring.UnitScript.SetUnitValue(COB.INBUILDSTANCE, true)
 	--Turn(f1,2,4.712389,nil)

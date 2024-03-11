@@ -137,18 +137,18 @@ if Spring.GetModOptions().praptors == true or true then
 					weaponvelocity = 2000,
 					wobble = 32000,
 					damage = {
-						default = 1,
+						default = 37, -- 1
 						vtol = 100,
 					},
 				},
 			},
 			weapons = {
 				[1] = {
-					badtargetcategory = "WEAPON",
+					badtargetcategory = "WEAPON NOTAIR",
 					def = "WEAPON",
 					maindir = "0 0 1",
 					maxangledif = 180,
-					onlytargetcategory = "VTOL",
+					onlytargetcategory = "NOTSUB",--"VTOL",
 				},
 			},
 		},

@@ -34,8 +34,8 @@ if Spring.GetModOptions().praptors == true or true then
 			buildoptions = {
 				[1] = "prap_healer",
 				[2] = "prap_fighter",
-				[3] = "prap_bomber",
-				[4] = "prap_air_kamikaze",
+				--[3] = "prap_bomber",
+				--[4] = "prap_air_kamikaze",
 				[5] = "legmos",
 			},
 			customparams = {
@@ -43,7 +43,77 @@ if Spring.GetModOptions().praptors == true or true then
 				model_author = "FireStorm, Beherith",
 				normalmaps = "yes",
 				normaltex = "unittextures/chicken_l_normals.png",
-				upgradable = "praptor",
+				upgradable = "replace",
+				--treeshader = "yes",
+			},
+			featuredefs = {},
+			sfxtypes = {
+				explosiongenerators = {
+					[1] = "custom:blood_spray",
+					[2] = "custom:blood_explode",
+					[3] = "custom:dirt",
+				},
+				pieceexplosiongenerators = {
+					[1] = "blood_spray",
+					[2] = "blood_spray",
+					[3] = "blood_spray",
+				},
+			},
+		},
+		prap_den = {
+			activatewhenbuilt = true,
+			autoheal = 1.8,
+			builder = true,
+			buildpic = "raptors/raptor_hive.DDS",
+			buildtime = 725,
+			capturable = false,
+			canmove = true,
+			category = "ALL NOTSUB NOTSHIP NOTAIR NOTHOVER SURFACE RAPTOR EMPABLE",
+			energycost = 1350,
+			energystorage = 1000,
+			explodeas = "ROOST_DEATH",
+			footprintx = 12,
+			footprintz = 12,
+			health = 2050,
+			idleautoheal = 10,
+			idletime = 90,
+			levelground = false,
+			maxacc = 0,
+			maxdec = 0,
+			metalcost = 860,
+			maxslope = 15,
+			objectname = "Raptors/praptors/praptor_den.s3o",
+			script = "Raptors/praptors/praptor_den_lus.lua",
+			seismicsignature = 0,
+			selfdestructas = "ROOST_DEATH",
+			sightdistance = 510,
+			smoothanim = true,
+			waterline = 0,
+			workertime = 300,
+			yardmap = "yyyyyyyyyyyy yyyyyyyoyyyy yyyyyyyooyyy yyoyyyyoooyy yooyyyyooooy yooyyyyooooy yooyyyyooooy yooyyyyooooy yyoyyyyoooyy yyyyyyyooyyy yyyyyyyoyyyy yyyyyyyyyyyy",
+			--[[
+				yyyyyyyyyyyy	yyyyyyyyyyyy
+				yyyyyyyoyyyy	yyyyooooyyyy
+				yyyyyyyooyyy	yyyooooooyyy
+				yyoyyyyoooyy	yyooooooooyy
+				yooyyyyooooy	yooooooooooy
+				yooyyyyooooy	yooooooooooy
+				yooyyyyooooy	yooooooooooy
+				yooyyyyooooy	yooooooooooy
+				yyoyyyyoooyy	yyooooooooyy
+				yyyyyyyooyyy	yyyooooooyyy
+				yyyyyyyoyyyy	yyyyooooyyyy
+				yyyyyyyyyyyy	yyyyyyyyyyyy
+			]]
+			buildoptions = {
+				[1] = "prap_healer",
+			},
+			customparams = {
+				subfolder = "other/raptor",
+				model_author = "FireStorm, Beherith",
+				normalmaps = "yes",
+				normaltex = "unittextures/chicken_l_normals.png",
+				upgradable = "shrink",
 				--treeshader = "yes",
 			},
 			featuredefs = {},
@@ -109,16 +179,17 @@ if Spring.GetModOptions().praptors == true or true then
 			]]
 			buildoptions = {
 				[1] = "prap_nest",
-				[2] = "prap_healer",
-				[3] = "prap_swarmer",
-				[4] = "prap_spiker",
+				[2] = "prap_den",
+				[3] = "prap_healer",
+				[4] = "prap_swarmer",
+				[5] = "prap_spiker",
 			},
 			customparams = {
 				subfolder = "other/raptor",
 				model_author = "FireStorm, Beherith",
 				normalmaps = "yes",
 				normaltex = "unittextures/chicken_l_normals.png",
-				upgradable = "praptor",
+				upgradable = "replace",
 				--treeshader = "yes",
 			},
 			featuredefs = {},

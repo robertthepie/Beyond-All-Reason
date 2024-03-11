@@ -1,7 +1,14 @@
 local body, t1, t2, t3, t4, t5, nest, f1,f2,f3 = piece("MainBody","NestStrut","NestStrut1","NestStrut2","NestStrut3","NestStrut4","Nest","flare1","flare2","flare3")
 
-local nestID = UnitDefNames["prap_hive"].id
 local lastPrint, upgrading, point = 0, 0, 7
+
+function replace()
+	Spring.DestroyUnit(unitID, false, true)
+end
+
+function shrink()
+	Spring.DestroyUnit(unitID, false, true)
+end
 
 local function _growOut()
 	Show(body)

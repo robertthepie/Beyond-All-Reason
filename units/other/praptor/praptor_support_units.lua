@@ -66,6 +66,9 @@ if Spring.GetModOptions().praptors == true or true then
 			upright = false,
 			waterline = 12,
 			workertime = 250,
+			buildoptions = {
+				[1] = "prap_hive",
+			},
 			customparams = {
 				subfolder = "other/raptors",
 				model_author = "KDR_11k, Beherith",
