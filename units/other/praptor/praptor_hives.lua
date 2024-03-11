@@ -32,7 +32,11 @@ if Spring.GetModOptions().praptors == true or true then
 			workertime = 300,
 			yardmap = "yyyyyyyyyyyy yyyyooooyyyy yyyooooooyyy yyooooooooyy yooooooooooy yooooooooooy yooooooooooy yooooooooooy yyooooooooyy yyyooooooyyy yyyyooooyyyy yyyyyyyyyyyy",
 			buildoptions = {
-				[1] = "legmos",
+				[1] = "prap_healer",
+				[2] = "prap_fighter",
+				[3] = "prap_bomber",
+				[4] = "prap_air_kamikaze",
+				[5] = "legmos",
 			},
 			customparams = {
 				subfolder = "other/raptor",
@@ -105,7 +109,9 @@ if Spring.GetModOptions().praptors == true or true then
 			]]
 			buildoptions = {
 				[1] = "prap_nest",
-				[2] = "armflea",
+				[2] = "prap_healer",
+				[3] = "prap_swarmer",
+				[4] = "prap_spiker",
 			},
 			customparams = {
 				subfolder = "other/raptor",

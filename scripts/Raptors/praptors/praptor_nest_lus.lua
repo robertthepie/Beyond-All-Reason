@@ -60,7 +60,6 @@ function upgradeState()
 end
 
 function script.Create()
-	Spring.Echo(f1,f2,f3)
 	Spring.UnitScript.SetUnitValue(COB.INBUILDSTANCE, true)
 	Turn(f2,2,2.094395,nil)
 	Turn(f3,2,4.18879,nil)
@@ -80,7 +79,7 @@ function script.StartBuilding()
 end
 
 function script.QueryBuildInfo()
-	return lastPrint
+	return point
 end
 
 function script.QueryNanopiece()
