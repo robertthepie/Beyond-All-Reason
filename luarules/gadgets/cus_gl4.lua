@@ -998,7 +998,7 @@ local function initBinsAndTextures()
 				elseif 	unitDef.name:sub(1,3) == 'cor' then
 					objectDefToUniformBin[unitDefID] = 'corscavenger'
 				end
-			elseif unitDef.name:find("raptor", nil, true) or unitDef.name:find("raptor_hive", nil, true) then
+			elseif unitDef.name:find("raptor", nil, true) or unitDef.name:find("raptor_hive", nil, true) or unitDef.name:find("prap", nil, true) then
 				textureTable[5] = wreckAtlases['raptor'][1]
 				objectDefToUniformBin[unitDefID] = 'raptor'
 				--Spring.Echo("Raptorwreck", textureTable[5])

@@ -9,9 +9,6 @@ if Spring.GetModOptions().praptors == true or true then
 			capturable = false,
 			canmove = true,
 			category = "ALL NOTSUB NOTSHIP NOTAIR NOTHOVER SURFACE RAPTOR EMPABLE",
-			collisionvolumeoffsets = "0 0 0",
-			collisionvolumescales = "84 150 84",
-			collisionvolumetype = "box",
 			energycost = 1350,
 			energystorage = 1000,
 			explodeas = "ROOST_DEATH",
@@ -35,14 +32,14 @@ if Spring.GetModOptions().praptors == true or true then
 			workertime = 300,
 			yardmap = "yyyyyyyyyyyy yyyyooooyyyy yyyooooooyyy yyooooooooyy yooooooooooy yooooooooooy yooooooooooy yooooooooooy yyooooooooyy yyyooooooyyy yyyyooooyyyy yyyyyyyyyyyy",
 			buildoptions = {
-				[1] = "armca",
+				[1] = "legmos",
 			},
 			customparams = {
 				subfolder = "other/raptor",
 				model_author = "FireStorm, Beherith",
 				normalmaps = "yes",
 				normaltex = "unittextures/chicken_l_normals.png",
-				upgradable = "yeet",
+				upgradable = "praptor",
 				--treeshader = "yes",
 			},
 			featuredefs = {},
@@ -68,9 +65,6 @@ if Spring.GetModOptions().praptors == true or true then
 			capturable = false,
 			canmove = true,
 			category = "ALL NOTSUB NOTSHIP NOTAIR NOTHOVER SURFACE RAPTOR EMPABLE",
-			collisionvolumeoffsets = "0 0 0",
-			collisionvolumescales = "84 150 84",
-			collisionvolumetype = "box",
 			energycost = 1200,
 			energystorage = 1000,
 			explodeas = "ROOST_DEATH",
@@ -85,6 +79,7 @@ if Spring.GetModOptions().praptors == true or true then
 			metalcost = 650,
 			maxslope = 15,
 			objectname = "Raptors/praptors/praptor_hive.s3o",
+			--objectname = "Raptors/raptor_hive.s3o",
 			script = "Raptors/praptors/praptor_hive_lus.lua",
 			--script = "Units/ARMLAB.cob",
 			seismicsignature = 0,
@@ -93,16 +88,31 @@ if Spring.GetModOptions().praptors == true or true then
 			smoothanim = true,
 			waterline = 0,
 			workertime = 300,
-			yardmap = "yyyyyyyyyyyy yyyyooooyyyy yyyooooooyyy yyooooooooyy yooooooooooy yooooooooooy yooooooooooy yooooooooooy yyooooooooyy yyyooooooyyy yyyyooooyyyy yyyyyyyyyyyy",
+			yardmap = "yyyyyyyyyyyy yyyyyyooyyyy yyyoyyooyyyy yyooooooyyyy yooooooooooy yyyooooooooy yyyooooooooy yooooooooooy yyooooooyyyy yyyoyyooyyyy yyyyyyooyyyy yyyyyyyyyyyy",
+			--[[ shaped around the positions of the entrances
+			new	yyyyyyyyyyyy	old	yyyyyyyyyyyy
+				yyyyyyooyyyy		yyyyooooyyyy
+				yyyoyyooyyyy		yyyooooooyyy
+				yyooooooyyyy		yyooooooooyy
+				yooooooooooy		yooooooooooy
+				yyyooooooooy		yooooooooooy
+				yyyooooooooy		yooooooooooy
+				yooooooooooy		yooooooooooy
+				yyooooooyyyy		yyooooooooyy
+				yyyoyyooyyyy		yyyooooooyyy
+				yyyyyyooyyyy		yyyyooooyyyy
+				yyyyyyyyyyyy		yyyyyyyyyyyy
+			]]
 			buildoptions = {
 				[1] = "prap_nest",
+				[2] = "armflea",
 			},
 			customparams = {
 				subfolder = "other/raptor",
 				model_author = "FireStorm, Beherith",
 				normalmaps = "yes",
 				normaltex = "unittextures/chicken_l_normals.png",
-				upgradable = "yes",
+				upgradable = "praptor",
 				--treeshader = "yes",
 			},
 			featuredefs = {},

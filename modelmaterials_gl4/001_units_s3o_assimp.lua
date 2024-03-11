@@ -399,7 +399,7 @@ for id = 1, #UnitDefs do
 			if wreckAtlas then
 				unitMaterials[id] = {"unitsNormalMapOthersArmCor", NORMALTEX = normalTex, TEXW1 = wreckAtlas[1], TEXW2 = wreckAtlas[2], NORMALTEX2 = wreckAtlas[3]}
 			else
-				if facName == "rap" then
+				if facName == "rap" or facName == "pra" then
 					unitMaterials[id] = {"unitsNormalMapRaptors", NORMALTEX = normalTex}
 				else
 					unitMaterials[id] = {"unitsNormalMapOthers", NORMALTEX = normalTex}

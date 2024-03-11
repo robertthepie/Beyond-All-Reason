@@ -11,6 +11,15 @@ function gadget:GetInfo()
 	}
 end
 
+--[[
+	@TODO
+	Nest nest piece clips out of the body during growth animation
+	HITBOXES
+	Active Selection on upgrade
+	Inherit health % on upgrade
+	Lower cost of upgrade, and undo cost differance once complete
+]]
+
 local reclaimable = {}
 for unitDefID, unitDef in pairs(UnitDefs) do
 	if unitDef.customParams and unitDef.customParams.upgradable then
@@ -37,6 +46,14 @@ function gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
 		local builderDefID = Spring.GetUnitDefID(builderID)
 		if reclaimable[builderDefID] and reclaimable[unitDefID] then
 			Spring.SetUnitNoSelect(unitID, true)
+			local env = Spring.UnitScript.GetScriptEnv(unitID)
+			if env then -- otherwise this unit either doesn't exist? or uses cob
+				Spring.UnitScript.CallAsUnit(unitID, env.prepGrow)
+			end
+			local env2 = Spring.UnitScript.GetScriptEnv(builderID)
+			if env2 then -- otherwise this unit either doesn't exist? or uses cob
+				Spring.UnitScript.CallAsUnit(builderID, env2.upgradeState)
+			end
 		end
 	end
 end
