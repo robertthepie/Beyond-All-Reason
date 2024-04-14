@@ -4,7 +4,8 @@
 			"arm": "Armada",
 			"cor": "Cortex",
 			"leg": "Legion",
-			"random": "Random"
+			"random": "Random",
+			"pra": "Raptors"
 		},
 		"dead": "%{name} Wreckage",
 		"heap": "%{name} Debris",
@@ -748,6 +749,15 @@
 			"xmasball2_4": "Xmas ball",
 			"xmasball2_5": "Xmas ball",
 			"xmasball2_6": "Xmas ball",
+			"prap_nest": "Raptor Nest",
+			"prap_den": "Raptor Den",
+			"prap_hive": "Raptor Nest",
+			"prap_swarmer": "Juvinile Swarmer",
+			"prap_spiker": "Juvinile Spiker",
+			"prap_healer": "Nurse",
+			"prap_fighter": "Juvinile Fighter",
+			"prap_bomber": "Juvinile Bomber",
+			"prap_air_kamikaze": "Juvinile Kamikaze",
 			"boombox": "Boombox"
 		},
 		"descriptions": {
@@ -1494,6 +1504,15 @@
 			"xmasball2_4": "Xmas ball",
 			"xmasball2_5": "Xmas ball",
 			"xmasball2_6": "Xmas ball",
+			"prap_nest": "Nest from which Minor Flying Raptors may hatch",
+			"prap_den": "Den of Minor Raptor Hunters and Specialists",
+			"prap_hive": "Nest brooming with Minor Swarmers",
+			"prap_swarmer": "Selfless and numerous, Will overrun you if not stoped",
+			"prap_spiker": "Basic Damage Dealer",
+			"prap_healer": "Heals both living and artifical allies",
+			"prap_fighter": "Plauge of the sky",
+			"prap_bomber": "Minor Bomber",
+			"prap_air_kamikaze": "Selfless and deadly",
 			"boombox": "Congratulations, you found an easter egg! Capture for a surprise!"
 		}
 	}
