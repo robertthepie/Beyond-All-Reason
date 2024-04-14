@@ -11,7 +11,7 @@ function _shrink()
 end
 
 function shrink()
-	Move(body,2,-90,11.25)
+	Move(body,2,-100,12)
 	Spring.UnitScript.SetUnitValue(COB.INBUILDSTANCE, false)
 	StartThread(_shrink)
 end
