@@ -1,4 +1,3 @@
-if gadgetHandler:IsSyncedCode() then
 function gadget:GetInfo()
 	return {
 		name		= "Playable Raptors Extra Behaviour Handler",
@@ -11,20 +10,22 @@ function gadget:GetInfo()
 	}
 end
 
+
+
 --[[
 	@TODO
 	Nest nest piece clips out of the body during growth animation
 	HITBOXES
-	Active Selection on upgrade
 	Inherit health % on upgrade
-	Lower cost of upgrade, and undo cost differance once complete
 ]]
-local EFFICENCY = 0.5 -- [0..1] represents 0%..100%
 
 local reclaimable = {}
+local reclaimableMetal = {}
+
 for unitDefID, unitDef in pairs(UnitDefs) do
 	if unitDef.customParams and unitDef.customParams.upgradable then
 		reclaimable[unitDefID] = unitDef.customParams.upgradable
+		reclaimableMetal[unitDefID] = unitDef.metalCost
 	end
 end
 
@@ -42,22 +43,21 @@ local function isUpgradee(unitID)
 	return false
 end
 
+if gadgetHandler:IsSyncedCode() then
+
 function gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
-	if builderID then
+	-- is this ours to upgrade
+	if reclaimable[unitDefID] and builderID then
 		local builderDefID = Spring.GetUnitDefID(builderID)
-		if reclaimable[builderDefID] and reclaimable[unitDefID] then
+		if reclaimable[builderDefID] then
+
+			-- put everything in the right state for upgrading
 			Spring.SetUnitNoSelect(unitID, true)
-			local upgradeDef = UnitDefs[unitDefID]
-			local builderDef = UnitDefs[builderDefID]
-			Spring.SetUnitCosts(unitID, {
-				metalCost = upgradeDef.metalCost-builderDef.metalCost*EFFICENCY,
-				energyCost = upgradeDef.energyCost-builderDef.energyCost*EFFICENCY,
-				buildTime = upgradeDef.buildTime-builderDef.buildTime*EFFICENCY,
-			})
 			local env = Spring.UnitScript.GetScriptEnv(unitID)
 			if env then -- otherwise this unit either doesn't exist? or uses cob
 				Spring.UnitScript.CallAsUnit(unitID, env.prepGrow)
 			end
+			-- tell the builder that it is building an upgrade (so that it moves it to the centre)
 			env = Spring.UnitScript.GetScriptEnv(builderID)
 			if env then -- otherwise this unit either doesn't exist? or uses cob
 				Spring.UnitScript.CallAsUnit(builderID, env.upgradeState)
@@ -71,15 +71,8 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 	if upgradable then
 		local parent, parentDefID = isUpgradee(unitID)
 		if parent then
-			local upgradeDef = UnitDefs[unitDefID]
-			local builderDef = UnitDefs[builderDefID]
-			Spring.AddTeamResource(unitTeam, "metal", builderDef.metalCost*(1-EFFICENCY))
-			Spring.AddTeamResource(unitTeam, "energy", builderDef.energyCost*(1-EFFICENCY))
-			Spring.SetUnitCosts(unitID, {
-				metalCost = upgradeDef.metalCost,
-				energyCost = upgradeDef.energyCost,
-				buildTime = upgradeDef.buildTime,
-			})
+
+			-- prep the growth/upgrade animation
 			local env = Spring.UnitScript.GetScriptEnv(unitID)
 			if env then -- otherwise this unit either doesn't exist? or uses cob
 				Spring.UnitScript.CallAsUnit(unitID, env.growOut)
@@ -88,11 +81,20 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 			Spring.SetUnitNoSelect(parent, true) -- TODO clear unit's queue
 			env = Spring.UnitScript.GetScriptEnv(parent)
 			if env then -- otherwise this unit either doesn't exist? or uses cob
-				Spring.Echo(upgradable)
 				Spring.UnitScript.CallAsUnit(parent, env[upgradable])
 			end
-			--Spring.DestroyUnit(parent, false, true)
+
+			
+
+			-- refund the parent
+			Spring.AddTeamResource(unitTeam, "metal", reclaimableMetal[parentDefID])
+			Spring.SetUnitCosts(parent, {metalCost = 1,	energyCost = 1,})
 		end
 	end
 end
+else -- unsynced space
+		end
+	end
+end
+
 end
