@@ -19,6 +19,7 @@ end
 	Inherit health % on upgrade
 	Lower cost of upgrade, and undo cost differance once complete
 ]]
+local EFFICENCY = 0.5 -- [0..1] represents 0%..100%
 
 local reclaimable = {}
 for unitDefID, unitDef in pairs(UnitDefs) do
@@ -46,6 +47,13 @@ function gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
 		local builderDefID = Spring.GetUnitDefID(builderID)
 		if reclaimable[builderDefID] and reclaimable[unitDefID] then
 			Spring.SetUnitNoSelect(unitID, true)
+			local upgradeDef = UnitDefs[unitDefID]
+			local builderDef = UnitDefs[builderDefID]
+			Spring.SetUnitCosts(unitID, {
+				metalCost = upgradeDef.metalCost-builderDef.metalCost*EFFICENCY,
+				energyCost = upgradeDef.energyCost-builderDef.energyCost*EFFICENCY,
+				buildTime = upgradeDef.buildTime-builderDef.buildTime*EFFICENCY,
+			})
 			local env = Spring.UnitScript.GetScriptEnv(unitID)
 			if env then -- otherwise this unit either doesn't exist? or uses cob
 				Spring.UnitScript.CallAsUnit(unitID, env.prepGrow)
@@ -61,8 +69,17 @@ end
 function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 	local upgradable = reclaimable[unitDefID]
 	if upgradable then
-		local parent, parentDef = isUpgradee(unitID)
+		local parent, parentDefID = isUpgradee(unitID)
 		if parent then
+			local upgradeDef = UnitDefs[unitDefID]
+			local builderDef = UnitDefs[builderDefID]
+			Spring.AddTeamResource(unitTeam, "metal", builderDef.metalCost*(1-EFFICENCY))
+			Spring.AddTeamResource(unitTeam, "energy", builderDef.energyCost*(1-EFFICENCY))
+			Spring.SetUnitCosts(unitID, {
+				metalCost = upgradeDef.metalCost,
+				energyCost = upgradeDef.energyCost,
+				buildTime = upgradeDef.buildTime,
+			})
 			local env = Spring.UnitScript.GetScriptEnv(unitID)
 			if env then -- otherwise this unit either doesn't exist? or uses cob
 				Spring.UnitScript.CallAsUnit(unitID, env.growOut)
