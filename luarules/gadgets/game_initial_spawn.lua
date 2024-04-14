@@ -76,6 +76,15 @@ if gadgetHandler:IsSyncedCode() then
 			startunit = 'legcom'
 		}
 	end
+	if Spring.GetModOptions().playableraptors then
+		factionStrings[#factionStrings + 1] = {
+			name = "Raptors",
+			startunit = 'prap_hive'
+		}
+		if UnitDefNames.prap_hive and UnitDefNames.prap_hive.id then
+			validStartUnits[UnitDefNames.prap_hive.id] = true
+		end
+	end
 	for _,factionData in pairs(factionStrings) do
 		factionData.name = string.lower(factionData.name)
 	end

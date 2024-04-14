@@ -1306,6 +1306,14 @@ local options = {
         type    = "string",
         def     = "",
     },
+	{
+		key		= "playableraptors",
+		name	= "Playable Raptors (Prototype)",
+		desc	= "Playable Raptors (Prototype), with a unique sping at an Economy and Progression.\nFaction is based around building many hives that can upgrade, rather than boosting and a singular one.",
+		type	= "bool",
+		section	= "dev",
+		def		= false,
+	}
 }
     ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
