@@ -183,7 +183,9 @@ local unitOrderTable = {
 	['legkark']        = 005610,
 
 	['armsam']         = 005800, --LAND + AA
+	['armsam2']        = 005801, --LAND + AA
 	['cormist']        = 005810,
+	['cormist2']       = 005811,
 	['legrail']		   = 005811,
 
 	['armpincer']      = 005900, --LAND + AMPHIBIOUS
@@ -431,12 +433,16 @@ local unitOrderTable = {
    --ECO NRG GENS
    ['armwin']         = 101000,
    ['corwin']         = 101020,
+   ['legwin']         = 101060,
    ['armwint2']       = 101040, --scavengers
    ['corwint2']       = 101050, --scavengers
+   ['legwint2']       = 101060, --scavengers
    ['armsolar']       = 101070,
    ['corsolar']       = 101080,
+   ['legsolar']       = 101090,
    ['armadvsol']      = 101100,
    ['coradvsol']      = 101150,
+   ['legadvsol']      = 101170,
 
    --ECO NRG GEOS
    ['armgeo']         = 101200,
@@ -525,16 +531,21 @@ local unitOrderTable = {
    ['armdrag']        = 104000,
    ['cordrag']        = 104100,
    ['corscavdrag']    = 104205, --scavengers
+   ['legdrag'] 	      = 104206, --exscavengers
    ['armfort']        = 104300,
    ['corfort']        = 104400,
    ['corscavfort']    = 104505, --scavengers
+   ['legforti']        = 104506, --exscavengers
    ['armclaw']        = 104600,
    ['armlwall']       = 104650,
    ['corscavdtl']     = 104705, --scavengers
+   ['legdtl']         = 104706, --exscavengers
    ['cormaw']         = 104800,
    ['cormwall']       = 104850,
    ['corscavdtf']     = 104905, --scavengers
+   ['legdtf']         = 104906, --exscavengers
    ['corscavdtm']     = 104915, --scavengers
+   ['legdtm']         = 104916, --exscavengers
 
    --MINES
    ['armmine1']       = 105100,
@@ -561,6 +572,7 @@ local unitOrderTable = {
    ['legmg']          = 107000, --land/AA machinegun
    ['armpb']          = 107100,
    ['corvipe']        = 107200,
+   ['legbombard']     = 107250,
    ['armamb']         = 107300,
    ['cortoast']       = 107400,
    ['armanni']        = 107500,
@@ -590,6 +602,7 @@ local unitOrderTable = {
 
    ['armflak']        = 153000,
    ['corflak']        = 153500,
+   ['legflak']        = 153600,
    ['armmercury']     = 154000,
    ['corscreamer']    = 154500,
 
@@ -600,6 +613,7 @@ local unitOrderTable = {
    --DEFENSES MISSILE LAUNCHERS
    ['armemp']         = 165000,
    ['cortron']        = 165500,
+   ['legperdition']   = 165600,
    ['armamd']         = 166000,
    ['corfmd']         = 166500,
    ['armsilo']        = 180000,

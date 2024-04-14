@@ -130,6 +130,9 @@ if showTips then
 	local index = math.random(#tipKeys)
 	randomTip = Spring.I18N('tips.loadscreen.' .. tipKeys[index])
 end
+if string.find(backgroundTexture, "donations") then
+	randomTip = Spring.I18N('tips.loadscreen.donations')
+end
 
 -- for guishader
 local function CheckHardware()
@@ -431,7 +434,7 @@ function addon.DrawLoadScreen()
 	local posY = posYorg
 
 	-- tip
-	local lineHeight = font2Size * 1.45
+	local lineHeight = font2Size * 0.55 * fontScale
 	local wrappedTipText, numLines = font2:WrapText(randomTip, vsx * 1.35)
 	local tipLines = lines(wrappedTipText)
 	local tipPosYtop = posY + (height/vsy)+(borderSize/vsy) + (posY*0.9) + ((lineHeight * #tipLines)/vsy)

@@ -70,8 +70,8 @@ if not voiceSetFound then
 	voiceSet = defaultVoiceSet
 end
 
-local soundFolder = "Sounds/voice/"..voiceSet.."/"
-local defaultSoundFolder = "Sounds/voice/"..defaultVoiceSet.."/"
+local soundFolder = "sounds/voice/"..voiceSet.."/"
+local defaultSoundFolder = "sounds/voice/"..defaultVoiceSet.."/"
 
 -- load and parse sound files/notifications
 local soundsTable = VFS.Include(soundFolder .. 'config.lua')
@@ -118,31 +118,31 @@ end
 
 
 local unitsOfInterestNames = {
-	['armemp'] = 'EMPmissilesiloDetected',
-	['armemp'] = 'EMPmissilesiloDetected',
-	['cortron'] = 'TacticalNukeSiloDetected',
-	['armsilo'] = 'NuclearSiloDetected',
-	['corsilo'] = 'NuclearSiloDetected',
-	['corint'] = 'LrpcDetected',
-	['armbrtha'] = 'LrpcDetected',
-	['corbuzz'] = 'LrpcDetected',
-	['armvulc'] = 'LrpcDetected',
-	['armliche'] = 'NuclearBomberDetected',
-	['corjugg'] = 'JuggernautDetected',
-	['corkorg'] = 'KorgothDetected',
-	['armbanth'] = 'BanthaDetected',
-	['armepoch'] = 'FlagshipDetected',
-	['corblackhy'] = 'FlagshipDetected',
-	['cormando'] = 'CommandoDetected',
-	['armthovr'] = 'TransportDetected',
-	['corthovr'] = 'TransportDetected',
-	['corintr'] = 'TransportDetected',
-	['armatlas'] = 'AirTransportDetected',
-	['corvalk'] = 'AirTransportDetected',
-	['armdfly'] = 'AirTransportDetected',
-	['corseah'] = 'AirTransportDetected',
-	['armtship'] = 'SeaTransportDetected',
-	['cortship'] = 'SeaTransportDetected',
+	armemp = 'EMPmissilesiloDetected',
+	armemp = 'EMPmissilesiloDetected',
+	cortron = 'TacticalNukeSiloDetected',
+	armsilo = 'NuclearSiloDetected',
+	corsilo = 'NuclearSiloDetected',
+	corint = 'LrpcDetected',
+	armbrtha = 'LrpcDetected',
+	corbuzz = 'LrpcDetected',
+	armvulc = 'LrpcDetected',
+	armliche = 'NuclearBomberDetected',
+	corjugg = 'JuggernautDetected',
+	corkorg = 'KorgothDetected',
+	armbanth = 'BanthaDetected',
+	armepoch = 'FlagshipDetected',
+	corblackhy = 'FlagshipDetected',
+	cormando = 'CommandoDetected',
+	armthovr = 'TransportDetected',
+	corthovr = 'TransportDetected',
+	corintr = 'TransportDetected',
+	armatlas = 'AirTransportDetected',
+	corvalk = 'AirTransportDetected',
+	armdfly = 'AirTransportDetected',
+	corseah = 'AirTransportDetected',
+	armtship = 'SeaTransportDetected',
+	cortship = 'SeaTransportDetected',
 }
 -- convert unitname -> unitDefID
 local unitsOfInterest = {}
