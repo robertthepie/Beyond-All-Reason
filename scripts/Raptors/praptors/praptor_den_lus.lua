@@ -8,14 +8,14 @@ end
 
 function shrink()
 	Move(body,2,-90,11.25)
-	Sleep(4800)
+	Sleep(5800)
 	Spring.DestroyUnit(unitID, false, true)
 end
 
 local function _growOut()
 	Show(body)
 	Move(body, 2, 0, 11.25)
-	Sleep(4800)
+	Sleep(5800)
 	Show(t1)
 	Show(t2)
 	Show(t3)

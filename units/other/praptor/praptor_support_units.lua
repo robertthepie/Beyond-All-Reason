@@ -65,7 +65,7 @@ if Spring.GetModOptions().praptors == true or true then
 			unitname = "raptor_land_swarmer_heal_t1_v1",
 			upright = false,
 			waterline = 12,
-			workertime = 250,
+			workertime = 100,
 			buildoptions = {
 				[1] = "prap_hive",
 			},

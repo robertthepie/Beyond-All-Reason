@@ -6,12 +6,13 @@ function replace()
 end
 
 function _shrink()
-	Sleep(4800)
+	Sleep(5800)
 	Spring.DestroyUnit(unitID, false, true)
 end
 
 function shrink()
 	Move(body,2,-90,11.25)
+	Spring.UnitScript.SetUnitValue(COB.INBUILDSTANCE, false)
 	StartThread(_shrink)
 end
 
@@ -52,7 +53,7 @@ function script.StartBuilding()
 		point = 0
 	else
 		lastPrint = lastPrint % 5 + 1
-		point = lastPrint + 2
+		point = lastPrint + 1
 	end
 	return true
 end

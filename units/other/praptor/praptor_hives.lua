@@ -90,18 +90,18 @@ if Spring.GetModOptions().praptors == true or true then
 			smoothanim = true,
 			waterline = 0,
 			workertime = 300,
-			yardmap = "yyyyyyyyyyyy yyyyyyyoyyyy yyyyyyyooyyy yyoyyyyoooyy yooyyyyooooy yooyyyyooooy yooyyyyooooy yooyyyyooooy yyoyyyyoooyy yyyyyyyooyyy yyyyyyyoyyyy yyyyyyyyyyyy",
-			--[[
+			yardmap = "yyyyyyyyyyyy yyyyyyyoyyyy yyoyyyyooyyy yyoyyyyyooyy yooyyyyyoooy yooyyyyyoooy yooyyyyyoooy yooyyyyyoooy yyoyyyyyooyy yyoyyyyooyyy yyyyyyyoyyyy yyyyyyyyyyyy",
+			--[[ fancy drawing of a tunel where a unit may walk through the den
 				yyyyyyyyyyyy	yyyyyyyyyyyy
 				yyyyyyyoyyyy	yyyyooooyyyy
-				yyyyyyyooyyy	yyyooooooyyy
-				yyoyyyyoooyy	yyooooooooyy
-				yooyyyyooooy	yooooooooooy
-				yooyyyyooooy	yooooooooooy
-				yooyyyyooooy	yooooooooooy
-				yooyyyyooooy	yooooooooooy
-				yyoyyyyoooyy	yyooooooooyy
-				yyyyyyyooyyy	yyyooooooyyy
+				yyoyyyyooyyy	yyyooooooyyy
+				yyoyyyyyooyy	yyooooooooyy
+				yooyyyyyoooy	yooooooooooy
+				yooyyyyyoooy	yooooooooooy
+				yooyyyyyoooy	yooooooooooy
+				yooyyyyyoooy	yooooooooooy
+				yyoyyyyyooyy	yyooooooooyy
+				yyoyyyyooyyy	yyyooooooyyy
 				yyyyyyyoyyyy	yyyyooooyyyy
 				yyyyyyyyyyyy	yyyyyyyyyyyy
 			]]
@@ -162,16 +162,16 @@ if Spring.GetModOptions().praptors == true or true then
 			smoothanim = true,
 			waterline = 0,
 			workertime = 300,
-			yardmap = "yyyyyyyyyyyy yyyyyyooyyyy yyyoyyooyyyy yyooooooyyyy yooooooooooy yyyooooooooy yyyooooooooy yooooooooooy yyooooooyyyy yyyoyyooyyyy yyyyyyooyyyy yyyyyyyyyyyy",
+			yardmap = "yyyyyyyyyyyy yyyyyyooyyyy yyyoyyooyyyy yyooooooyyyy yoooooooyyyy yyyooooooooy yyyooooooooy yoooooooyyyy yyooooooyyyy yyyoyyooyyyy yyyyyyooyyyy yyyyyyyyyyyy",
 			--[[ shaped around the positions of the entrances
 			new	yyyyyyyyyyyy	old	yyyyyyyyyyyy
 				yyyyyyooyyyy		yyyyooooyyyy
 				yyyoyyooyyyy		yyyooooooyyy
 				yyooooooyyyy		yyooooooooyy
-				yooooooooooy		yooooooooooy
+				yoooooooyyyy		yooooooooooy
 				yyyooooooooy		yooooooooooy
 				yyyooooooooy		yooooooooooy
-				yooooooooooy		yooooooooooy
+				yoooooooyyyy		yooooooooooy
 				yyooooooyyyy		yyooooooooyy
 				yyyoyyooyyyy		yyyooooooyyy
 				yyyyyyooyyyy		yyyyooooyyyy
@@ -190,7 +190,6 @@ if Spring.GetModOptions().praptors == true or true then
 				normalmaps = "yes",
 				normaltex = "unittextures/chicken_l_normals.png",
 				upgradable = "replace",
-				--treeshader = "yes",
 			},
 			featuredefs = {},
 			sfxtypes = {
