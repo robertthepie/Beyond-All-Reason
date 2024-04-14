@@ -83,7 +83,12 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 				Spring.UnitScript.CallAsUnit(parent, env[upgradable])
 			end
 
-			
+			local commandQueue = Spring.GetUnitCommands(unitID, -1)
+			if commandQueue[1] then
+				for _,command in pairs(commandQueue) do
+					Spring.GiveOrderToUnit(newUnitID, command.id, command.params, command.options)
+				end
+			end
 
 			-- refund the parent
 			Spring.AddTeamResource(unitTeam, "metal", reclaimableMetal[parentDefID])
@@ -91,6 +96,7 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 		end
 	end
 end
+
 else -- unsynced space
 local playerTeamID = Spring.GetLocalTeamID()
 

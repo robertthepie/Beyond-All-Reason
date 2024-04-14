@@ -17,7 +17,7 @@ if Spring.GetModOptions().experimentallegionfaction then
 	factions[#factions+1] = { startUnit = UnitDefNames.legcom.id, faction = 'leg' }
 end
 if Spring.GetModOptions().playableraptors then
-	factions[#factions+1] = { startUnit = UnitDefNames.prap_hive.id, faction = 'pra' }
+	factions[#factions+1] = { startUnit = UnitDefNames.prap_nexus.id, faction = 'pra' }
 end
 
 local doUpdate

@@ -79,10 +79,10 @@ if gadgetHandler:IsSyncedCode() then
 	if Spring.GetModOptions().playableraptors then
 		factionStrings[#factionStrings + 1] = {
 			name = "Raptors",
-			startunit = 'prap_hive'
+			startunit = 'prap_nexus'
 		}
-		if UnitDefNames.prap_hive and UnitDefNames.prap_hive.id then
-			validStartUnits[UnitDefNames.prap_hive.id] = true
+		if UnitDefNames.prap_nexus and UnitDefNames.prap_nexus.id then
+			validStartUnits[UnitDefNames.prap_nexus.id] = true
 		end
 	end
 	for _,factionData in pairs(factionStrings) do
