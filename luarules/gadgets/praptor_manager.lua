@@ -78,7 +78,6 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 				Spring.UnitScript.CallAsUnit(unitID, env.growOut)
 			end
 			Spring.SetUnitNoSelect(unitID, false)
-			Spring.SetUnitNoSelect(parent, true) -- TODO clear unit's queue
 			env = Spring.UnitScript.GetScriptEnv(parent)
 			if env then -- otherwise this unit either doesn't exist? or uses cob
 				Spring.UnitScript.CallAsUnit(parent, env[upgradable])
@@ -93,6 +92,18 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 	end
 end
 else -- unsynced space
+local playerTeamID = Spring.GetLocalTeamID()
+
+function gadget:UnitFinished(unitID, unitDefID, unitTeam)
+	-- if our upgrade unit finished, find its builder, see if it is selected, add this to selection
+	local upgradable = reclaimable[unitDefID]
+	if upgradable then
+		local parent = isUpgradee(unitID)
+		if parent then
+			if unitTeam == playerTeamID and Spring.IsUnitSelected(parent) then
+				Spring.SelectUnitArray ({[1] = unitID}, true) 
+			end
+			Spring.SetUnitNoSelect(parent, true)
 		end
 	end
 end
