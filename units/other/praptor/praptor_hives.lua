@@ -228,7 +228,7 @@ if Spring.GetModOptions().praptors == true or true then
 			maxdec = 0,
 			metalcost = 650,
 			maxslope = 15,
-			objectname = "Raptors/praptors/praptor_hive.s3o",
+			objectname = "Raptors/praptors/praptor_nexus.s3o",
 			--objectname = "Raptors/raptor_hive.s3o",
 			script = "Raptors/praptors/praptor_nexus_lus.lua",
 			--script = "Units/ARMLAB.cob",
