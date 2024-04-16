@@ -57,18 +57,18 @@ local function findChildMexes(a,b, range)
 		local sqrdRange = range*range
 		for i = 1, #metalSpots do
 			local spot = metalSpots[i]
-			local x = spot.x - a
+			local x = math.abs(spot.x - a)
 			if x < range then
-				local z = spot.z - b
+				local z = math.abs(spot.z - b)
 				if z < range then
-					if x*x < sqrdRange and z*z < sqrdRange then
+					if x*x + z*z < sqrdRange then
 						mexes[#mexes+1] = spot
 					end
 				end
 			end
 		end
 		table.sort(metalSpots, function(ms1, ms2)
-			return math.distance2dSquared(ms1.x, ms1.z, a, b) < math.distance2dSquared(ms2.x, ms2.z, a, b)
+			return math.distance2dSquared(ms1.x, ms1.z, a, b) > math.distance2dSquared(ms2.x, ms2.z, a, b)
 		end)
 	end
 	return mexes
