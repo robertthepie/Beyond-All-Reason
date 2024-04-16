@@ -91,8 +91,9 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 			end
 
 			-- refund the parent
-			Spring.AddTeamResource(unitTeam, "metal", reclaimableMetal[parentDefID])
+			-- Spring.AddTeamResource(unitTeam, "metal", reclaimableMetal[parentDefID])
 			Spring.SetUnitCosts(parent, {metalCost = 1,	energyCost = 1,})
+			Spring.SetUnitCosts(unitID, {metalCost = reclaimableMetal[parentDefID] + reclaimableMetal[unitDefID]})
 		end
 	end
 end

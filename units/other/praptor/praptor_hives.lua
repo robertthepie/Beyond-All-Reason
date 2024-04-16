@@ -23,13 +23,14 @@ if Spring.GetModOptions().praptors == true or true then
 			metalcost = 860,
 			maxslope = 15,
 			objectname = "Raptors/praptors/praptor_nest.s3o",
+			reclaimable = false,
 			script = "Raptors/praptors/praptor_nest_lus.lua",
 			seismicsignature = 0,
 			selfdestructas = "ROOST_DEATH",
 			sightdistance = 510,
 			smoothanim = true,
 			waterline = 0,
-			workertime = 300,
+			workertime = 125,
 			yardmap = "yyyyyyyyyyyy yyyyooooyyyy yyyooooooyyy yyooooooooyy yooooooooooy yooooooooooy yooooooooooy yooooooooooy yyooooooooyy yyyooooooyyy yyyyooooyyyy yyyyyyyyyyyy",
 			buildoptions = {
 				[1] = "prap_healer",
@@ -83,13 +84,14 @@ if Spring.GetModOptions().praptors == true or true then
 			metalcost = 860,
 			maxslope = 15,
 			objectname = "Raptors/praptors/praptor_den.s3o",
+			reclaimable = false,
 			script = "Raptors/praptors/praptor_den_lus.lua",
 			seismicsignature = 0,
 			selfdestructas = "ROOST_DEATH",
 			sightdistance = 510,
 			smoothanim = true,
 			waterline = 0,
-			workertime = 300,
+			workertime = 150,
 			yardmap = "yyyyyyyyyyyy yyyyyyyoyyyy yyoyyyyooyyy yyoyyyyyooyy yooyyyyyoooy yooyyyyyoooy yooyyyyyoooy yooyyyyyoooy yyoyyyyyooyy yyoyyyyooyyy yyyyyyyoyyyy yyyyyyyyyyyy",
 			--[[ fancy drawing of a tunel where a unit may walk through the den
 				yyyyyyyyyyyy	yyyyyyyyyyyy
@@ -151,10 +153,11 @@ if Spring.GetModOptions().praptors == true or true then
 			levelground = false,
 			maxacc = 0,
 			maxdec = 0,
-			metalcost = 650,
+			metalcost = 450,
 			maxslope = 15,
 			objectname = "Raptors/praptors/praptor_hive.s3o",
 			--objectname = "Raptors/raptor_hive.s3o",
+			reclaimable = false,
 			script = "Raptors/praptors/praptor_hive_lus.lua",
 			--script = "Units/ARMLAB.cob",
 			seismicsignature = 0,
@@ -162,7 +165,7 @@ if Spring.GetModOptions().praptors == true or true then
 			sightdistance = 510,
 			smoothanim = true,
 			waterline = 0,
-			workertime = 300,
+			workertime = 100,
 			yardmap = "yyyyyyyyyyyy yyyyyyooyyyy yyyoyyooyyyy yyooooooyyyy yoooooooyyyy yyyooooooooy yyyooooooooy yoooooooyyyy yyooooooyyyy yyyoyyooyyyy yyyyyyooyyyy yyyyyyyyyyyy",
 			--[[ shaped around the positions of the entrances
 			new	yyyyyyyyyyyy	old	yyyyyyyyyyyy
@@ -230,6 +233,7 @@ if Spring.GetModOptions().praptors == true or true then
 			maxslope = 15,
 			objectname = "Raptors/praptors/praptor_nexus.s3o",
 			--objectname = "Raptors/raptor_hive.s3o",
+			reclaimable = false,
 			script = "Raptors/praptors/praptor_nexus_lus.lua",
 			--script = "Units/ARMLAB.cob",
 			seismicsignature = 0,
@@ -237,7 +241,7 @@ if Spring.GetModOptions().praptors == true or true then
 			sightdistance = 510,
 			smoothanim = true,
 			waterline = 0,
-			workertime = 300,
+			workertime = 100,
 			yardmap = "yyyyyyyyyyyy yyyyyyooyyyy yyyoyyooyyyy yyooooooyyyy yoooooooyyyy yyyooooooooy yyyooooooooy yoooooooyyyy yyooooooyyyy yyyoyyooyyyy yyyyyyooyyyy yyyyyyyyyyyy",
 			--[[ shaped around the positions of the entrances
 			new	yyyyyyyyyyyy	old	yyyyyyyyyyyy
@@ -254,11 +258,11 @@ if Spring.GetModOptions().praptors == true or true then
 				yyyyyyyyyyyy		yyyyyyyyyyyy
 			]]
 			buildoptions = {
-				[1] = "prap_nest",
-				[2] = "prap_den",
+				-- [1] = "prap_nest",
+				-- [2] = "prap_den",
 				[3] = "prap_healer",
 				[4] = "prap_swarmer",
-				--[5] = "prap_spiker",
+				-- [5] = "prap_spiker",
 			},
 			customparams = {
 				subfolder = "other/raptor",
@@ -269,9 +273,9 @@ if Spring.GetModOptions().praptors == true or true then
 				iscommander = true,
 				entourage1 = "prap_healer",
 				entourage2 = "prap_swarmer",
-				entourage3 = "prap_healer",
+				entourage3 = "prap_swarmer", -- "prap_healer",
 				entourage4 = "prap_swarmer",
-				entourage5 = "prap_spiker",
+				entourage5 = "prap_swarmer", -- "prap_spiker",
 			},
 			featuredefs = {},
 			sfxtypes = {
