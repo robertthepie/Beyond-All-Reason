@@ -1,4 +1,4 @@
-if Spring.GetModOptions().praptors == true or true then
+if Spring.GetModOptions().playableraptors == true then
 	return {
 		prap_nest = {
 			activatewhenbuilt = true,

@@ -10,7 +10,7 @@ function gadget:GetInfo()
 	}
 end
 
-
+if Spring.GetModOptions().playableraptors ~= true then return false end
 
 --[[
 	@TODO:
@@ -125,7 +125,7 @@ function gadget:AllowUnitCreation(unitDefID, builderID, builderTeam, x, y, z, fa
 						x = spot.x - x
 						y = spot.y - y
 						z = spot.z - z
-						
+
 						-- rotate the local cordiante to allaign with the building
 						local facing = Spring.GetUnitBuildFacing(builderID)
 						if facing == 1 then
