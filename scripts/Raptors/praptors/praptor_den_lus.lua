@@ -1,6 +1,6 @@
-local body, t1, t2, t3, t4, t5, growth, armature = piece("BaseDen","ArmBackLeft","ArmBackRight","ArmCentreLeft","ArmForwardRight","ArmFrontRight","growth", "armature")
+local base, body, t1, t2, t3, t4, t5, growth, armature = piece("empty_root_piece", "BaseDen","ArmBackLeft","ArmBackRight","ArmCentreLeft","ArmForwardRight","ArmFrontRight","growth", "armature")
 
-local lastPrint, upgrading, point = 0, 0, 7
+local lastPrint, upgrading, point = base, 0, base
 
 function replace()
 	Spring.DestroyUnit(unitID, false, true)
@@ -41,6 +41,13 @@ function upgradeState()
 	upgrading = 1
 end
 
+function placingMex(x, y, z)
+	upgrading = 2
+	Move(growth,1,x,nil)
+	Move(growth,2,y,nil)
+	Move(growth,3,z,nil)
+end
+
 function script.Create()
 	Spring.UnitScript.SetUnitValue(COB.INBUILDSTANCE, true)
 
@@ -61,8 +68,8 @@ end
 
 function script.StartBuilding()
 	Spring.UnitScript.SetUnitValue(COB.INBUILDSTANCE, true)
-	Spring.SetUnitNanoPieces(unitID, {body})
-	point = 0
+	Spring.SetUnitNanoPieces(unitID, {base})
+	point = base
 	if upgrading == 2 then
 		point = growth
 	end
