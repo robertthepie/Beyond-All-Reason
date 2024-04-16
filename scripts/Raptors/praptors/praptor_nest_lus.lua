@@ -1,4 +1,4 @@
-local body, t1, t2, t3, t4, t5, nest, f1,f2,f3,growth = piece("MainBody","NestStrut","NestStrut1","NestStrut2","NestStrut3","NestStrut4","Nest","flare1","flare2","flare3","growth")
+local body, t1, t2, t3, t4, t5, nest, f1, f2, f3, growth, armature = piece("MainBody","NestStrut","NestStrut1","NestStrut2","NestStrut3","NestStrut4","Nest","flare1","flare2","flare3","growth", "armature")
 
 local lastPrint, upgrading, point = 0, 0, 7
 
@@ -81,6 +81,20 @@ function script.Create()
 	Spring.UnitScript.SetUnitValue(COB.INBUILDSTANCE, true)
 	Turn(f2,2,2.094395,nil)
 	Turn(f3,2,4.18879,nil)
+
+	local mx, _, mz = Spring.GetUnitPosition(unitID)
+	local gx, _, gz = Spring.GetGroundNormal(mx, mz)
+	local facing = Spring.GetUnitBuildFacing(unitID)
+	if facing == 0 then
+		gx, gz = gz, -gx
+	elseif facing == 1 then
+	elseif facing == 2 then
+		gx, gz = -gz, gx
+	elseif facing == 3 then
+		gx, gz = -gx, -gz
+	end
+	Turn(armature,1,gx,nil)
+	Turn(armature,3,gz,nil)
 end
 
 function script.StartBuilding()

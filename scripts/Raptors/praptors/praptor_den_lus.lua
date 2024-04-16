@@ -1,4 +1,4 @@
-local body, t1, t2, t3, t4, t5, growth = piece("BaseDen","ArmBackLeft","ArmBackRight","ArmCentreLeft","ArmForwardRight","ArmFrontRight","growth")
+local body, t1, t2, t3, t4, t5, growth, armature = piece("BaseDen","ArmBackLeft","ArmBackRight","ArmCentreLeft","ArmForwardRight","ArmFrontRight","growth", "armature")
 
 local lastPrint, upgrading, point = 0, 0, 7
 
@@ -43,6 +43,20 @@ end
 
 function script.Create()
 	Spring.UnitScript.SetUnitValue(COB.INBUILDSTANCE, true)
+
+	local mx, _, mz = Spring.GetUnitPosition(unitID)
+	local gx, _, gz = Spring.GetGroundNormal(mx, mz)
+	local facing = Spring.GetUnitBuildFacing(unitID)
+	if facing == 0 then
+		gx, gz = gz, -gx
+	elseif facing == 1 then
+	elseif facing == 2 then
+		gx, gz = -gz, gx
+	elseif facing == 3 then
+		gx, gz = -gx, -gz
+	end
+	Turn(armature,1,gx,nil)
+	Turn(armature,3,gz,nil)
 end
 
 function script.StartBuilding()

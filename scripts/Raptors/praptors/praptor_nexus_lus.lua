@@ -1,4 +1,4 @@
-local body,f1,f2,f3,f4,f5, growth = piece("base","flare1","flare2","flare3","flare4","flare5","growth")
+local body, f1, f2, f3, f4, f5, growth, armature = piece("base","flare1","flare2","flare3","flare4","flare5","growth", "armature")
 local lastPrint, upgrading, point = 4, 0, 4
 
 function replace()
@@ -27,6 +27,20 @@ function script.Create()
 	Move(f3,2,-12,nil)
 	Move(f4,2,-12,nil)
 	Move(f5,2,-12,nil)
+
+	local mx, _, mz = Spring.GetUnitPosition(unitID)
+	local gx, _, gz = Spring.GetGroundNormal(mx, mz)
+	local facing = Spring.GetUnitBuildFacing(unitID)
+	if facing == 0 then
+		gx, gz = gz, -gx
+	elseif facing == 1 then
+	elseif facing == 2 then
+		gx, gz = -gz, gx
+	elseif facing == 3 then
+		gx, gz = -gx, -gz
+	end
+	Turn(armature,1,gx,nil)
+	Turn(armature,3,gz,nil)
 
 	Sleep(2400)
 
