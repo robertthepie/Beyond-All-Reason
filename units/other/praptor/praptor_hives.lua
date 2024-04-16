@@ -39,6 +39,7 @@ if Spring.GetModOptions().praptors == true or true then
 				--[3] = "prap_bomber",
 				--[4] = "prap_air_kamikaze",
 				[5] = "legmos",
+				[6] = "prap_mex_t1",
 			},
 			customparams = {
 				subfolder = "other/raptor",
@@ -112,6 +113,7 @@ if Spring.GetModOptions().praptors == true or true then
 			buildoptions = {
 				[1] = "prap_healer",
 				[2] = "prap_arty",
+				[3] = "prap_mex_t1",
 			},
 			customparams = {
 				subfolder = "other/raptor",
@@ -190,7 +192,7 @@ if Spring.GetModOptions().praptors == true or true then
 				[3] = "prap_healer",
 				[4] = "prap_swarmer",
 				--[5] = "prap_spiker",
-				[6] = "armmex",
+				[6] = "prap_mex_t1",
 			},
 			customparams = {
 				subfolder = "other/raptor",
@@ -224,7 +226,10 @@ if Spring.GetModOptions().praptors == true or true then
 			canmove = true,
 			category = "ALL NOTSUB NOTSHIP NOTAIR NOTHOVER SURFACE RAPTOR EMPABLE",
 			energycost = 1200,
-			energystorage = 1000,
+			energymake = 25,
+			energystorage = 500,
+			metalmake = 2,
+			metalstorage = 500,
 			explodeas = "ROOST_DEATH",
 			footprintx = 12,
 			footprintz = 12,
@@ -268,6 +273,7 @@ if Spring.GetModOptions().praptors == true or true then
 				[3] = "prap_healer",
 				[4] = "prap_swarmer",
 				-- [5] = "prap_spiker",
+				[6] = "prap_mex_t1",
 			},
 			customparams = {
 				subfolder = "other/raptor",

@@ -1,4 +1,4 @@
-local body, t1, t2, t3, t4, t5 = piece("BaseDen","ArmBackLeft","ArmBackRight","ArmCentreLeft","ArmForwardRight","ArmFrontRight")
+local body, t1, t2, t3, t4, t5, growth = piece("BaseDen","ArmBackLeft","ArmBackRight","ArmCentreLeft","ArmForwardRight","ArmFrontRight","growth")
 
 local lastPrint, upgrading, point = 0, 0, 7
 
@@ -49,7 +49,15 @@ function script.StartBuilding()
 	Spring.UnitScript.SetUnitValue(COB.INBUILDSTANCE, true)
 	Spring.SetUnitNanoPieces(unitID, {body})
 	point = 0
+	if upgrading == 2 then
+		point = growth
+	end
+	upgrading = 0
 	return true
+end
+
+function script.StopBuilding()
+	point = 0
 end
 
 function script.QueryBuildInfo()

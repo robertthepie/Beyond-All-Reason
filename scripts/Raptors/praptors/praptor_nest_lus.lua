@@ -1,4 +1,4 @@
-local body, t1, t2, t3, t4, t5, nest, f1,f2,f3 = piece("MainBody","NestStrut","NestStrut1","NestStrut2","NestStrut3","NestStrut4","Nest","flare1","flare2","flare3")
+local body, t1, t2, t3, t4, t5, nest, f1,f2,f3,growth = piece("MainBody","NestStrut","NestStrut1","NestStrut2","NestStrut3","NestStrut4","Nest","flare1","flare2","flare3","growth")
 
 local lastPrint, upgrading, point = 0, 0, 7
 
@@ -66,6 +66,17 @@ function upgradeState()
 	upgrading = 1
 end
 
+function placingMex(x, y, z)
+	upgrading = 2
+	-- local mx,my,mz = Spring.GetUnitPosition(unitID)
+	-- mx=x-mx
+	-- my=y-my
+	-- mz=z-mz
+	Move(growth,1,x,nil)
+	Move(growth,2,y,nil)
+	Move(growth,3,z,nil)
+end
+
 function script.Create()
 	Spring.UnitScript.SetUnitValue(COB.INBUILDSTANCE, true)
 	Turn(f2,2,2.094395,nil)
@@ -76,13 +87,19 @@ function script.StartBuilding()
 	Spring.UnitScript.SetUnitValue(COB.INBUILDSTANCE, true)
 	Spring.SetUnitNanoPieces(unitID, {body})
 	if upgrading == 1 then --temp.customParams.upgradable then
-		upgrading = 0
 		point = 0
+	elseif upgrading == 2 then
+		point = growth
 	else
 		lastPrint = lastPrint % 3 + 1
 		point = lastPrint + 7
 	end
+	upgrading = 0
 	return true
+end
+
+function script.StopBuilding()
+	point = 0
 end
 
 function script.QueryBuildInfo()

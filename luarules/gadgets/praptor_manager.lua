@@ -20,7 +20,7 @@ end
 local reclaimable = {}
 local reclaimableMetal = {}
 local mex = {
-	[UnitDefNames.armmex.id]=true
+	[UnitDefNames.prap_mex_t1.id]=true
 }
 
 for unitDefID, unitDef in pairs(UnitDefs) do
@@ -67,8 +67,8 @@ local function findChildMexes(a,b, range)
 				end
 			end
 		end
-		table.sort(metalSpots, function(ms1, ms2)
-			return math.distance2dSquared(ms1.x, ms1.z, a, b) > math.distance2dSquared(ms2.x, ms2.z, a, b)
+		table.sort(mexes, function(ms1, ms2)
+			return math.distance2dSquared(ms1.x, ms1.z, a, b) < math.distance2dSquared(ms2.x, ms2.z, a, b)
 		end)
 	end
 	return mexes
@@ -96,9 +96,10 @@ function gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
 				-- inherit the list of locally sourcable metal spots
 				hiveMexSpots[unitID] = hiveMexSpots[builderID]
 			end
-		else
+		end
+		if not hiveMexSpots[unitID] then
 			local x,y,z = Spring.GetUnitPosition(unitID)
-			hiveMexSpots[unitID] = findChildMexes(x,z, UnitDefs[unitDefID].buildDistance)
+			hiveMexSpots[unitID] = findChildMexes(x,z, UnitDefs[unitDefID].buildDistance + 30)
 		end
 	end
 end
@@ -108,20 +109,33 @@ function gadget:AllowUnitCreation(unitDefID, builderID, builderTeam, x, y, z, fa
 	if mex[unitDefID] and builderID then
 		local builderDefID = Spring.GetUnitDefID(builderID)
 		if reclaimable[builderDefID] then
-
+			
 			-- animate the lab to be building at a free mex position, or cancel the order
 			local env = Spring.UnitScript.GetScriptEnv(builderID)
 			if env and hiveMexSpots[builderID] then
-
+				
 				-- find nearest free mex spot
 				for i = 1, #hiveMexSpots[builderID] do
 					local spot = hiveMexSpots[builderID][i]
 					-- @TODO: convert if not blocked to read the returned list for a mex to upgrade
 					if not Spring.GetGroundBlocked(spot.x-5,spot.z+5,spot.x-5,spot.z+5) then
+						
+						-- put the position into local space
 						local x,y,z = Spring.GetUnitPosition(builderID)
 						x = spot.x - x
 						y = spot.y - y
 						z = spot.z - z
+						
+						-- rotate the local cordiante to allaign with the building
+						local facing = Spring.GetUnitBuildFacing(builderID)
+						if facing == 1 then
+							x, z = -z, x
+						elseif facing == 2 then
+							x, z = -x, -z
+						elseif facing == 3 then
+							x, z = z, -x
+						end
+
 						Spring.UnitScript.CallAsUnit(builderID, env.placingMex, x, y, z)
 						return true
 					end
