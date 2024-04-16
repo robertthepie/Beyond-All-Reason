@@ -51,6 +51,9 @@ function gadget:AllowCommand(_, _, _, cmdID, cmdParams)
 		bx, bz = cmdParams[4], cmdParams[6] -- this is where the cmd position is placed in prepended commands with commandinsert
 	end
 
+	-- if a factory like structure is building this... we just give up
+	if not bx then return true end
+
 	-- We find the closest metal spot to the assigned command position
 	local closestSpot = math.getClosestPosition(bx, bz, metalSpotsList)
 

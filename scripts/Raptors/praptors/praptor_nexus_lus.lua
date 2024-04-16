@@ -34,11 +34,6 @@ function script.Create()
 	local x,y,z = Spring.GetUnitPosition(unitID)
 	local teamID = Spring.GetUnitTeam(unitID)
 	local cusPar = UnitDefs[UnitDefNames.prap_nexus.id].customParams
-	Spring.Echo(cusPar.entourage1,
-	cusPar.entourage2,
-	cusPar.entourage3,
-	cusPar.entourage4,
-	cusPar.entourage5)
 	spawn(cusPar.entourage1, x-70, y, z, 3, teamID) -- left mid
 	spawn(cusPar.entourage2, x-20, y, z-69, 2, teamID) -- up left
 	spawn(cusPar.entourage3, x+65, y, z+40, 1, teamID) -- top right

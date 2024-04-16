@@ -1,11 +1,11 @@
-local body,f1,f2,f3,f4,f5 = piece("base","flare1","flare2","flare3","flare4","flare5")
+local body,f1,f2,f3,f4,f5, growth = piece("base","flare1","flare2","flare3","flare4","flare5","growth")
 local lastPrint, upgrading, point = 4, 0, 4
 
-function replace()
+local function replace()
 	Spring.DestroyUnit(unitID, false, true)
 end
 
-function _shrink()
+local function _shrink()
 	Sleep(5800)
 	Spring.DestroyUnit(unitID, false, true)
 end
@@ -45,17 +45,34 @@ function upgradeState()
 	upgrading = 1
 end
 
+function placingMex(x, y, z)
+	upgrading = 2
+	-- local mx,my,mz = Spring.GetUnitPosition(unitID)
+	-- mx=x-mx
+	-- my=y-my
+	-- mz=z-mz
+	Move(growth,1,x,nil)
+	Move(growth,2,y,nil)
+	Move(growth,3,z,nil)
+end
+
 function script.StartBuilding()
 	Spring.UnitScript.SetUnitValue(COB.INBUILDSTANCE, true)
 	Spring.SetUnitNanoPieces(unitID, {body})
 	if upgrading == 1 then --temp.customParams.upgradable then
-		upgrading = 0
 		point = 0
+	elseif upgrading == 2 then
+		point = growth
 	else
 		lastPrint = lastPrint % 5 + 1
 		point = lastPrint + 1
 	end
+	upgrading = 0
 	return true
+end
+
+function script.StopBuilding()
+	point = 0
 end
 
 function script.QueryBuildInfo()

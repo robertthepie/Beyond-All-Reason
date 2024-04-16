@@ -47,6 +47,8 @@ end
 -- get the first mex bellow that isn't itself, stacking more than one should be prevented by yardmaps
 local function hasMexBeneath(unitID)
 	local x, _, z = Spring.GetUnitPosition(unitID)
+	-- if a factory like structure is building this...
+	if not x then return false end
 	local units = Spring.GetUnitsInCylinder(x, z, 10)
 	for k, uID in ipairs(units) do
 		if isMex[Spring.GetUnitDefID(uID)] then

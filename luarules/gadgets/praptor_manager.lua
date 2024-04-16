@@ -2,10 +2,10 @@ function gadget:GetInfo()
 	return {
 		name		= "Playable Raptors Extra Behaviour Handler",
 		desc		= "Handles additional behaviour such us recyling when a factory upgrades itself",
-		author		= "robert the pie", -- it is not robert the epie
+		author		= "robert the pie",
 		date		= "March 2024",
 		license		= "GNU GPL, v2 or later",
-		layer		= 0,
+		layer		= 1,
 		enabled		= true,
 	}
 end
@@ -13,14 +13,15 @@ end
 
 
 --[[
-	@TODO
-	Nest nest piece clips out of the body during growth animation
-	HITBOXES
+	@TODO:
 	Inherit health % on upgrade
 ]]
 
 local reclaimable = {}
 local reclaimableMetal = {}
+local mex = {
+	[UnitDefNames.armmex.id]=true
+}
 
 for unitDefID, unitDef in pairs(UnitDefs) do
 	if unitDef.customParams and unitDef.customParams.upgradable then
@@ -29,6 +30,7 @@ for unitDefID, unitDef in pairs(UnitDefs) do
 	end
 end
 
+-- is this unit ugrading itself
 local function isUpgradee(unitID)
 	local x, _, z = Spring.GetUnitPosition(unitID)
 	local units = Spring.GetUnitsInCylinder(x, z, 10)
@@ -45,26 +47,91 @@ end
 
 if gadgetHandler:IsSyncedCode() then
 
+local metalSpots = {}
+local hiveMexSpots = {}
+
+-- get all mexes in range, sorted
+local function findChildMexes(a,b, range)
+	local mexes = {}
+	if metalSpots then
+		local sqrdRange = range*range
+		for i = 1, #metalSpots do
+			local spot = metalSpots[i]
+			local x = spot.x - a
+			if x < range then
+				local z = spot.z - b
+				if z < range then
+					if x*x < sqrdRange and z*z < sqrdRange then
+						mexes[#mexes+1] = spot
+					end
+				end
+			end
+		end
+		table.sort(metalSpots, function(ms1, ms2)
+			return math.distance2dSquared(ms1.x, ms1.z, a, b) < math.distance2dSquared(ms2.x, ms2.z, a, b)
+		end)
+	end
+	return mexes
+end
+
 function gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
-	-- is this ours to upgrade
-	if reclaimable[unitDefID] and builderID then
+	-- is this unit an upgrade of ours
+	if reclaimable[unitDefID] then
+		if builderID then
+			local builderDefID = Spring.GetUnitDefID(builderID)
+			if reclaimable[builderDefID] then
+
+				-- put everything in the right state for upgrading
+				Spring.SetUnitNoSelect(unitID, true)
+				local env = Spring.UnitScript.GetScriptEnv(unitID)
+				if env then
+					Spring.UnitScript.CallAsUnit(unitID, env.prepGrow)
+				end
+				-- tell the builder that it is building an upgrade (so that it moves it to the centre)
+				env = Spring.UnitScript.GetScriptEnv(builderID)
+				if env then
+					Spring.UnitScript.CallAsUnit(builderID, env.upgradeState)
+				end
+				
+				-- inherit the list of locally sourcable metal spots
+				hiveMexSpots[unitID] = hiveMexSpots[builderID]
+			end
+		else
+			local x,y,z = Spring.GetUnitPosition(unitID)
+			hiveMexSpots[unitID] = findChildMexes(x,z, UnitDefs[unitDefID].buildDistance)
+		end
+	-- are we building a mex via a lab
+	elseif mex[unitDefID] and builderID then
+		Spring.Echo("epie2", unitDefID)
 		local builderDefID = Spring.GetUnitDefID(builderID)
 		if reclaimable[builderDefID] then
 
-			-- put everything in the right state for upgrading
-			Spring.SetUnitNoSelect(unitID, true)
-			local env = Spring.UnitScript.GetScriptEnv(unitID)
-			if env then -- otherwise this unit either doesn't exist? or uses cob
-				Spring.UnitScript.CallAsUnit(unitID, env.prepGrow)
-			end
-			-- tell the builder that it is building an upgrade (so that it moves it to the centre)
-			env = Spring.UnitScript.GetScriptEnv(builderID)
-			if env then -- otherwise this unit either doesn't exist? or uses cob
-				Spring.UnitScript.CallAsUnit(builderID, env.upgradeState)
+			-- animate the lab to be building at a free mex position, or cancel the order
+			local env = Spring.UnitScript.GetScriptEnv(builderID)
+			if env and hiveMexSpots[builderID] then
+
+				-- find nearest free mex spot
+				for i = 1, #hiveMexSpots[builderID] do
+					local spot = hiveMexSpots[builderID][i]
+					-- @TODO: convert if not blocked to read the returned list for a mex to upgrade
+					if not Spring.GetGroundBlocked(spot.x-5,spot.z+5,spot.x-5,spot.z+5) then
+						local x,y,z = Spring.GetUnitPosition(builderID)
+						x = spot.x - x
+						y = spot.y - y
+						z = spot.z - z
+						Spring.UnitScript.CallAsUnit(builderID, env.placingMex, x, y, z)
+						return
+					end
+				end
+				local firstCmdID, _, cmdTag = Spring.GetUnitCurrentCommand(builderID, 1)
+				if firstCmdID then
+					Spring.GiveOrderToUnit(builderID, CMD.REMOVE, { cmdTag }, 0)
+				end
 			end
 		end
 	end
 end
+
 
 function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 	local upgradable = reclaimable[unitDefID]
@@ -74,19 +141,19 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 
 			-- prep the growth/upgrade animation
 			local env = Spring.UnitScript.GetScriptEnv(unitID)
-			if env then -- otherwise this unit either doesn't exist? or uses cob
+			if env then
 				Spring.UnitScript.CallAsUnit(unitID, env.growOut)
 			end
 			Spring.SetUnitNoSelect(unitID, false)
 			env = Spring.UnitScript.GetScriptEnv(parent)
-			if env then -- otherwise this unit either doesn't exist? or uses cob
+			if env then
 				Spring.UnitScript.CallAsUnit(parent, env[upgradable])
 			end
 
-			local commandQueue = Spring.GetUnitCommands(unitID, -1)
+			local commandQueue = Spring.GetUnitCommands(parent, -1)
 			if commandQueue[1] then
 				for _,command in pairs(commandQueue) do
-					Spring.GiveOrderToUnit(newUnitID, command.id, command.params, command.options)
+					Spring.GiveOrderToUnit(unitID, command.id, command.params, command.options)
 				end
 			end
 
@@ -94,8 +161,19 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 			-- Spring.AddTeamResource(unitTeam, "metal", reclaimableMetal[parentDefID])
 			Spring.SetUnitCosts(parent, {metalCost = 1,	energyCost = 1,})
 			Spring.SetUnitCosts(unitID, {metalCost = reclaimableMetal[parentDefID] + reclaimableMetal[unitDefID]})
+
 		end
 	end
+end
+
+function gadget:UnitDestroyed(unitID, unitDefID, unitTeam)
+	if reclaimable[unitDefID] then
+		hiveMexSpots[unitID] = nil
+	end
+end
+
+function gadget:Initialize()
+	metalSpots = GG["resource_spot_finder"] and GG["resource_spot_finder"].metalSpotsList or nil
 end
 
 else -- unsynced space
