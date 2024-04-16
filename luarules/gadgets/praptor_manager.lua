@@ -100,9 +100,12 @@ function gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
 			local x,y,z = Spring.GetUnitPosition(unitID)
 			hiveMexSpots[unitID] = findChildMexes(x,z, UnitDefs[unitDefID].buildDistance)
 		end
+	end
+end
+
+function gadget:AllowUnitCreation(unitDefID, builderID, builderTeam, x, y, z, facing)
 	-- are we building a mex via a lab
-	elseif mex[unitDefID] and builderID then
-		Spring.Echo("epie2", unitDefID)
+	if mex[unitDefID] and builderID then
 		local builderDefID = Spring.GetUnitDefID(builderID)
 		if reclaimable[builderDefID] then
 
@@ -120,18 +123,15 @@ function gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
 						y = spot.y - y
 						z = spot.z - z
 						Spring.UnitScript.CallAsUnit(builderID, env.placingMex, x, y, z)
-						return
+						return true
 					end
 				end
-				local firstCmdID, _, cmdTag = Spring.GetUnitCurrentCommand(builderID, 1)
-				if firstCmdID then
-					Spring.GiveOrderToUnit(builderID, CMD.REMOVE, { cmdTag }, 0)
-				end
+				return false
 			end
 		end
 	end
+	return true
 end
-
 
 function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 	local upgradable = reclaimable[unitDefID]
