@@ -375,6 +375,7 @@ if Spring.GetModOptions().playableraptors == true then
 				normalmaps = "yes",
 				normaltex = "unittextures/chicken_l_normals.png",
 				upgradable = "replace",
+				skipgrowth = "skipgrowth",
 				--treeshader = "yes",
 			},
 			featuredefs = {},

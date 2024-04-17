@@ -22,15 +22,21 @@ if Spring.GetModOptions().playableraptors ~= true then return false end
 ]]
 
 local reclaimable = {}
+local skipGrowth = {}
 local reclaimableMetal = {}
 local mex = {
 	[UnitDefNames.prap_mex_t1.id]=true
 }
 
 for unitDefID, unitDef in pairs(UnitDefs) do
-	if unitDef.customParams and unitDef.customParams.upgradable then
+	if unitDef.customParams then
+		if unitDef.customParams.upgradable then
 		reclaimable[unitDefID] = unitDef.customParams.upgradable
 		reclaimableMetal[unitDefID] = unitDef.metalCost
+			if unitDef.customParams.skipgrowth then
+				skipGrowth[unitDefID] = true
+			end
+		end
 	end
 end
 
@@ -91,9 +97,12 @@ function gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
 
 				-- put everything in the right state for upgrading
 				Spring.SetUnitNoSelect(unitID, true)
-				local env = Spring.UnitScript.GetScriptEnv(unitID)
-				if env then
-					Spring.UnitScript.CallAsUnit(unitID, env.prepGrow)
+				local env
+				if not skipGrowth[unitDefID] then
+					env = Spring.UnitScript.GetScriptEnv(unitID)
+					if env then
+						Spring.UnitScript.CallAsUnit(unitID, env.prepGrow)
+					end
 				end
 				-- tell the builder that it is building an upgrade (so that it moves it to the centre)
 				env = Spring.UnitScript.GetScriptEnv(builderID)
