@@ -3,7 +3,7 @@ if Spring.GetModOptions().playableraptors == true then
 		prap_swarmer = {
 			maxacc = 0.1725,
 			maxdec = 0.345,
-			energycost = 53,
+			energycost = 0,
 			metalcost = 25,
 			builder = false,
 			buildpic = "raptors/raptor1.DDS",
@@ -116,7 +116,7 @@ if Spring.GetModOptions().playableraptors == true then
 		prap_spiker = {
 			maxacc = 1.725,
 			maxdec = 1.4375,
-			energycost = 174,
+			energycost = 0,
 			metalcost = 174,
 			builder = false,
 			buildpic = "raptors/raptors1.DDS",

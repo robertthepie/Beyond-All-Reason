@@ -12,6 +12,10 @@ end
 
 if Spring.GetModOptions().playableraptors ~= true then return false end
 
+
+--------------------
+--- GLOBAL SPACE ---
+--------------------
 --[[
 	@TODO:
 	Inherit health % on upgrade
@@ -45,6 +49,10 @@ local function isUpgradee(unitID)
 	return false
 end
 
+
+--------------------
+--- SYNCED SPACE ---
+--------------------
 if gadgetHandler:IsSyncedCode() then
 
 local metalSpots = {}
@@ -109,17 +117,17 @@ function gadget:AllowUnitCreation(unitDefID, builderID, builderTeam, x, y, z, fa
 	if mex[unitDefID] and builderID then
 		local builderDefID = Spring.GetUnitDefID(builderID)
 		if reclaimable[builderDefID] then
-			
+
 			-- animate the lab to be building at a free mex position, or cancel the order
 			local env = Spring.UnitScript.GetScriptEnv(builderID)
 			if env and hiveMexSpots[builderID] then
-				
+
 				-- find nearest free mex spot
 				for i = 1, #hiveMexSpots[builderID] do
 					local spot = hiveMexSpots[builderID][i]
 					-- @TODO: convert if not blocked to read the returned list for a mex to upgrade
 					if not Spring.GetGroundBlocked(spot.x-5,spot.z+5,spot.x-5,spot.z+5) then
-						
+
 						-- put the position into local space
 						local x,y,z = Spring.GetUnitPosition(builderID)
 						x = spot.x - x
@@ -190,7 +198,11 @@ function gadget:Initialize()
 	metalSpots = GG["resource_spot_finder"] and GG["resource_spot_finder"].metalSpotsList or nil
 end
 
-else -- unsynced space
+
+--------------------
+-- UNSYNCED SPACE --
+--------------------
+else
 local playerTeamID = Spring.GetLocalTeamID()
 
 function gadget:UnitFinished(unitID, unitDefID, unitTeam)
