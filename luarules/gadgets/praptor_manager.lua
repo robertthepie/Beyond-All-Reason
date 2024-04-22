@@ -27,6 +27,9 @@ local reclaimableMetal = {}
 local mex = {
 	[UnitDefNames.prap_mex_t1.id]=true
 }
+local foundling = {
+	[UnitDefNames.prap_foundling.id]=true
+}
 
 for unitDefID, unitDef in pairs(UnitDefs) do
 	if unitDef.customParams then
@@ -109,9 +112,12 @@ function gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
 				if env then
 					Spring.UnitScript.CallAsUnit(builderID, env.upgradeState)
 				end
-				
+
 				-- inherit the list of locally sourcable metal spots
 				hiveMexSpots[unitID] = hiveMexSpots[builderID]
+			elseif foundling[builderDefID] then
+				Spring.SetUnitHealth(unitID, {health=1,build=1})
+				Spring.DestroyUnit(builderID, false, true)
 			end
 		end
 		if not hiveMexSpots[unitID] then

@@ -57,7 +57,7 @@ if Spring.GetModOptions().playableraptors == true then
 			buildoptions = {
 				-- [1] = "prap_nest",
 				-- [2] = "prap_den",
-				[3] = "prap_healer",
+				[3] = "prap_foundling",
 				[4] = "prap_swarmer",
 				-- [5] = "prap_spiker",
 				[6] = "prap_mex_t1",
@@ -145,7 +145,7 @@ if Spring.GetModOptions().playableraptors == true then
 			buildoptions = {
 				[1] = "prap_nest",
 				[2] = "prap_den",
-				[3] = "prap_healer",
+				[3] = "prap_foundling",
 				[4] = "prap_swarmer",
 				--[5] = "prap_spiker",
 				[6] = "prap_mex_t1",
