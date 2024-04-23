@@ -534,11 +534,6 @@ if Spring.GetModOptions().playableraptors == true then
 			sightdistance = 273,
 			yardmap = "oooooooooooooooo",
 			customparams = {
-				usebuildinggrounddecal = true,
-				buildinggrounddecaltype = "decals/armsolar_aoplane.dds",
-				buildinggrounddecalsizey = 8,
-				buildinggrounddecalsizex = 8,
-				buildinggrounddecaldecayspeed = 30,
 				unitgroup = 'energy',
 				model_author = "Cremuss",
 				normaltex = "unittextures/Arm_normal.dds",

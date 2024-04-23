@@ -287,8 +287,8 @@ function gadget:AllowUnitCreation(unitDefID, builderID, builderTeam, x, y, z, fa
 					return false
 				elseif bfacing == 1 then
 					for i = 1, 20 do
-						px = bx - SPRAWL_OUT_POSITIONS_Z[i]
-						pz = bz + SPRAWL_OUT_POSITIONS_X[i]
+						px = bx + SPRAWL_OUT_POSITIONS_Z[i]
+						pz = bz - SPRAWL_OUT_POSITIONS_X[i]
 						if not spots[i] then
 							if not Spring.GetGroundBlocked(
 								px+4,
@@ -326,7 +326,7 @@ function gadget:AllowUnitCreation(unitDefID, builderID, builderTeam, x, y, z, fa
 				elseif bfacing == 3 then
 					for i = 1, 20 do
 						px = bx - SPRAWL_OUT_POSITIONS_Z[i]
-						pz = bz - SPRAWL_OUT_POSITIONS_X[i]
+						pz = bz + SPRAWL_OUT_POSITIONS_X[i]
 						if not spots[i] then
 							if not Spring.GetGroundBlocked(
 								px+4,
@@ -392,9 +392,9 @@ function gadget:UnitDestroyed(unitID, unitDefID, unitTeam, attackerID, attackerD
 		if hiveEcoSpots[unitID] then
 			local child
 			for i = 1, 20 do
-				child = EcoEcoSpots[unitID][i]
+				child = hiveEcoSpots[unitID][i]
 				if child then
-					EcoEcoSpots[unitID] = nil
+					hiveEcoSpots[unitID][i] = nil
 					Spring.DestroyUnit(child, false, false, attackerID)
 				end
 			end
