@@ -24,12 +24,28 @@ if Spring.GetModOptions().playableraptors ~= true then return false end
 local reclaimable = {}
 local skipGrowth = {}
 local reclaimableMetal = {}
-local mex = {
-	[UnitDefNames.prap_mex_t1.id]=true
-}
-local foundling = {
-	[UnitDefNames.prap_foundling.id]=true
-}
+local mex,eco,foundling = {},{},{}
+for _, name in pairs({
+	"prap_mex_t1",
+}) do
+	if UnitDefNames[name] then
+		mex[UnitDefNames[name].id] = true
+	end
+end
+for _, name in pairs({
+	"prap_sol_t1",
+}) do
+	if UnitDefNames[name] then
+		eco[UnitDefNames[name].id] = true
+	end
+end
+for _, name in pairs({
+	"prap_foundling",
+}) do
+	if UnitDefNames[name] then
+		foundling[UnitDefNames[name].id] = true
+	end
+end
 
 for unitDefID, unitDef in pairs(UnitDefs) do
 	if unitDef.customParams then
@@ -64,8 +80,70 @@ end
 --------------------
 if gadgetHandler:IsSyncedCode() then
 
+local SPRAWL_OUT_POSITIONS_X = {
+	-- inner ring
+	[1]=120,
+	[2]=37.1,
+	[3]=-97.1,
+	[4]=-97.1,
+	[5]=37.1,
+	-- outer ring
+	[6]=240,
+	[7]=74.2,
+	[8]=-194.2,
+	[9]=-194.2,
+	[10]=74.2,
+	-- two roots from 1-6-11/12
+	[11]=240	+	97.1,
+	[12]=240	+	97.1,
+	-- two roots from 2-7-13/14
+	[13]=74.2	-	37.1,
+	[14]=74.2	+	97.1,
+	-- two roots from 3-8-15/16
+	[15]=-194.2	-	120,
+	[16]=-194.2	-	37.1,
+	-- two roots from 4-9-17/18
+	[17]=-194.2	-	120,
+	[18]=-194.2	-	37.1,
+	-- two roots from 5-10-19/20
+	[19]=74.2	+	97.1,
+	[20]=74.2	-	37.1,
+}
+local SPRAWL_OUT_POSITIONS_Z = {
+	-- inner ring
+	[1]=0,
+	[2]=114.1,
+	[3]=70.5,
+	[4]=-70.5,
+	[5]=-114.1,
+	-- outer ring
+	[6]=0,
+	[7]=228.2,
+	[8]=141,
+	[9]=-141,
+	[10]=-228.2,
+	-- two roots from 1-6-11/12
+	[11]=0		+	70.5,
+	[12]=0		-	70.5,
+	-- two roots from 2-7-13/14
+	[13]=228.2	+	114.1,
+	[14]=228.2	+	70.5,
+	-- two roots from 3-8-15/16
+	[15]=141	+	0,
+	[16]=141.5	+	114.1,
+	-- two roots from 4-9-17/18
+	[17]=-141	+	0,
+	[18]=-141.5	-	114.1,
+	-- two roots from 5-10-19/20
+	[19]=-228.2	-	70.5,
+	[20]=-228.2	-	114.1,
+}
+
 local metalSpots = {}
 local hiveMexSpots = {}
+local hiveEcoSpots = {}
+-- points to the same table as hiveEcoSpots except it's keyed by each wind turbine pointing to the hive eco spot that it belongs to
+local EcoEcoSpots = {}
 
 -- get all mexes in range, sorted
 local function findChildMexes(a,b, range)
@@ -115,6 +193,8 @@ function gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
 
 				-- inherit the list of locally sourcable metal spots
 				hiveMexSpots[unitID] = hiveMexSpots[builderID]
+				hiveEcoSpots[unitID] = hiveEcoSpots[builderID]
+				hiveEcoSpots[builderID] = nil
 			elseif foundling[builderDefID] then
 				Spring.SetUnitHealth(unitID, {health=1,build=1})
 				Spring.DestroyUnit(builderID, false, true)
@@ -123,6 +203,17 @@ function gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
 		if not hiveMexSpots[unitID] then
 			local x,y,z = Spring.GetUnitPosition(unitID)
 			hiveMexSpots[unitID] = findChildMexes(x,z, UnitDefs[unitDefID].buildDistance + 30)
+			hiveEcoSpots[unitID] = {[0]=0}
+		end
+	elseif eco[unitDefID] and builderID then
+		local spots = hiveEcoSpots[builderID]
+		if spots then
+			for i = 1, 20 do
+				if spots[i] == false then
+					spots[i] = unitID
+					EcoEcoSpots[unitID] = hiveEcoSpots[builderID]
+				end
+			end
 		end
 	end
 end
@@ -141,7 +232,7 @@ function gadget:AllowUnitCreation(unitDefID, builderID, builderTeam, x, y, z, fa
 				for i = 1, #hiveMexSpots[builderID] do
 					local spot = hiveMexSpots[builderID][i]
 					-- @TODO: convert if not blocked to read the returned list for a mex to upgrade
-					if not Spring.GetGroundBlocked(spot.x-5,spot.z+5,spot.x-5,spot.z+5) then
+					if not Spring.GetGroundBlocked(spot.x-4,spot.z-4,spot.x+4,spot.z+4) then
 
 						-- put the position into local space
 						local x,y,z = Spring.GetUnitPosition(builderID)
@@ -164,6 +255,94 @@ function gadget:AllowUnitCreation(unitDefID, builderID, builderTeam, x, y, z, fa
 					end
 				end
 				return false
+			end
+		end
+	elseif eco[unitDefID] and builderID then
+		local builderDefID = Spring.GetUnitDefID(builderID)
+		if reclaimable[builderDefID] then
+			local env = Spring.UnitScript.GetScriptEnv(builderID)
+			if env and hiveEcoSpots[builderID] then
+				local spots = hiveEcoSpots[builderID]
+				local bx,by,bz = Spring.GetUnitPosition(builderID)
+				local bfacing = Spring.GetUnitBuildFacing(builderID)
+				local px, pz
+				if bfacing == 0 then
+					for i = 1, 20 do
+						px = bx + SPRAWL_OUT_POSITIONS_X[i]
+						pz = bz + SPRAWL_OUT_POSITIONS_Z[i]
+						if not spots[i] then
+							if not Spring.GetGroundBlocked(
+								px+4,
+								pz+4,
+								px-4,
+								pz-4
+							) then
+								local height = Spring.GetGroundHeight(px,pz) - by
+								spots[i] = false
+								Spring.UnitScript.CallAsUnit(builderID, env.placingMex, SPRAWL_OUT_POSITIONS_X[i], height, SPRAWL_OUT_POSITIONS_Z[i])
+								return true
+							end
+						end
+					end
+					return false
+				elseif bfacing == 1 then
+					for i = 1, 20 do
+						px = bx - SPRAWL_OUT_POSITIONS_Z[i]
+						pz = bz + SPRAWL_OUT_POSITIONS_X[i]
+						if not spots[i] then
+							if not Spring.GetGroundBlocked(
+								px+4,
+								pz+4,
+								px-4,
+								pz-4
+							) then
+								local height = Spring.GetGroundHeight(px,pz) - by
+								spots[i] = false
+								Spring.UnitScript.CallAsUnit(builderID, env.placingMex, SPRAWL_OUT_POSITIONS_X[i], height, SPRAWL_OUT_POSITIONS_Z[i])
+								return true
+							end
+						end
+					end
+					return false
+				elseif bfacing == 2 then
+					for i = 1, 20 do
+						px = bx - SPRAWL_OUT_POSITIONS_X[i]
+						pz = bz - SPRAWL_OUT_POSITIONS_Z[i]
+						if not spots[i] then
+							if not Spring.GetGroundBlocked(
+								px+4,
+								pz+4,
+								px-4,
+								pz-4
+							) then
+								local height = Spring.GetGroundHeight(px,pz) - by
+								spots[i] = false
+								Spring.UnitScript.CallAsUnit(builderID, env.placingMex, SPRAWL_OUT_POSITIONS_X[i], height, SPRAWL_OUT_POSITIONS_Z[i])
+								return true
+							end
+						end
+					end
+					return false
+				elseif bfacing == 3 then
+					for i = 1, 20 do
+						px = bx - SPRAWL_OUT_POSITIONS_Z[i]
+						pz = bz - SPRAWL_OUT_POSITIONS_X[i]
+						if not spots[i] then
+							if not Spring.GetGroundBlocked(
+								px+4,
+								pz+4,
+								px-4,
+								pz-4
+							) then
+								local height = Spring.GetGroundHeight(px,pz) - by
+								spots[i] = false
+								Spring.UnitScript.CallAsUnit(builderID, env.placingMex, SPRAWL_OUT_POSITIONS_X[i], height, SPRAWL_OUT_POSITIONS_Z[i])
+								return true
+							end
+						end
+					end
+					return false
+				end
 			end
 		end
 	end
@@ -203,9 +382,51 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 	end
 end
 
-function gadget:UnitDestroyed(unitID, unitDefID, unitTeam)
+function gadget:UnitDestroyed(unitID, unitDefID, unitTeam, attackerID, attackerDefID, attackerTeam)
+	-- are we a hive?
 	if reclaimable[unitDefID] then
+		-- clean up our ownerships
 		hiveMexSpots[unitID] = nil
+
+		-- if we still have an eco table it means we got killed, not upgraded over
+		if hiveEcoSpots[unitID] then
+			local child
+			for i = 1, 20 do
+				child = EcoEcoSpots[unitID][i]
+				if child then
+					EcoEcoSpots[unitID] = nil
+					Spring.DestroyUnit(child, false, false, attackerID)
+				end
+			end
+			hiveEcoSpots[unitID] = nil
+		end
+	-- hive economy structures
+	elseif eco[unitDefID] then
+		if EcoEcoSpots[unitID] then
+			for i = 1, 20 do
+				if EcoEcoSpots[unitID][i] == unitID then
+					EcoEcoSpots[unitID][i] = nil
+					local child
+					if i < 6 then	
+						child = EcoEcoSpots[unitID][i+5]
+						if child then
+							Spring.DestroyUnit(child, false, false, attackerID)
+						end
+					elseif i < 11 then
+						child = EcoEcoSpots[unitID][i+i-1]
+						if child then
+							Spring.DestroyUnit(child, false, false, attackerID)
+						end
+						child = EcoEcoSpots[unitID][i+i]
+						if child then
+							Spring.DestroyUnit(child, false, false, attackerID)
+						end
+					end
+					break
+				end
+			end
+			EcoEcoSpots[unitID] = nil
+		end
 	end
 end
 
