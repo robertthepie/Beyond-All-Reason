@@ -1,0 +1,5 @@
+name,model_author,normalmaps,normaltex,upgradable,unitgroup,metal_extractor,removestop,removewait
+prap_hive,FireStorm Beherith,yes,unittextures/chicken_l_normals.png,replace,,,,
+prap_nexus,FireStorm Beherith,yes,unittextures/chicken_l_normals.png,replace,,,,
+prap_mex_t1,,yes,unittextures/Arm_normal.dds,,metal,1,true,true
+prap_sol_t1,,yes,unittextures/Arm_normal.dds,,energy,,true,true

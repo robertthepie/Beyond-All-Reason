@@ -1,4 +1,4 @@
-if Spring.GetModOptions().playableraptors == true then
+if false and Spring.GetModOptions().playableraptors == true then
 	return {
 		prap_fighter = {
 			acceleration = 2,
@@ -367,5 +367,6 @@ if Spring.GetModOptions().playableraptors == true then
 			},
 		},
 	}
-	
+else
+	return {}
 end

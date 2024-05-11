@@ -1,4 +1,4 @@
-if Spring.GetModOptions().playableraptors == true then
+if false and Spring.GetModOptions().playableraptors == true then
 	return {
 		prap_healer = {
 			maxacc = 1,
@@ -429,4 +429,6 @@ if Spring.GetModOptions().playableraptors == true then
 			},
 		},
 	}
+else
+	return {}
 end

@@ -10,7 +10,7 @@ function gadget:GetInfo()
 	}
 end
 
-if Spring.GetModOptions().playableraptors ~= true then return false end
+if true or Spring.GetModOptions().playableraptors ~= true then return false end
 
 
 --------------------
@@ -177,7 +177,7 @@ function gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
 			if reclaimable[builderDefID] then
 
 				-- put everything in the right state for upgrading
-				Spring.SetUnitNoSelect(unitID, true)
+				--Spring.SetUnitNoSelect(unitID, true)
 				local env
 				if not skipGrowth[unitDefID] then
 					env = Spring.UnitScript.GetScriptEnv(unitID)
@@ -360,7 +360,7 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 			if env then
 				Spring.UnitScript.CallAsUnit(unitID, env.growOut)
 			end
-			Spring.SetUnitNoSelect(unitID, false)
+			--Spring.SetUnitNoSelect(unitID, false)
 			env = Spring.UnitScript.GetScriptEnv(parent)
 			if env then
 				Spring.UnitScript.CallAsUnit(parent, env[upgradable])
@@ -383,7 +383,7 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 end
 
 function gadget:UnitDestroyed(unitID, unitDefID, unitTeam, attackerID, attackerDefID, attackerTeam)
-	-- are we a hive?
+	-- hives / playable raptor labs
 	if reclaimable[unitDefID] then
 		-- clean up our ownerships
 		hiveMexSpots[unitID] = nil
@@ -448,11 +448,14 @@ function gadget:UnitFinished(unitID, unitDefID, unitTeam)
 		local parent = isUpgradee(unitID)
 		if parent then
 			if unitTeam == playerTeamID and Spring.IsUnitSelected(parent) then
-				Spring.SelectUnitArray ({[1] = unitID}, true) 
+				Spring.SelectUnitArray({[1] = unitID}, true)
 			end
 			Spring.SetUnitNoSelect(parent, true)
 		end
 	end
 end
 
+function gadget:SelectionChanged(selection)
+	
+end
 end

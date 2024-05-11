@@ -1,4 +1,4 @@
-if Spring.GetModOptions().playableraptors == true then
+if false and Spring.GetModOptions().playableraptors == true then
 	return {
 		-- nexus (commander)
 		prap_nexus = {
@@ -506,9 +506,9 @@ if Spring.GetModOptions().playableraptors == true then
 			maxdec = 0,
 			buildangle = 4000,
 			energycost = 0,
-			metalcost = 155,
+			metalcost = 100,
 			buildpic = "ARMSOLAR.DDS",
-			buildtime = 2800,
+			buildtime = 1000,
 			canrepeat = false,
 			category = "ALL NOTLAND NOTSUB NOWEAPON NOTSHIP NOTAIR NOTHOVER SURFACE EMPABLE",
 			collisionvolumeoffsets = "0.0 -18.0 1.0",
@@ -517,22 +517,23 @@ if Spring.GetModOptions().playableraptors == true then
 			corpse = "DEAD",
 			damagemodifier = 0.5,
 			energystorage = 50,
-			energyupkeep = -20,
+			energyupkeep = -10,
 			explodeas = "smallBuildingexplosiongeneric",
-			footprintx = 4,
-			footprintz = 4,
+			footprintx = 3,
+			footprintz = 3,
 			idleautoheal = 5,
 			idletime = 1800,
 			health = 340,
 			maxslope = 10,
 			maxwaterdepth = 0,
-			objectname = "Units/CORADVSOL.s3o",
+			objectname = "Raptors/praptors/prap_egen.s3o",
 			onoffable = true,
-			script = "Units/CORADVSOL.cob",
+			--script = "Units/CORADVSOL.cob",
+			script = "",
 			seismicsignature = 0,
 			selfdestructas = "smallBuildingExplosionGenericSelfd",
 			sightdistance = 273,
-			yardmap = "oooooooooooooooo",
+			yardmap = "ooooooooo",
 			customparams = {
 				unitgroup = 'energy',
 				model_author = "Cremuss",
@@ -597,4 +598,6 @@ if Spring.GetModOptions().playableraptors == true then
 			},
 		},
 	}
+else
+	return {}
 end

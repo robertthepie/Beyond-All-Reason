@@ -64,6 +64,7 @@ function placingMex(x, y, z)
 	Move(growth,1,x,nil)
 	Move(growth,2,y,nil)
 	Move(growth,3,z,nil)
+	Turn(growth,2,math.atan2(-x,z),nil)
 end
 
 function script.StartBuilding()
