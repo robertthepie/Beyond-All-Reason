@@ -1,7 +1,7 @@
 return {
 	loik = {
 		upright = true,
-		maxacc = 0.575,
+		maxacc = 0.2475,--0.575,
 		maxdec = 1.725,
 		energycost = 340,
 		metalcost = 17,
@@ -21,7 +21,8 @@ return {
 		mass = 1000,
 		health = 61,
 		maxslope = 255,
-		speed = 132.0,
+		speed = 66.0,--132.0,
+		rspeed = 66.0,
 		maxwaterdepth = 16,
 		movementclass = "TBOT3",
 		nochasecategory = "VTOL",
@@ -29,11 +30,12 @@ return {
 		script = "loik_lus.lua",
 		seismicsignature = 0,
 		selfdestructas = "tinyexplosiongenericSelfd",
+		selfDCountdown = 1,
 		sightdistance = 600,
 		turninplace = true,
 		turninplaceanglelimit = 90,
 		turninplacespeedlimit = 2.904,
-		turnrate = 1807.79993,
+		turnrate = 450,--1807.79993,
 		customparams = {
 			unitgroup = 'weapon',
 			model_author = "Kaiser",
