@@ -14,6 +14,12 @@ local function toLocalSpace(in_x, in_y, in_z)
 	return ovx, ovy, ovz
 end
 
+local baseMatrix = {
+	{0,0,0},
+	{0,0,0},
+	{0,0,0}
+}
+
 -- some constants for leg length and leg length needed maths
 local legIn, legOut = 70, 70
 local legInSqrd, legOutSqrd = legIn*legIn, legOut*legOut
@@ -89,22 +95,67 @@ local function update()
 		postions_z[4] = z - OFFSET_Y - 25
 		postions_y[4] = Spring.GetGroundHeight(x - OFFSET_X, z - OFFSET_Y)
 	end
-	local dd1, da1 = 0,0
+	local dd1 = {0,0,0,0}
+	local da1 = {0,0,0,0}
+	local legPosUpd = 1
+	local updBase = false
 	while true do
 		Sleep(1)
 		x,y,z = Spring.GetUnitPosition(unitID)
 		dx, dy, dz = Spring.GetUnitDirection(unitID)
 
+		-- move legs to current frame's matrix
 		for i = 1, 4 do
-			dd1, da1 = updateLeg(leg1s[i], leg2s[i], postions_x[i], postions_y[i], postions_z[i], offsetxs[i], 25, offsetzs[i], markers[i])
-			if dd1 > 110 then
-			-- or da1 > limitMax[i]
-			-- or da1 < limitMin[i] then
-				postions_x[i] =  dz * start_offsetxs[i] + dx * ( start_offsetzs[i] + 55 ) + x
-				postions_z[i] = -dx * start_offsetxs[i] + dz * ( start_offsetzs[i] + 55 ) + z
-				postions_y[i] = Spring.GetGroundHeight(postions_x[i], postions_z[i])
-			end
+			dd1[i], da1[i] = updateLeg(leg1s[i], leg2s[i], postions_x[i], postions_y[i], postions_z[i], offsetxs[i], 25, offsetzs[i], markers[i])
 		end
+
+		-- do we need to lift a leg
+		if dd1[legPosUpd] > 110 then
+			postions_x[legPosUpd] =  dz * start_offsetxs[legPosUpd] + dx * ( start_offsetzs[legPosUpd] + 55 ) + x
+			postions_z[legPosUpd] = -dx * start_offsetxs[legPosUpd] + dz * ( start_offsetzs[legPosUpd] + 55 ) + z
+			postions_y[legPosUpd] = Spring.GetGroundHeight(postions_x[legPosUpd], postions_z[legPosUpd])
+			updBase = true
+		end
+
+		-- update the plane of the base based on the 4 leg target positions if one of them has moved
+		if updBase then
+			local tmp1 = postions_y[4] + postions_y[3]
+			local tmp2 = postions_y[2] + postions_y[1]
+			-- pitch
+			Turn(base, 1, math.atan2(
+				(tmp1 - tmp2) * 0.5,
+				40 -- distance between feet that we are aiming for, since i can't do maths ¯\_(ツ)_/¯
+				--(postions_z[4] + postions_z[3] - postions_z[2] - postions_z[1]) * 0.5
+			))
+			-- roll
+			Turn(base, 3, math.atan2(
+				(postions_y[3] + postions_y[1] - postions_y[4] - postions_y[2]) * 0.5,
+				150 -- distance between feet that we are aiming for, since i can't do maths ¯\_(ツ)_/¯
+				--(postions_z[4] + postions_z[3] - postions_z[2] - postions_z[1]) * 0.5
+			))
+			Move(base, 2,
+				(tmp1 + tmp2) * 0.25 + 25
+			)
+		end
+
+		legPosUpd = legPosUpd % 4 + 1
+
+		-- we check the legs after individually as only 1 leg should move at a time
+			--if dd1 > 110 then
+			---- or da1 > limitMax[i]
+			---- or da1 < limitMin[i] then
+			--	postions_x[i] =  dz * start_offsetxs[i] + dx * ( start_offsetzs[i] + 55 ) + x
+			--	postions_z[i] = -dx * start_offsetxs[i] + dz * ( start_offsetzs[i] + 55 ) + z
+			--	postions_y[i] = Spring.GetGroundHeight(postions_x[i], postions_z[i])
+			-- end
+	end
+end
+
+local function slowUpdate()
+	while true do
+		Sleep(666)
+		local output = {Spring.GetUnitPieceMatrix(unitID, base)}
+		Spring.Echo(output)
 	end
 end
 
@@ -114,4 +165,5 @@ function script.Create()
 	Move(base, 2, 25)
 
 	StartThread(update)
+	StartThread(slowUpdate)
 end
