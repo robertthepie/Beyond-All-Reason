@@ -1,7 +1,9 @@
 local empty_root_piece, base, a1, a2, a3, a4, l1, l2, r1, r2, lb1, lb2, rb1, rb2 = piece("empty_root_piece", "Base", "LF1", "LF2", "LF3", "LF4", "L1", "L2", "R1", "R2", "LB1", "LB2", "RB1", "RB2")
 
 local x, y, z = 1,1,1
-local dx, dy, dz = 1,1,1
+-- 2d rotation matrix info
+local dx, dz = 1,1
+-- to local unit space
 local function toLocalSpace(in_x, in_y, in_z)
 	local vx, vy, vz = 0,0,0
 	local ovx, ovy, ovz = 0,0,0
@@ -14,11 +16,19 @@ local function toLocalSpace(in_x, in_y, in_z)
 	return ovx, ovy, ovz
 end
 
-local baseMatrix = {
-	{0,0,0},
-	{0,0,0},
-	{0,0,0}
-}
+local m3d00, m3d01, m3d02 = 1, 0, 0
+local m3d10, m3d11, m3d12 = 0, 1, 0
+local m3d20, m3d21, m3d22 = 0, 0, 1
+local baseOffset = 25
+-- to local base plate space
+local function toLocalSpace3d(in_x, in_y, in_z)
+	local ox, oy, oz = 0,0,0
+	local tmp_in_y = in_y - baseOffset
+	ox = m3d00 * in_x + m3d01 * tmp_in_y + m3d02 * in_z
+	oy = m3d10 * in_x + m3d11 * tmp_in_y + m3d12 * in_z
+	oz = m3d20 * in_x + m3d21 * tmp_in_y + m3d22 * in_z
+	return ox, oy, oz
+end
 
 -- some constants for leg length and leg length needed maths
 local legIn, legOut = 70, 70
@@ -33,6 +43,8 @@ local function updateLeg(leg1, leg2, target_x, target_y, target_z, legoffset_x, 
 	Move(marker, 1, px)
 	Move(marker, 2, py)
 	Move(marker, 3, pz)
+
+	px, py, pz = toLocalSpace3d(px, py, pz)
 
 	-- compensate for leg position
 	px = px - legoffset_x
@@ -104,11 +116,11 @@ local function update()
 	while true do
 		Sleep(1)
 		x,y,z = Spring.GetUnitPosition(unitID)
-		dx, dy, dz = Spring.GetUnitDirection(unitID)
+		dx, _, dz = Spring.GetUnitDirection(unitID)
 
 		-- move legs to current frame's matrix
 		for i = 1, 4 do
-			dd1[i], da1[i] = updateLeg(leg1s[i], leg2s[i], postions_x[i], postions_y[i], postions_z[i], offsetxs[i], 25, offsetzs[i], markers[i])
+			dd1[i], da1[i] = updateLeg(leg1s[i], leg2s[i], postions_x[i], postions_y[i], postions_z[i], offsetxs[i], 0, offsetzs[i], markers[i])
 		end
 
 		-- do we need to lift a leg (we check 1 per frame, later to check only when another isn't lifted)
@@ -144,29 +156,30 @@ local function update()
 				150 -- distance between feet that we are aiming for, since i can't do maths ¯\_(ツ)_/¯
 				--(postions_z[4] + postions_z[3] - postions_z[2] - postions_z[1]) * 0.5
 			))
-			Move(base, 2,
-				(tmp1 + tmp2) * 0.25 + 25 - y
+			Move(base, 2, 
+				(tmp1 + tmp2 + y) * 0.2 + 25 - y
 			)
 		end
+
+		-- rotaion matrix my beloved, and y offset
+		m3d00,	m3d01,	m3d02,	_,
+		m3d10,	m3d11,	m3d12,	_,
+		m3d20,	m3d21,	m3d22,	_,
+		_,		baseOffset	= Spring.GetUnitPieceMatrix(unitID, base)
+		--  0.97899908,	0.13875398,	-0.1493592,	 0,
+		-- -0.2038648,	0.6663242,	-0.7172526,	 0,
+		--  0,			0.73263866,	 0.68061781, 0,
+		--	0,			35.1347351,	 0,			 1
 
 		-- move to check the next leg on the next frame
 		legPosUpd = legPosUpd % 4 + 1
 	end
 end
 
-local function slowUpdate()
-	while false do
-		Sleep(1316)
-		local output = {Spring.GetUnitPieceMatrix(unitID, base)}
-		--Spring.Echo(da1[1], da1[2])
-	end
-end
-
 function script.Create()
 	x,y,z = Spring.GetUnitPosition(unitID)
-	dx, dy, dz = Spring.GetUnitDirection(unitID)
+	dx, _, dz = Spring.GetUnitDirection(unitID)
 	Move(base, 2, 25)
 
 	StartThread(update)
-	StartThread(slowUpdate)
 end
