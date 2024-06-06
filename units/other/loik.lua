@@ -7,6 +7,7 @@ return {
 		metalcost = 17,
 		buildpic = "ARMFLEA.DDS",
 		buildtime = 800,
+		blocking = false,
 		canmove = true,
 		category = "BOT MOBILE WEAPON ALL NOTSUB NOTSHIP NOTAIR NOTHOVER SURFACE GROUNDSCOUT EMPABLE",
 		collisionvolumeoffsets = "0 0 0",
@@ -22,7 +23,7 @@ return {
 		health = 61,
 		maxslope = 255,
 		speed = 66.0,--132.0,
-		rspeed = 66.0,
+		-- rspeed = 66.0, -- bring back later when the anim supports it
 		maxwaterdepth = 16,
 		movementclass = "TBOT3",
 		nochasecategory = "VTOL",

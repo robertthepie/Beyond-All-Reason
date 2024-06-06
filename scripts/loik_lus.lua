@@ -64,6 +64,8 @@ end
 
 local OFFSET_X, OFFSET_Y = 75, 20
 
+local temp1, temp2 = 0,0
+
 local function update()
 	-- local marker = Spring.CreateUnit("armflea", x, y, z, "n", Spring.GetUnitTeam(unitID))
 	local postions_x = {}
@@ -76,8 +78,8 @@ local function update()
 	local start_offsetxs = {OFFSET_X, -OFFSET_X, OFFSET_X, -OFFSET_X}
 	local start_offsetzs = {OFFSET_Y, OFFSET_Y, -OFFSET_Y, -OFFSET_Y}
 	local markers = {a1, a2, a3, a4}
-	local limitMax = {2.3561944, 0, 0.7853981, 3.1415926}
-	local limitMin = {0, -2.3561944, -3.1415926, -0.7853981}
+	local limitMax = {1.5707963, 0, 3.1415926, -1.5707963}
+	local limitMin = {0, -1.5707963, 1.5707963, -3.1415926}
 	do
 		postions_x[1] = x + OFFSET_X
 		postions_z[1] = z + OFFSET_Y + 25
@@ -109,11 +111,20 @@ local function update()
 			dd1[i], da1[i] = updateLeg(leg1s[i], leg2s[i], postions_x[i], postions_y[i], postions_z[i], offsetxs[i], 25, offsetzs[i], markers[i])
 		end
 
-		-- do we need to lift a leg
-		if dd1[legPosUpd] > 110 then
-			postions_x[legPosUpd] =  dz * start_offsetxs[legPosUpd] + dx * ( start_offsetzs[legPosUpd] + 55 ) + x
-			postions_z[legPosUpd] = -dx * start_offsetxs[legPosUpd] + dz * ( start_offsetzs[legPosUpd] + 55 ) + z
-			postions_y[legPosUpd] = Spring.GetGroundHeight(postions_x[legPosUpd], postions_z[legPosUpd])
+		-- do we need to lift a leg (we check 1 per frame, later to check only when another isn't lifted)
+		if dd1[legPosUpd] > 110
+		or dd1[legPosUpd] < 40
+		or da1[legPosUpd] > limitMax[legPosUpd]
+		or da1[legPosUpd] < limitMin[legPosUpd] then
+			if legPosUpd == 1 or legPosUpd == 2 then
+				postions_x[legPosUpd] =  dz * start_offsetxs[legPosUpd] + dx * ( start_offsetzs[legPosUpd] + 85 ) + x
+				postions_z[legPosUpd] = -dx * start_offsetxs[legPosUpd] + dz * ( start_offsetzs[legPosUpd] + 85 ) + z
+				postions_y[legPosUpd] = Spring.GetGroundHeight(postions_x[legPosUpd], postions_z[legPosUpd])
+			else
+				postions_x[legPosUpd] =  dz * start_offsetxs[legPosUpd] + dx * ( start_offsetzs[legPosUpd] - 20 ) + x
+				postions_z[legPosUpd] = -dx * start_offsetxs[legPosUpd] + dz * ( start_offsetzs[legPosUpd] - 20 ) + z
+				postions_y[legPosUpd] = Spring.GetGroundHeight(postions_x[legPosUpd], postions_z[legPosUpd])
+			end
 			updBase = true
 		end
 
@@ -122,40 +133,32 @@ local function update()
 			local tmp1 = postions_y[4] + postions_y[3]
 			local tmp2 = postions_y[2] + postions_y[1]
 			-- pitch
-			Turn(base, 1, math.atan2(
-				(tmp1 - tmp2) * 0.5,
+			temp1 = (tmp1 - tmp2) * 0.5
+			Turn(base, 1, math.atan2( temp1,
 				40 -- distance between feet that we are aiming for, since i can't do maths ¯\_(ツ)_/¯
 				--(postions_z[4] + postions_z[3] - postions_z[2] - postions_z[1]) * 0.5
 			))
 			-- roll
-			Turn(base, 3, math.atan2(
-				(postions_y[3] + postions_y[1] - postions_y[4] - postions_y[2]) * 0.5,
+			temp2 = (postions_y[3] + postions_y[1] - postions_y[4] - postions_y[2]) * 0.5
+			Turn(base, 3, math.atan2( temp2,
 				150 -- distance between feet that we are aiming for, since i can't do maths ¯\_(ツ)_/¯
 				--(postions_z[4] + postions_z[3] - postions_z[2] - postions_z[1]) * 0.5
 			))
 			Move(base, 2,
-				(tmp1 + tmp2) * 0.25 + 25
+				(tmp1 + tmp2) * 0.25 + 25 - y
 			)
 		end
 
+		-- move to check the next leg on the next frame
 		legPosUpd = legPosUpd % 4 + 1
-
-		-- we check the legs after individually as only 1 leg should move at a time
-			--if dd1 > 110 then
-			---- or da1 > limitMax[i]
-			---- or da1 < limitMin[i] then
-			--	postions_x[i] =  dz * start_offsetxs[i] + dx * ( start_offsetzs[i] + 55 ) + x
-			--	postions_z[i] = -dx * start_offsetxs[i] + dz * ( start_offsetzs[i] + 55 ) + z
-			--	postions_y[i] = Spring.GetGroundHeight(postions_x[i], postions_z[i])
-			-- end
 	end
 end
 
 local function slowUpdate()
-	while true do
-		Sleep(666)
+	while false do
+		Sleep(1316)
 		local output = {Spring.GetUnitPieceMatrix(unitID, base)}
-		Spring.Echo(output)
+		--Spring.Echo(da1[1], da1[2])
 	end
 end
 
