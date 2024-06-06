@@ -31,7 +31,7 @@ local function toLocalSpace3d(in_x, in_y, in_z)
 end
 
 -- some constants for leg length and leg length needed maths
-local legIn, legOut = 70, 70
+local legIn, legOut = 70, 100
 local legInSqrd, legOutSqrd = legIn*legIn, legOut*legOut
 local legTotSqrd, legTot  = legInSqrd + legOutSqrd, 2 * legIn * legOut
 
@@ -70,13 +70,12 @@ local function updateLeg(leg1, leg2, target_x, target_y, target_z, legoffset_x, 
 	Turn(leg1, 1, angle2-1.5707963-legCosAngPit)
 	Turn(leg1, 2, angle)
 	Turn(leg2, 1, 3.1415926-legCosAngElb)
+	-- Turn(leg2, 3, angle) -- unturn the leg
 
 	return dist3d, angle
 end
 
 local OFFSET_X, OFFSET_Y = 75, 20
-
-local temp1, temp2 = 0,0
 
 local function update()
 	-- local marker = Spring.CreateUnit("armflea", x, y, z, "n", Spring.GetUnitTeam(unitID))
@@ -90,8 +89,10 @@ local function update()
 	local start_offsetxs = {OFFSET_X, -OFFSET_X, OFFSET_X, -OFFSET_X}
 	local start_offsetzs = {OFFSET_Y, OFFSET_Y, -OFFSET_Y, -OFFSET_Y}
 	local markers = {a1, a2, a3, a4}
-	local limitMax = {1.5707963, 0, 3.1415926, -1.5707963}
-	local limitMin = {0, -1.5707963, 1.5707963, -3.1415926}
+	--local limitMax = {1.5707963, 0, 3.1415926, -1.5707963}
+	--local limitMin = {0, -1.5707963, 1.5707963, -3.1415926}
+	local limitMax = {1.5707963+0.5,	0,				3.1415926,		-1.5707963+0.5}
+	local limitMin = {0,				-1.5707963-0.5,	1.5707963-0.5,	-3.1415926}
 	do
 		postions_x[1] = x + OFFSET_X
 		postions_z[1] = z + OFFSET_Y + 25
@@ -142,22 +143,20 @@ local function update()
 
 		-- update the plane of the base based on the 4 leg target positions if one of them has moved
 		if updBase then
-			local tmp1 = postions_y[4] + postions_y[3]
-			local tmp2 = postions_y[2] + postions_y[1]
+			local tmp_sum_1 = postions_y[4] + postions_y[3]
+			local tmp_sum_2 = postions_y[2] + postions_y[1]
+			
 			-- pitch
-			temp1 = (tmp1 - tmp2) * 0.5
-			Turn(base, 1, math.atan2( temp1,
-				40 -- distance between feet that we are aiming for, since i can't do maths ¯\_(ツ)_/¯
+			local angle = math.atan2( (tmp_sum_1 - tmp_sum_2) * 0.5, 80)
+				--80 is the distance between feet that we are aiming for, since i can't do maths ¯\_(ツ)_/¯
 				--(postions_z[4] + postions_z[3] - postions_z[2] - postions_z[1]) * 0.5
-			))
+			Turn(base, 1, angle)
 			-- roll
-			temp2 = (postions_y[3] + postions_y[1] - postions_y[4] - postions_y[2]) * 0.5
-			Turn(base, 3, math.atan2( temp2,
-				150 -- distance between feet that we are aiming for, since i can't do maths ¯\_(ツ)_/¯
+			local angle = math.atan2( (postions_y[3] + postions_y[1] - postions_y[4] - postions_y[2]) * 0.5, 150)
 				--(postions_z[4] + postions_z[3] - postions_z[2] - postions_z[1]) * 0.5
-			))
+			Turn(base, 3, angle)
 			Move(base, 2, 
-				(tmp1 + tmp2 + y) * 0.2 + 25 - y
+				math.max((tmp_sum_1 + tmp_sum_2 + y) * 0.2 + 50 - y, 50)
 			)
 		end
 
@@ -179,7 +178,7 @@ end
 function script.Create()
 	x,y,z = Spring.GetUnitPosition(unitID)
 	dx, _, dz = Spring.GetUnitDirection(unitID)
-	Move(base, 2, 25)
+	Move(base, 2, 50)
 
 	StartThread(update)
 end
