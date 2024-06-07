@@ -31,7 +31,7 @@ local function toLocalSpace3d(in_x, in_y, in_z)
 end
 
 -- some constants for leg length and leg length needed maths
-local legIn, legOut = 70, 100
+local legIn, legOut = 115, 200
 local legInSqrd, legOutSqrd = legIn*legIn, legOut*legOut
 local legTotSqrd, legTot  = legInSqrd + legOutSqrd, 2 * legIn * legOut
 
@@ -75,7 +75,7 @@ local function updateLeg(leg1, leg2, target_x, target_y, target_z, legoffset_x, 
 	return dist3d, angle
 end
 
-local OFFSET_X, OFFSET_Y = 75, 20
+local OFFSET_X, OFFSET_Y = 150, 40
 
 local function update()
 	-- local marker = Spring.CreateUnit("armflea", x, y, z, "n", Spring.GetUnitTeam(unitID))
@@ -84,8 +84,8 @@ local function update()
 	local postions_z = {}
 	local leg1s = {l1, r1, lb1, rb1}
 	local leg2s = {l2, r2, lb2, rb2}
-	local offsetxs = {25, -25, 25, -25}
-	local offsetzs = {30, 30, -30, -30}
+	local offsetxs = {50, -50, 50, -50}
+	local offsetzs = {60, 60, -60, -60}
 	local start_offsetxs = {OFFSET_X, -OFFSET_X, OFFSET_X, -OFFSET_X}
 	local start_offsetzs = {OFFSET_Y, OFFSET_Y, -OFFSET_Y, -OFFSET_Y}
 	local markers = {a1, a2, a3, a4}
@@ -95,19 +95,19 @@ local function update()
 	local limitMin = {0,				-1.5707963-0.5,	1.5707963-0.5,	-3.1415926}
 	do
 		postions_x[1] = x + OFFSET_X
-		postions_z[1] = z + OFFSET_Y + 25
+		postions_z[1] = z + OFFSET_Y + 50
 		postions_y[1] = Spring.GetGroundHeight(x + OFFSET_X, z + OFFSET_Y)
 
 		postions_x[2] = x - OFFSET_X
-		postions_z[2] = z + OFFSET_Y + 25
+		postions_z[2] = z + OFFSET_Y + 50
 		postions_y[2] = Spring.GetGroundHeight(x - OFFSET_X, z + OFFSET_Y)
 
 		postions_x[3] = x + OFFSET_X
-		postions_z[3] = z - OFFSET_Y - 25
+		postions_z[3] = z - OFFSET_Y - 50
 		postions_y[3] = Spring.GetGroundHeight(x + OFFSET_X, z - OFFSET_Y)
 
 		postions_x[4] = x - OFFSET_X
-		postions_z[4] = z - OFFSET_Y - 25
+		postions_z[4] = z - OFFSET_Y - 50
 		postions_y[4] = Spring.GetGroundHeight(x - OFFSET_X, z - OFFSET_Y)
 	end
 	local dd1 = {0,0,0,0}
@@ -125,17 +125,17 @@ local function update()
 		end
 
 		-- do we need to lift a leg (we check 1 per frame, later to check only when another isn't lifted)
-		if dd1[legPosUpd] > 110
-		or dd1[legPosUpd] < 40
+		if dd1[legPosUpd] > 220
+		or dd1[legPosUpd] < 140
 		or da1[legPosUpd] > limitMax[legPosUpd]
 		or da1[legPosUpd] < limitMin[legPosUpd] then
 			if legPosUpd == 1 or legPosUpd == 2 then
-				postions_x[legPosUpd] =  dz * start_offsetxs[legPosUpd] + dx * ( start_offsetzs[legPosUpd] + 85 ) + x
-				postions_z[legPosUpd] = -dx * start_offsetxs[legPosUpd] + dz * ( start_offsetzs[legPosUpd] + 85 ) + z
+				postions_x[legPosUpd] =  dz * start_offsetxs[legPosUpd] + dx * ( start_offsetzs[legPosUpd] + 170 ) + x
+				postions_z[legPosUpd] = -dx * start_offsetxs[legPosUpd] + dz * ( start_offsetzs[legPosUpd] + 170 ) + z
 				postions_y[legPosUpd] = Spring.GetGroundHeight(postions_x[legPosUpd], postions_z[legPosUpd])
 			else
-				postions_x[legPosUpd] =  dz * start_offsetxs[legPosUpd] + dx * ( start_offsetzs[legPosUpd] - 20 ) + x
-				postions_z[legPosUpd] = -dx * start_offsetxs[legPosUpd] + dz * ( start_offsetzs[legPosUpd] - 20 ) + z
+				postions_x[legPosUpd] =  dz * start_offsetxs[legPosUpd] + dx * ( start_offsetzs[legPosUpd] - 40 ) + x
+				postions_z[legPosUpd] = -dx * start_offsetxs[legPosUpd] + dz * ( start_offsetzs[legPosUpd] - 40 ) + z
 				postions_y[legPosUpd] = Spring.GetGroundHeight(postions_x[legPosUpd], postions_z[legPosUpd])
 			end
 			updBase = true
@@ -147,16 +147,16 @@ local function update()
 			local tmp_sum_2 = postions_y[2] + postions_y[1]
 			
 			-- pitch
-			local angle = math.atan2( (tmp_sum_1 - tmp_sum_2) * 0.5, 80)
+			local angle = math.atan2( (tmp_sum_1 - tmp_sum_2) * 0.5, 160)
 				--80 is the distance between feet that we are aiming for, since i can't do maths ¯\_(ツ)_/¯
 				--(postions_z[4] + postions_z[3] - postions_z[2] - postions_z[1]) * 0.5
 			Turn(base, 1, angle)
 			-- roll
-			local angle = math.atan2( (postions_y[3] + postions_y[1] - postions_y[4] - postions_y[2]) * 0.5, 150)
+			local angle = math.atan2( (postions_y[3] + postions_y[1] - postions_y[4] - postions_y[2]) * 0.5, 300)
 				--(postions_z[4] + postions_z[3] - postions_z[2] - postions_z[1]) * 0.5
 			Turn(base, 3, angle)
 			Move(base, 2, 
-				math.max((tmp_sum_1 + tmp_sum_2 + y) * 0.2 + 50 - y, 50)
+				math.max((tmp_sum_1 + tmp_sum_2 + y) * 0.2 + 100 - y, 100)
 			)
 		end
 
@@ -178,7 +178,7 @@ end
 function script.Create()
 	x,y,z = Spring.GetUnitPosition(unitID)
 	dx, _, dz = Spring.GetUnitDirection(unitID)
-	Move(base, 2, 50)
+	Move(base, 2, 100)
 
 	StartThread(update)
 end

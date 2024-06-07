@@ -40,7 +40,7 @@ return {
 		customparams = {
 			unitgroup = 'weapon',
 			model_author = "Kaiser",
-			normaltex = "unittextures/Arm_normal.dds",
+			normaltex = "unittextures/Cor_normal.dds",
 			subfolder = "armbots",
 		},
 
