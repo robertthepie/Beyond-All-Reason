@@ -19,11 +19,11 @@ end
 local m3d00, m3d01, m3d02 = 1, 0, 0
 local m3d10, m3d11, m3d12 = 0, 1, 0
 local m3d20, m3d21, m3d22 = 0, 0, 1
-local baseOffset = 25
+local baseOffsetX, baseOffsetY, baseOffsetZ = 0, 100, 0
 -- to local base plate space
 local function toLocalSpace3d(in_x, in_y, in_z)
 	local ox, oy, oz = 0,0,0
-	local tmp_in_y = in_y - baseOffset
+	local tmp_in_x, tmp_in_y, tmp_in_z = in_x - baseOffsetX, in_y - baseOffsetY, in_z - baseOffsetZ
 	ox = m3d00 * in_x + m3d01 * tmp_in_y + m3d02 * in_z
 	oy = m3d10 * in_x + m3d11 * tmp_in_y + m3d12 * in_z
 	oz = m3d20 * in_x + m3d21 * tmp_in_y + m3d22 * in_z
@@ -67,15 +67,15 @@ local function updateLeg(leg1, leg2, target_x, target_y, target_z, legoffset_x, 
 	local legCosAngElb = math.acos( math.max( (legTotSqrd - dist3dSQRD) / legTot , -1 ))
 
 	-- bend the armeture to reach the destination
-	Turn(leg1, 1, angle2-1.5707963-legCosAngPit)
-	Turn(leg1, 2, angle)
-	Turn(leg2, 1, 3.1415926-legCosAngElb)
+	Turn(leg1, 1, angle2-1.5707963-legCosAngPit, 6.2838)
+	Turn(leg1, 2, angle, 6.2838)
+	Turn(leg2, 1, 3.1415926-legCosAngElb, 6.2838)
 	-- Turn(leg2, 3, angle) -- unturn the leg
 
 	return dist3d, angle
 end
 
-local OFFSET_X, OFFSET_Y = 150, 40
+local OFFSET_X, OFFSET_Y = 170, 180
 local deb1, deb2, deb3 = 0,0,0
 
 local function update()
@@ -126,20 +126,20 @@ local function update()
 		end
 
 		-- do we need to lift a leg (we check 1 per frame, later to check only when another isn't lifted)
-		if dd1[legPosUpd] > 220
-		or dd1[legPosUpd] < 140
+		if dd1[legPosUpd] > 250
+		or dd1[legPosUpd] < 110
 		or da1[legPosUpd] > limitMax[legPosUpd]
 		or da1[legPosUpd] < limitMin[legPosUpd] then
-			if legPosUpd == 1 or legPosUpd == 2 then
-				postions_x[legPosUpd] =  dz * start_offsetxs[legPosUpd] + dx * ( start_offsetzs[legPosUpd] + 170 ) + x
-				postions_z[legPosUpd] = -dx * start_offsetxs[legPosUpd] + dz * ( start_offsetzs[legPosUpd] + 170 ) + z
-				postions_y[legPosUpd] = Spring.GetGroundHeight(postions_x[legPosUpd], postions_z[legPosUpd])
-			else
-				postions_x[legPosUpd] =  dz * start_offsetxs[legPosUpd] + dx * ( start_offsetzs[legPosUpd] - 40 ) + x
-				postions_z[legPosUpd] = -dx * start_offsetxs[legPosUpd] + dz * ( start_offsetzs[legPosUpd] - 40 ) + z
-				postions_y[legPosUpd] = Spring.GetGroundHeight(postions_x[legPosUpd], postions_z[legPosUpd])
-			end
+			-- move legs in relation to where we heading, with vertial velocity colapsing them inward
+			local mdx, mdy, mdz = Spring.GetUnitVelocity(unitID)
+			mdx = mdx * 30 * ( 1 - math.abs(mdy) )
+			mdz = mdz * 30 * ( 1 - mdy )
+			postions_x[legPosUpd] =  dz * (start_offsetxs[legPosUpd]) + dx * ( start_offsetzs[legPosUpd]) + x + mdx
+			postions_z[legPosUpd] = -dx * (start_offsetxs[legPosUpd]) + dz * ( start_offsetzs[legPosUpd]) + z + mdz
+			postions_y[legPosUpd] = Spring.GetGroundHeight(postions_x[legPosUpd], postions_z[legPosUpd])
 			updBase = true
+
+			-- @TODO: compare retrived ground against current, if
 		end
 
 		-- update the plane of the base based on the 4 leg target positions if one of them has moved
@@ -147,34 +147,30 @@ local function update()
 			local tmp_sum_1 = postions_y[4] + postions_y[3]
 			local tmp_sum_2 = postions_y[2] + postions_y[1]
 
-			local moveDist = math.max((tmp_sum_1 + tmp_sum_2 + y) * 0.25 + 100 - y, 100)
+			-- prevent sitting in troughs
+			local moveDist = math.max((tmp_sum_1 + tmp_sum_2 + y) * 0.25 + 50 - y, 50)
 
-			-- pitch
-			local angle = math.atan2( (tmp_sum_1 - tmp_sum_2) * 0.5, 160)
-				--80 is the distance between feet that we are aiming for, since i can't do maths ¯\_(ツ)_/¯
-				--(postions_z[4] + postions_z[3] - postions_z[2] - postions_z[1]) * 0.5
-			deb1 = angle
+			-- pitch	
+			local angle = math.atan2( (tmp_sum_1 - tmp_sum_2) * 0.5, 160) --@TODO: 160 is a bad estimate of distance between front and back
 			Turn(base, 1, angle)
 
-			Move(base, 2, moveDist - 100)
+			Move(base, 2, moveDist - 50)
 			Move(base, 3, angle * moveDist)
-			deb3 = moveDist
 
 			-- roll
-			local angle = math.atan2( (postions_y[3] + postions_y[1] - postions_y[4] - postions_y[2]) * 0.5, 300)
-			--(postions_z[4] + postions_z[3] - postions_z[2] - postions_z[1]) * 0.5
+			local angle = math.atan2( (postions_y[3] + postions_y[1] - postions_y[4] - postions_y[2]) * 0.5, 300) --@TODO: 300 is a questionable estimate of distsance between left and right
 			Turn(base, 3, angle)
 			Move(base, 1, -angle * moveDist)
 
-			deb2 = angle
 			updBase = false
+
 		end
 
 		-- rotaion matrix my beloved, and y offset
 		m3d00,	m3d01,	m3d02,	_,
 		m3d10,	m3d11,	m3d12,	_,
 		m3d20,	m3d21,	m3d22,	_,
-		_,		baseOffset	= Spring.GetUnitPieceMatrix(unitID, base)
+		baseOffsetX, baseOffsetY, baseOffsetZ	= Spring.GetUnitPieceMatrix(unitID, base)
 		--  0.97899908,	0.13875398,	-0.1493592,	 0,
 		-- -0.2038648,	0.6663242,	-0.7172526,	 0,
 		--  0,			0.73263866,	 0.68061781, 0,
@@ -185,18 +181,9 @@ local function update()
 	end
 end
 
-local function slowUpdate()
-	while true do
-		Sleep(6600)
-		Spring.Echo(deb1, deb2, deb3)
-	end
-end
-
 function script.Create()
 	x,y,z = Spring.GetUnitPosition(unitID)
 	dx, _, dz = Spring.GetUnitDirection(unitID)
-	Move(base, 2, 0)
 
 	StartThread(update)
-	StartThread(slowUpdate)
 end

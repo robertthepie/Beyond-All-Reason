@@ -73,56 +73,69 @@ return {
 		},
 	},
 	loik_air = {
+		-- stats
+		health = 61,
+		idletime = 1800,
+		idleautoheal = 5,
+		category = "BOT MOBILE WEAPON ALL NOTSUB NOTSHIP NOTAIR NOTHOVER SURFACE GROUNDSCOUT EMPABLE",
+		seismicsignature = 0,
+		sightdistance = 600,
+
+		-- costs
+		energycost = 340,
+		metalcost = 17,
+		buildtime = 800,
+
+		-- movement
 		airHoverFactor = 0.01,
 		canfly = true,
 		cruiseAlt = 100,
 		bankingAllowed = false,
 		useSmoothMesh = false,
-		upright = true,
-		maxacc = 0.2475,--0.575,
-		maxdec = 1.725,
-		energycost = 340,
-		metalcost = 17,
-		buildpic = "ARMFLEA.DDS",
-		buildtime = 800,
-		blocking = false,
-		canmove = true,
-		category = "BOT MOBILE WEAPON ALL NOTSUB NOTSHIP NOTAIR NOTHOVER SURFACE GROUNDSCOUT EMPABLE",
-		collisionvolumeoffsets = "0 0 0",
-		collisionvolumescales = "20 12 20",
-		collisionvolumetype = "cylY",
-		corpse = "DEAD",
-		explodeas = "tinyexplosiongeneric",
-		footprintx = 5,
-		footprintz = 5,
-		hoverattack = true,
-		idleautoheal = 5,
-		idletime = 1800,
-		mass = 1000,
-		health = 61,
-		maxslope = 255,
-		speed = 66.0,--132.0,
-		-- rspeed = 66.0, -- bring back later when the anim supports it
-		maxwaterdepth = 16,
-		movementclass = "HTBOT4",
-		nochasecategory = "VTOL",
-		objectname = "corloik.s3o",
-		script = "loik_lus.lua",
-		seismicsignature = 0,
-		selfdestructas = "tinyexplosiongenericSelfd",
-		selfDCountdown = 1,
-		sightdistance = 600,
+		maxRudder = 0.0002,
 		turninplace = true,
 		turninplaceanglelimit = 90,
 		turninplacespeedlimit = 2.904,
-		turnrate = 450,--1807.79993,
+		turnrate = 225,--1807.79993,
+		maxacc = 0.2475,--0.575,
+		maxdec = 1.725,
+		speed = 66.0,--132.0,
+		rspeed = 66.0, -- bring back later when the anim supports it
+
+		-- unnneded move?
+		footprintx = 5,
+		footprintz = 5,
+		movementclass = "HTBOT4",
+		maxslope = 255,
+		maxwaterdepth = 16,
+
+		-- derp
+		upright = true,
+		blocking = false,
+		canmove = true,
+		hoverattack = true,
+		mass = 1000,
+		nochasecategory = "VTOL",
+
+		-- model
+		buildpic = "ARMFLEA.DDS",
+		objectname = "corloik.s3o",
+		script = "loik_lus.lua",
+		collisionvolumeoffsets = "0 0 0",
+		collisionvolumescales = "20 12 20",
+		collisionvolumetype = "cylY",
+		
+		-- death
+		corpse = "",
+		explodeas = "tinyexplosiongeneric",
+		selfdestructas = "tinyexplosiongenericSelfd",
+		selfDCountdown = 1,
 		customparams = {
 			unitgroup = 'weapon',
 			model_author = "Kaiser",
 			normaltex = "unittextures/Cor_normal.dds",
 			subfolder = "armbots",
 		},
-
 		featuredefs = {
 			rockteethx = {
 				animating = 0,
