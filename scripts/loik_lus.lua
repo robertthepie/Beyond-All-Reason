@@ -40,9 +40,9 @@ local function updateLeg(leg1, leg2, target_x, target_y, target_z, legoffset_x, 
 	-- convert our target to local pos
 	local px, py, pz = toLocalSpace(target_x, target_y, target_z)
 
-	Move(marker, 1, px)
-	Move(marker, 2, py)
-	Move(marker, 3, pz)
+	-- Move(marker, 1, px)
+	-- Move(marker, 2, py)
+	-- Move(marker, 3, pz)
 
 	px, py, pz = toLocalSpace3d(px, py, pz)
 
@@ -76,6 +76,7 @@ local function updateLeg(leg1, leg2, target_x, target_y, target_z, legoffset_x, 
 end
 
 local OFFSET_X, OFFSET_Y = 150, 40
+local deb1, deb2, deb3 = 0,0,0
 
 local function update()
 	-- local marker = Spring.CreateUnit("armflea", x, y, z, "n", Spring.GetUnitTeam(unitID))
@@ -145,19 +146,28 @@ local function update()
 		if updBase then
 			local tmp_sum_1 = postions_y[4] + postions_y[3]
 			local tmp_sum_2 = postions_y[2] + postions_y[1]
-			
+
+			local moveDist = math.max((tmp_sum_1 + tmp_sum_2 + y) * 0.25 + 100 - y, 100)
+
 			-- pitch
 			local angle = math.atan2( (tmp_sum_1 - tmp_sum_2) * 0.5, 160)
 				--80 is the distance between feet that we are aiming for, since i can't do maths ¯\_(ツ)_/¯
 				--(postions_z[4] + postions_z[3] - postions_z[2] - postions_z[1]) * 0.5
+			deb1 = angle
 			Turn(base, 1, angle)
+
+			Move(base, 2, moveDist - 100)
+			Move(base, 3, angle * moveDist)
+			deb3 = moveDist
+
 			-- roll
 			local angle = math.atan2( (postions_y[3] + postions_y[1] - postions_y[4] - postions_y[2]) * 0.5, 300)
-				--(postions_z[4] + postions_z[3] - postions_z[2] - postions_z[1]) * 0.5
+			--(postions_z[4] + postions_z[3] - postions_z[2] - postions_z[1]) * 0.5
 			Turn(base, 3, angle)
-			Move(base, 2, 
-				math.max((tmp_sum_1 + tmp_sum_2 + y) * 0.2 + 100 - y, 100)
-			)
+			Move(base, 1, -angle * moveDist)
+
+			deb2 = angle
+			updBase = false
 		end
 
 		-- rotaion matrix my beloved, and y offset
@@ -175,10 +185,18 @@ local function update()
 	end
 end
 
+local function slowUpdate()
+	while true do
+		Sleep(6600)
+		Spring.Echo(deb1, deb2, deb3)
+	end
+end
+
 function script.Create()
 	x,y,z = Spring.GetUnitPosition(unitID)
 	dx, _, dz = Spring.GetUnitDirection(unitID)
-	Move(base, 2, 100)
+	Move(base, 2, 0)
 
 	StartThread(update)
+	StartThread(slowUpdate)
 end
