@@ -1,8 +1,9 @@
 local empty_root_piece, base, a1, a2, a3, a4, l1, l2, r1, r2, lb1, lb2, rb1, rb2 = piece("empty_root_piece", "Base", "LF1", "LF2", "LF3", "LF4", "L1", "L2", "R1", "R2", "LB1", "LB2", "RB1", "RB2")
 
+-- our position and heading
 local x, y, z = 1,1,1
--- 2d rotation matrix info
 local dx, dz = 1,1
+
 -- to local unit space
 local function toLocalSpace(in_x, in_y, in_z)
 	local vx, vy, vz = 0,0,0
@@ -16,6 +17,7 @@ local function toLocalSpace(in_x, in_y, in_z)
 	return ovx, ovy, ovz
 end
 
+-- 3d rotation matrix of base plate w/ false up direction
 local m3d00, m3d01, m3d02 = 1, 0, 0
 local m3d10, m3d11, m3d12 = 0, 1, 0
 local m3d20, m3d21, m3d22 = 0, 0, 1
@@ -36,14 +38,10 @@ local legInSqrd, legOutSqrd = legIn*legIn, legOut*legOut
 local legTotSqrd, legTot  = legInSqrd + legOutSqrd, 2 * legIn * legOut
 
 -- updates the armeture p1, p2 to point twoards the target x/y/z with the passed in offset being where the armeture starts on the model
-local function updateLeg(leg1, leg2, target_x, target_y, target_z, legoffset_x, legoffset_y, legoffset_z, marker)
-	-- convert our target to local pos
+-- returns distance between joint and leg, angle around y - how far forward, angle around x - how stretched out
+local function updateLeg(leg1, leg2, target_x, target_y, target_z, legoffset_x, legoffset_y, legoffset_z)
+	-- convert our target to local space
 	local px, py, pz = toLocalSpace(target_x, target_y, target_z)
-
-	-- Move(marker, 1, px)
-	-- Move(marker, 2, py)
-	-- Move(marker, 3, pz)
-
 	px, py, pz = toLocalSpace3d(px, py, pz)
 
 	-- compensate for leg position
@@ -53,10 +51,8 @@ local function updateLeg(leg1, leg2, target_x, target_y, target_z, legoffset_x, 
 
 	-- maths
 	local px2, py2, pz2 = px*px, py*py, pz*pz
-	local angle = math.atan2(px, pz)
 	local dist = math.sqrt(px2 + pz2)
 	local dist3dSQRD = px2 + pz2 + py2
-	local angle2 = math.atan2(dist, py)
 	local dist3d = math.sqrt(dist3dSQRD)
 
 	-- finding the angles of the armpit and elbow, so that the armeture ends at destination
@@ -66,13 +62,19 @@ local function updateLeg(leg1, leg2, target_x, target_y, target_z, legoffset_x, 
 	local legCosAngPit = math.acos( math.min( (legInSqrd + dist3dSQRD - legOutSqrd) / (2 * legIn * dist3d) ,1 ))
 	local legCosAngElb = math.acos( math.max( (legTotSqrd - dist3dSQRD) / legTot , -1 ))
 
+	-- angle to face around y twoards target
+	local angle = math.atan2(px, pz)
+	-- angle flatten our traingle to our plane
+	--local angle2 = math.atan2(dist, py)
+	local angle2 = - math.atan2(py, dist) - legCosAngPit
+
 	-- bend the armeture to reach the destination
-	Turn(leg1, 1, angle2-1.5707963-legCosAngPit)
+	Turn(leg1, 1, angle2)
 	Turn(leg1, 2, angle)
 	Turn(leg2, 1, 3.1415926-legCosAngElb)
 	-- Turn(leg2, 3, angle) -- unturn the leg
 
-	return dist3d, angle
+	return dist3d, angle, angle2
 end
 
 local OFFSET_X, OFFSET_Y = 170, 180
@@ -89,30 +91,28 @@ local function update()
 	local offsetzs = {60, 60, -60, -60}
 	local start_offsetxs = {OFFSET_X, -OFFSET_X, OFFSET_X, -OFFSET_X}
 	local start_offsetzs = {OFFSET_Y, OFFSET_Y, -OFFSET_Y, -OFFSET_Y}
-	local markers = {a1, a2, a3, a4}
-	--local limitMax = {1.5707963, 0, 3.1415926, -1.5707963}
-	--local limitMin = {0, -1.5707963, 1.5707963, -3.1415926}
+
+	-- feet angle constraints
 	local limitMax = {1.5707963+0.5,	0,				3.1415926,		-1.5707963+0.5}
 	local limitMin = {0,				-1.5707963-0.5,	1.5707963-0.5,	-3.1415926}
-	do
-		postions_x[1] = x + OFFSET_X
-		postions_z[1] = z + OFFSET_Y + 50
-		postions_y[1] = Spring.GetGroundHeight(x + OFFSET_X, z + OFFSET_Y)
 
-		postions_x[2] = x - OFFSET_X
-		postions_z[2] = z + OFFSET_Y + 50
-		postions_y[2] = Spring.GetGroundHeight(x - OFFSET_X, z + OFFSET_Y)
+	-- position starting feet
+	postions_x[1] = x + OFFSET_X
+	postions_z[1] = z + OFFSET_Y + 50
+	postions_y[1] = Spring.GetGroundHeight(x + OFFSET_X, z + OFFSET_Y)
+	postions_x[2] = x - OFFSET_X
+	postions_z[2] = z + OFFSET_Y + 50
+	postions_y[2] = Spring.GetGroundHeight(x - OFFSET_X, z + OFFSET_Y)
+	postions_x[3] = x + OFFSET_X
+	postions_z[3] = z - OFFSET_Y - 50
+	postions_y[3] = Spring.GetGroundHeight(x + OFFSET_X, z - OFFSET_Y)
+	postions_x[4] = x - OFFSET_X
+	postions_z[4] = z - OFFSET_Y - 50
+	postions_y[4] = Spring.GetGroundHeight(x - OFFSET_X, z - OFFSET_Y)
 
-		postions_x[3] = x + OFFSET_X
-		postions_z[3] = z - OFFSET_Y - 50
-		postions_y[3] = Spring.GetGroundHeight(x + OFFSET_X, z - OFFSET_Y)
-
-		postions_x[4] = x - OFFSET_X
-		postions_z[4] = z - OFFSET_Y - 50
-		postions_y[4] = Spring.GetGroundHeight(x - OFFSET_X, z - OFFSET_Y)
-	end
 	local dd1 = {0,0,0,0}
 	local da1 = {0,0,0,0}
+	local db1 = {0,0,0,0}
 	local legPosUpd, legFree = 1, 0
 	local updBase = false
 	while true do
@@ -120,13 +120,15 @@ local function update()
 		x,y,z = Spring.GetUnitPosition(unitID)
 		dx, _, dz = Spring.GetUnitDirection(unitID)
 
+		local test
+
 		-- move legs to current frame's matrix
 		for i = 1, 4 do
-			dd1[i], da1[i] = updateLeg(leg1s[i], leg2s[i], postions_x[i], postions_y[i], postions_z[i], offsetxs[i], 0, offsetzs[i], markers[i])
+			dd1[i], da1[i], db1[i] = updateLeg(leg1s[i], leg2s[i], postions_x[i], postions_y[i], postions_z[i], offsetxs[i], 0, offsetzs[i])
 		end
 
-		-- do we need to lift a leg (we check 1 per frame, later to check only when another isn't lifted)
-		if legFree < 1 and (dd1[legPosUpd] > 250 or dd1[legPosUpd] < 110
+		-- do we need to lift a leg (we check 1 per frame, or 12 after one was lifted)
+		if legFree < 1 and (db1[legPosUpd] > -0.5 or db1[legPosUpd] < -1.0
 		or da1[legPosUpd] > limitMax[legPosUpd]	or da1[legPosUpd] < limitMin[legPosUpd]) then
 			-- move legs in relation to where we heading, with vertial velocity colapsing them inward
 			local mdx, mdy, mdz = Spring.GetUnitVelocity(unitID)
@@ -143,6 +145,7 @@ local function update()
 			until true or math.abs(height - y) - 100 < 50 or itteration < 0.4
 			postions_y[legPosUpd] = height
 			updBase = true
+
 			-- mult of num of legs + 1 so that it moves onto another leg once free
 			legFree = 13
 		end
@@ -182,6 +185,7 @@ local function update()
 		if legFree > 0 then legFree = legFree - 1 end
 	end
 end
+
 
 function script.Create()
 	x,y,z = Spring.GetUnitPosition(unitID)

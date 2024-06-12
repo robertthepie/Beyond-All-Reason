@@ -14,7 +14,7 @@ return {
 		maxacc			= 0.15,
 		maxdec			= 0.5,
 		speed			= 66,
-		turnrate		= 200,
+		turnrate		= 150,
 
 		-- movement constraints
 		bankingAllowed	= false,
