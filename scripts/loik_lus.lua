@@ -133,17 +133,18 @@ local function update()
 			mdx = mdx * 30 * ( 1 - math.abs(mdy) )
 			mdz = mdz * 30 * ( 1 - mdy )
 			local height, itteration = 0,1
+			-- @TODO: rework this
 			repeat
 				-- @TODO: make this primarly affect mode direction offset
 				postions_x[legPosUpd] = (  dz * (start_offsetxs[legPosUpd]) + dx * ( start_offsetzs[legPosUpd]) + mdx ) * itteration + x
 				postions_z[legPosUpd] = ( -dx * (start_offsetxs[legPosUpd]) + dz * ( start_offsetzs[legPosUpd]) + mdz ) * itteration + z
 				height = Spring.GetGroundHeight(postions_x[legPosUpd], postions_z[legPosUpd])
 				itteration = itteration * 0.75
-			until math.abs(height - y) - 100 < 50 or itteration < 0.4
+			until true or math.abs(height - y) - 100 < 50 or itteration < 0.4
 			postions_y[legPosUpd] = height
 			updBase = true
-			legFree = 10
-			-- @TODO: compare retrived ground against current, if
+			-- mult of num of legs + 1 so that it moves onto another leg once free
+			legFree = 13
 		end
 
 		-- update the plane of the base based on the 4 leg target positions if one of them has moved
