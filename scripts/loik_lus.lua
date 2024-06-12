@@ -67,9 +67,9 @@ local function updateLeg(leg1, leg2, target_x, target_y, target_z, legoffset_x, 
 	local legCosAngElb = math.acos( math.max( (legTotSqrd - dist3dSQRD) / legTot , -1 ))
 
 	-- bend the armeture to reach the destination
-	Turn(leg1, 1, angle2-1.5707963-legCosAngPit, 6.2838)
-	Turn(leg1, 2, angle, 6.2838)
-	Turn(leg2, 1, 3.1415926-legCosAngElb, 6.2838)
+	Turn(leg1, 1, angle2-1.5707963-legCosAngPit)
+	Turn(leg1, 2, angle)
+	Turn(leg2, 1, 3.1415926-legCosAngElb)
 	-- Turn(leg2, 3, angle) -- unturn the leg
 
 	return dist3d, angle
@@ -113,7 +113,7 @@ local function update()
 	end
 	local dd1 = {0,0,0,0}
 	local da1 = {0,0,0,0}
-	local legPosUpd = 1
+	local legPosUpd, legFree = 1, 0
 	local updBase = false
 	while true do
 		Sleep(1)
@@ -126,19 +126,23 @@ local function update()
 		end
 
 		-- do we need to lift a leg (we check 1 per frame, later to check only when another isn't lifted)
-		if dd1[legPosUpd] > 250
-		or dd1[legPosUpd] < 110
-		or da1[legPosUpd] > limitMax[legPosUpd]
-		or da1[legPosUpd] < limitMin[legPosUpd] then
+		if legFree < 1 and (dd1[legPosUpd] > 250 or dd1[legPosUpd] < 110
+		or da1[legPosUpd] > limitMax[legPosUpd]	or da1[legPosUpd] < limitMin[legPosUpd]) then
 			-- move legs in relation to where we heading, with vertial velocity colapsing them inward
 			local mdx, mdy, mdz = Spring.GetUnitVelocity(unitID)
 			mdx = mdx * 30 * ( 1 - math.abs(mdy) )
 			mdz = mdz * 30 * ( 1 - mdy )
-			postions_x[legPosUpd] =  dz * (start_offsetxs[legPosUpd]) + dx * ( start_offsetzs[legPosUpd]) + x + mdx
-			postions_z[legPosUpd] = -dx * (start_offsetxs[legPosUpd]) + dz * ( start_offsetzs[legPosUpd]) + z + mdz
-			postions_y[legPosUpd] = Spring.GetGroundHeight(postions_x[legPosUpd], postions_z[legPosUpd])
+			local height, itteration = 0,1
+			repeat
+				-- @TODO: make this primarly affect mode direction offset
+				postions_x[legPosUpd] = (  dz * (start_offsetxs[legPosUpd]) + dx * ( start_offsetzs[legPosUpd]) + mdx ) * itteration + x
+				postions_z[legPosUpd] = ( -dx * (start_offsetxs[legPosUpd]) + dz * ( start_offsetzs[legPosUpd]) + mdz ) * itteration + z
+				height = Spring.GetGroundHeight(postions_x[legPosUpd], postions_z[legPosUpd])
+				itteration = itteration * 0.75
+			until math.abs(height - y) - 100 < 50 or itteration < 0.4
+			postions_y[legPosUpd] = height
 			updBase = true
-
+			legFree = 10
 			-- @TODO: compare retrived ground against current, if
 		end
 
@@ -171,13 +175,10 @@ local function update()
 		m3d10,	m3d11,	m3d12,	_,
 		m3d20,	m3d21,	m3d22,	_,
 		baseOffsetX, baseOffsetY, baseOffsetZ	= Spring.GetUnitPieceMatrix(unitID, base)
-		--  0.97899908,	0.13875398,	-0.1493592,	 0,
-		-- -0.2038648,	0.6663242,	-0.7172526,	 0,
-		--  0,			0.73263866,	 0.68061781, 0,
-		--	0,			35.1347351,	 0,			 1
 
 		-- move to check the next leg on the next frame
 		legPosUpd = legPosUpd % 4 + 1
+		if legFree > 0 then legFree = legFree - 1 end
 	end
 end
 
