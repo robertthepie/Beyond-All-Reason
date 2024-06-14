@@ -134,6 +134,23 @@ local function update()
 		or da1[legPosUpd] > limitMax[legPosUpd]	or da1[legPosUpd] < limitMin[legPosUpd])
 		or dd1[legPosUpd] < 130 or dd1[legPosUpd] > 300
 		then
+			--[[
+			local temp_x = start_offsetxs[legPosUpd] + mdx
+			local temp_z = start_offsetzs[legPosUpd] + mdz
+
+			local out_x = temp_x -- m3d00 * temp_x + m3d01 * -50 + m3d02 * temp_z
+			local out_z = temp_z -- m3d20 * temp_x + m3d21 * -50 + m3d22 * temp_z
+
+			out_x = ( dz * out_x + dx * out_z )  + x
+			out_z = ( -dx * out_x + dz * out_z )  + z
+
+			local height = Spring.GetGroundHeight(out_x, out_z)
+
+			postions_x[legPosUpd] = out_x
+			postions_z[legPosUpd] = out_z
+			postions_y[legPosUpd] = height
+			]]
+			--[[
 			-- move legs in relation to where we heading, with vertial velocity colapsing them inward
 			local mdx, mdy, mdz = Spring.GetUnitVelocity(unitID)
 			mdy = math.min( math.abs(mdy), 1)
@@ -150,6 +167,7 @@ local function update()
 				itteration = itteration * 0.75
 			until true or math.abs(height - y) - 100 < 50 or itteration < 0.4
 			postions_y[legPosUpd] = height
+			]]
 			updBase = true
 
 			-- mult of num of legs + 1 so that it moves onto another leg once free
