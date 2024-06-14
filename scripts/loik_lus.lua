@@ -93,8 +93,8 @@ local function update()
 	local start_offsetzs = {OFFSET_Y, OFFSET_Y, -OFFSET_Y, -OFFSET_Y}
 
 	-- feet angle constraints
-	local limitMax = {1.5707963+0.5,	0,				3.1415926,		-1.5707963+0.5}
-	local limitMin = {0,				-1.5707963-0.5,	1.5707963-0.5,	-3.1415926}
+	local limitMax = {1.5707963,	0,				3.1415926,		-1.5707963}
+	local limitMin = {0,				-1.5707963,	1.5707963,	-3.1415926}
 
 	-- position starting feet
 	postions_x[1] = x + OFFSET_X
@@ -113,6 +113,7 @@ local function update()
 	local dd1 = {0,0,0,0}
 	local da1 = {0,0,0,0}
 	local db1 = {0,0,0,0}
+	local dc1 = {0,0,0,0}
 	local legPosUpd, legFree = 1, 0
 	local updBase = false
 	while true do
@@ -127,13 +128,18 @@ local function update()
 			dd1[i], da1[i], db1[i] = updateLeg(leg1s[i], leg2s[i], postions_x[i], postions_y[i], postions_z[i], offsetxs[i], 0, offsetzs[i])
 		end
 
+
 		-- do we need to lift a leg (we check 1 per frame, or 12 after one was lifted)
-		if legFree < 1 and (db1[legPosUpd] > -0.5 or db1[legPosUpd] < -1.0
-		or da1[legPosUpd] > limitMax[legPosUpd]	or da1[legPosUpd] < limitMin[legPosUpd]) then
+		if legFree < 1 and (db1[legPosUpd] > -0.25 or db1[legPosUpd] < -1.25
+		or da1[legPosUpd] > limitMax[legPosUpd]	or da1[legPosUpd] < limitMin[legPosUpd])
+		or dd1[legPosUpd] < 130 or dd1[legPosUpd] > 300
+		then
 			-- move legs in relation to where we heading, with vertial velocity colapsing them inward
 			local mdx, mdy, mdz = Spring.GetUnitVelocity(unitID)
-			mdx = mdx * 30 * ( 1 - math.abs(mdy) )
-			mdz = mdz * 30 * ( 1 - mdy )
+			mdy = math.min( math.abs(mdy), 1)
+			mdx = mdx * 40 * ( 1 - mdy )
+			mdz = mdz * 40 * ( 1 - mdy )
+
 			local height, itteration = 0,1
 			-- @TODO: rework this
 			repeat
@@ -166,7 +172,7 @@ local function update()
 			Move(base, 3, angle * moveDist)
 
 			-- roll
-			local angle = math.atan2( (postions_y[3] + postions_y[1] - postions_y[4] - postions_y[2]) * 0.5, 300) --@TODO: 300 is a questionable estimate of distsance between left and right
+			angle = math.atan2( (postions_y[3] + postions_y[1] - postions_y[4] - postions_y[2]) * 0.5, 300) --@TODO: 300 is a questionable estimate of distsance between left and right
 			Turn(base, 3, angle)
 			Move(base, 1, -angle * moveDist)
 
