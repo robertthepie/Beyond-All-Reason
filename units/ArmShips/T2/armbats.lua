@@ -75,6 +75,7 @@ return {
 				[1] = "custom:barrelshot-large",
 				[2] = "custom:waterwake-large",
 				[3] = "custom:bowsplash-large",
+				[4] = "custom:waterblast-large",
 			},
 			pieceexplosiongenerators = {
 				[1] = "deathceg2",

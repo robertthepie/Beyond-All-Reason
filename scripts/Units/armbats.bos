@@ -4,16 +4,15 @@
 #include "exptype.h"
 
 piece  flare1a, flare1b, flare2a, flare2b,  base, turret1,
-       turret2, sleeve1, sleeve2, barrel1a, barrel1b, barrel2a, barrel2b,
-        ground, wake, bow, barrelblast;
+	   turret2, sleeve1, sleeve2, barrel1a, barrel1b, barrel2a, barrel2b,
+		ground, wake, bow, barrelblast;
 
-static-var  weapon1barrel, weapon2barrel, restore_delay, gun_1, gun_2, oldHead, aimy1target, aimy1position, Func_Var_1, Func_Var_2, Static_Var_4, Static_Var_5;
+static-var  weapon1barrel, weapon2barrel, restore_delay, gun_1, gun_2, oldHead, tur1_head, tur2_head;
 
 // Signal definitions
 #define SIG_AIM				2
 #define SIG_AIM_2			4
 #define SIG_MOVE			8
-#define SIG_ROCK			16
 
 
 SetDirection(heading)
@@ -25,58 +24,10 @@ SetDirection(heading)
 	oldHead = heading;
 }
 
-/// semi temporary old rock code, replace when possible
-ProjXPW(Func_Var_1, Func_Var_2)
+MoveBarrelBlast(flarepiece, heading) // Pass whichever piece you want to locate on XZ
 {
-	if( Func_Var_2 < -21840 )
-	{
-		Static_Var_4 = Func_Var_1 * ( Func_Var_2 + 32760 ) / 10920;
-	}
-	else if( Func_Var_2 > 21840 )
-	{
-		Static_Var_4 = Func_Var_1 * ( 32760 - Func_Var_2 ) / 10920;
-	}
-	else if( Func_Var_2 < -10920 )
-	{
-		Static_Var_4 = 0 - Func_Var_1;
-	}
-	else if( Func_Var_2 > 10920 )
-	{
-		Static_Var_4 = Func_Var_1;
-	}
-	else
-	{
-		Static_Var_4 = Func_Var_1 * Func_Var_2 / 10920;
-	}
-}
-
-RockZ(Func_Var_1, Func_Var_2)
-{
-	signal SIG_ROCK;
-	set-signal-mask SIG_ROCK;
-	call-script ProjXPW(10920 / Func_Var_2,Func_Var_1);
-	Static_Var_5 = Static_Var_5 + Static_Var_4;
-	Static_Var_4 = get ABS(Static_Var_5);
-	while( Static_Var_4 > 91 )
-	{
-		turn base to z-axis Static_Var_5 speed Static_Var_4 * <0.016484>;
-		wait-for-turn base around z-axis;
-		Static_Var_5 = Static_Var_5 * -1 / 2;
-		Static_Var_4 = get ABS(Static_Var_5);
-	}
-	turn base to z-axis <0.000000> speed <1.5>;
-}
-
-// end rocky stuff
-
-
-MoveBarrelBlast(flarepiece) // Pass whichever piece you want to locate on XZ
-{
-
 	var flarepiece_xz;	
-	
 	flarepiece_xz = get PIECE_XZ(flarepiece); // returns packed xz worldpos of piece
-	/*
 	var flare_x;
 	var flare_z;
 	flare_z = (flarepiece_xz & 0x0000ffff); // silly unpack
@@ -108,89 +59,20 @@ MoveBarrelBlast(flarepiece) // Pass whichever piece you want to locate on XZ
 	// rotate the vector by HEADING angle
 	var delta_x;
 	var delta_z;
-	delta_x = (flare_x * cos_h + flare_z * sin_h) / 1024;
-	delta_z = (flare_z * cos_h - flare_x * sin_h) /1024;
+	delta_x = (flare_x * cos_h - flare_z * sin_h) / 1024;
+	delta_z = (flare_z * cos_h + flare_x * sin_h) /1024;
 	
 	
 	//get PRINT(get GAME_FRAME, 0, delta_x, delta_z);
 	// move the piece into the correct pos, and rotate it upward
 	move barrelblast to x-axis [-1] * (delta_x) now; // x is inverted, fuck if I know why
 	move barrelblast to z-axis [1] * (delta_z) now;
-	turn barrelblast to x-axis <-90> now;
+	turn barrelblast to y-axis heading + <5> now; // i used a protractor
+	turn barrelblast to x-axis <-80> now;
+	move barrelblast to y-axis [17.632] now; // don't ask, i forgor
 	
 	// emit the effect
-	emit-sfx 1024 + 0 from barrelblast;
-	*/
-}
-
-// Pass whichever piece you want to locate on XZ, AND the turret that it rotates around in Y
-// Also tell how many percent further out you want the emit to happend (100% is exactly under flarepiece, 200% is 2x further from TURRET)
-MoveBarrelBlastTurret(flarepiece, turretpiece, percentfurther) 
-{
-	
-	var flarepiece_xz;	
-	flarepiece_xz = get PIECE_XZ(flarepiece); // returns packed xz worldpos of piece
-	/*
-	var flare_x;
-	var flare_z;
-	flare_z = (flarepiece_xz & 0x0000ffff); // silly unpack
-	flare_x = (flarepiece_xz & 0xffff0000) / 0x00010000; // yes this works
-	//get PRINT(get GAME_FRAME, flarepiece, flare_x, flare_z);
-	
-	var unit_xz;
-	unit_xz = get UNIT_XZ(0); // returns packed xz worldpos of unit
-	var unit_x;
-	var unit_z;
-	unit_z = (unit_xz & 0x0000ffff);
-	unit_x = (unit_xz & 0xffff0000) / 0x00010000;
-	
-	var turret_xz;
-	turret_xz = get PIECE_XZ(turretpiece); // returns packed xz worldpos of unit
-	var turret_x;
-	var turret_z;
-	turret_z = (turret_xz & 0x0000ffff);
-	turret_x = (turret_xz & 0xffff0000) / 0x00010000;
-	
-	//Transform from world space to unit space
-	// Make flare relative to turret here
-	flare_x = flare_x - turret_x;
-	flare_z = flare_z - turret_z;
-	
-	// Make turret relative to unit:
-	turret_x = turret_x - unit_x;
-	turret_z = turret_z - unit_z;
-	
-	get PRINT(flare_x, flare_z, turret_x, turret_z);
-	var unit_h;
-	unit_h = get HEADING(0); // gets the units angle
-	
-	var sin_h ;
-	var cos_h ; 
-	sin_h = get KSIN(unit_h); // transform into sine and cosine
-	cos_h = get KCOS(unit_h);
-	// When the unit is pointing towards +Z, the heading is 0, the sinh is 0, the cosh is 1024
-	
-	
-	//get PRINT(666, unit_h, sin_h, cos_h);
-	// rotate the vector by HEADING angle
-	var delta_x;
-	var delta_z;
-	delta_x = percentfurther *(flare_x * cos_h + flare_z * sin_h) /(1024*100);
-	delta_z = percentfurther *(flare_z * cos_h - flare_x * sin_h) /(1024*100);
-	
-	delta_x = delta_x + (turret_x * cos_h + turret_z * sin_h) /1024;
-	delta_z = delta_z + (turret_z * cos_h - turret_x * sin_h) /1024;
-	
-	
-	//get PRINT(get GAME_FRAME, 0, delta_x, delta_z);
-	// move the piece into the correct pos, and rotate it upward
-	move barrelblast to x-axis [-1] * (delta_x) now; // x is inverted, fuck if I know why
-	move barrelblast to z-axis [1] * (delta_z) now;
-	turn barrelblast to x-axis <-90> now;
-	
-	// emit the effect
-	emit-sfx 1024 + 0 from barrelblast;
-	*/
+	emit-sfx 1024 + 3 from barrelblast;
 }
 
 #define BASEPIECE base
@@ -234,8 +116,8 @@ Create()
 	weapon2barrel = 1;
 	gun_1 = flare1a;
 	gun_2 = flare1a;
-	aimy1target = 0;
-	aimy1position = 0;
+	tur1_head = 0;
+	tur2_head = 0;
 	restore_delay = 3000;
 	while( get BUILD_PERCENT_LEFT )
 	{
@@ -290,7 +172,7 @@ StartMoving()
 	{
 		emit-sfx 1024 + 1 from wake;
 		if (bowtime) emit-sfx 1024 + 2 from bow;
-        	bowtime = !bowtime;
+			bowtime = !bowtime;
 		waketime = (get CURRENT_SPEED) * 100 / get MAX_SPEED;
 		if( waketime < 50 ) waketime = 50;
 		sleep 12000 / waketime;
@@ -306,7 +188,6 @@ StopMoving()
 
 AimPrimary(heading, pitch)
 {
-
 	signal SIG_AIM;
 	set-signal-mask SIG_AIM;
 	turn turret1 to y-axis heading speed <55.000000>;
@@ -320,11 +201,8 @@ AimPrimary(heading, pitch)
 		weapon1barrel = TRUE;
 		gun_1 = flare1a;
 	}
+	tur1_head = heading;
 	start-script RestorePrimary();
-
-
-
-	aimy1target = heading;
 	return (1);
 }
 
@@ -343,29 +221,30 @@ AimSecondary(heading, pitch)
 		weapon2barrel = 1;
 		gun_2 = flare1a;
 	}
+	tur2_head = heading;
 	start-script RestoreSecondary();
-	aimy1target = heading;
 	return (1);
 }
 
 FirePrimary()
 {
-	start-script RockZ(-13, aimy1target);
-
 	if( weapon1barrel == 1 )
 	{
-	    emit-sfx 1024 + 0 from flare1a;
+		emit-sfx 1024 + 0 from flare1a;
 		move barrel1a to z-axis [-2.500000] now;
+		call-script MoveBarrelBlast(barrel1a, tur1_head);
 		sleep 100;
 		move barrel1a to z-axis [0.000000] speed [1.000000];
-		call-script MoveBarrelBlast(barrel1a);
+		
 	}
 	if( weapon1barrel == 2 )
 	{
-	    emit-sfx 1024 + 0 from flare1b;
+		emit-sfx 1024 + 0 from flare1b;
 		move barrel1b to z-axis [-2.500000] now;
+		call-script MoveBarrelBlast(barrel1b, tur1_head);
 		sleep 100;
 		move barrel1b to z-axis [0.000000] speed [1.000000];
+		
 	}
 	++weapon1barrel;
 	if (weapon1barrel > 2)
@@ -376,21 +255,23 @@ FirePrimary()
 
 FireSecondary()
 {
-	start-script RockZ(-13, aimy1target);
 	if( weapon2barrel == 2 )
 	{
-	    emit-sfx 1024 + 0 from flare2a;
+		emit-sfx 1024 + 0 from flare2a;
 		move barrel2a to z-axis [-2.500000] now;
+		call-script MoveBarrelBlast(barrel2a, tur2_head);
 		sleep 100;
 		move barrel2a to z-axis [0.000000] speed [1.000000];
-		call-script MoveBarrelBlastTurret(barrel2a, turret2, 300);
+		
 	}
 	if( weapon2barrel == 1 )
 	{
-	    emit-sfx 1024 + 0 from flare2b;
+		emit-sfx 1024 + 0 from flare2b;
 		move barrel2b to z-axis [-2.500000] now;
+		call-script MoveBarrelBlast(barrel2b, tur2_head);
 		sleep 100;
 		move barrel2b to z-axis [0.000000] speed [1.000000];
+		
 	}
 	++weapon2barrel;
 	if (weapon2barrel > 2)
