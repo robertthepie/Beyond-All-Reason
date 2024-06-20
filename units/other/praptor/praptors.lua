@@ -27,7 +27,8 @@ if Spring.GetModOptions().playableraptors == true then
 				local csv = commaSeperated(CSV[i])
 				for j = 2, #csv do
 					if csv[j] and csv[j] ~= "" then
-						output[#output+1] = tonumber(csv[j]) or csv[j]
+						local temp = csv[j]
+						output[#output+1] = tonumber(temp) or tobool(temp) or temp
 					end
 				end
 				if subheading then
@@ -57,6 +58,7 @@ if Spring.GetModOptions().playableraptors == true then
 	end
 
 	addToTable("praptor_stats")
+	addToTable("praptor_movement_stats")
 	addToTable("praptor_buildoptions", "buildoptions", true)
 	addToTable("praptor_customparams", "customparams")
 

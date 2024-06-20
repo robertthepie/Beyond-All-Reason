@@ -10,7 +10,7 @@ function gadget:GetInfo()
 	}
 end
 
-if true or Spring.GetModOptions().playableraptors ~= true then return false end
+if Spring.GetModOptions().playableraptors ~= true then return false end
 
 
 --------------------

@@ -1,0 +1,2 @@
+name           ,canmove ,maxacc ,maxdec ,speed ,maneuverleashlength ,movementclass    ,blocking ,mass ,leavetracks ,collide ,collisionvolumeoffsets ,collisionvolumescales ,collisionvolumetype ,,
+prap_foundling ,true    ,     1 ,     1 , 75.0 ,                640 ,RAPTORSMALLHOVER ,false    ,  50 ,true        ,false   ,0 -1 0                 ,10 14 22              ,box                 ,           ,
