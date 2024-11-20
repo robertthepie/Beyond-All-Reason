@@ -9,7 +9,6 @@ return {
 		buildpic = "LEGSOLAR.DDS",
 		buildtime = 2800,
 		canrepeat = false,
-		category = "ALL NOTLAND NOTSUB NOWEAPON NOTSHIP NOTAIR NOTHOVER SURFACE EMPABLE",
 		collisionvolumeoffsets = "0.0 -18.0 1.0",
 		collisionvolumescales = "50.0 76.0 50.0",
 		collisionvolumetype = "Ell",
@@ -40,11 +39,11 @@ return {
 			buildinggrounddecaldecayspeed = 30,
 			unitgroup = 'energy',
 			model_author = "Hornet",
-			normaltex = "unittextures/cor_normal.dds",
+			normaltex = "unittextures/leg_normal.dds",
 			removestop = true,
 			removewait = true,
 			solar = true,
-			subfolder = "legion/economy",
+			subfolder = "Legion/economy",
 		},
 		featuredefs = {
 			dead = {

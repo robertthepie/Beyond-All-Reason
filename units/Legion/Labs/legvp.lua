@@ -9,7 +9,6 @@ return {
 		buildpic = "LEGVP.DDS",
 		buildtime = 7200,
 		canmove = true,
-		category = "ALL NOTLAND NOWEAPON NOTSUB NOTSHIP NOTAIR NOTHOVER SURFACE EMPABLE",
 		collisionvolumeoffsets = "3 15 2",
 		collisionvolumescales = "101 40 106",
 		collisionvolumetype = "Box",
@@ -35,7 +34,7 @@ return {
 		workertime = 100,
 		yardmap = "ooooooo ooooooo ooooooo oocccoo oocccoo oocccoo oocccoo",
 		buildoptions = {
-			[1] = "corfav",
+			[1] = "legscout",
 			[2] = "legcv",
 			[3] = "legotter",
 			[4] = "leghades",
@@ -43,7 +42,8 @@ return {
 			[6] = "leggat",
 			[7] = "legbar",
 			[8] = "legrail",
-			[9] = "cormlv",
+			[9] = "legmlv",
+			[10] = "legamphtank",
 		},
 		customparams = {
 			usebuildinggrounddecal = true,
@@ -54,7 +54,7 @@ return {
 			unitgroup = 'builder',
 			model_author = "Mr Bob",
 			normaltex = "unittextures/cor_normal.dds",
-			subfolder = "corbuildings/landfactories",
+			subfolder = "CorBuildings/LandFactories",
 		},
 		featuredefs = {
 			dead = {

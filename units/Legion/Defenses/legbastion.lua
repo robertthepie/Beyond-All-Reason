@@ -9,7 +9,6 @@ return {
 		buildpic = "legbastion.DDS",
 		buildtime = 79000,
 		canrepeat = false,
-		category = "ALL NOTLAND WEAPON NOTSUB NOTSHIP NOTAIR NOTHOVER SURFACE EMPABLE",
 		collisionvolumeoffsets = "0.0 0.0 0.0",
 		collisionvolumescales = "60 150 60",
 		collisionvolumetype = "box",
@@ -34,7 +33,7 @@ return {
 		seismicsignature = 0,
 		selfdestructas = "largeBuildingExplosionGenericSelfd",
 		sightdistance = 780,
-		yardmap = "yoo0y o0ooo o0ooo yo0oy",
+		yardmap = "yoooy ooooo ooooo ooooo yoooy",
 		customparams = {
 			maxrange = 1125,
 			usebuildinggrounddecal = true,
@@ -46,7 +45,7 @@ return {
 			model_author = "Hornet",
 			normaltex = "unittextures/cor_normal.dds",
 			removewait = true,
-			subfolder = "corbuildings/landdefenceoffence",
+			subfolder = "CorBuildings/LandDefenceOffence",
 			techlevel = 2,
 		},
 		featuredefs = {
@@ -113,21 +112,20 @@ return {
 				areaofeffect = 120,
 				avoidfeature = false,
 				avoidfriendly = true,
-				beamtime = 1,
+				beamtime = 0.1,
 				camerashake = 0.1,
-				corethickness = 0.4,
+				corethickness = 0.3,
 				craterareaofeffect = 120,
 				craterboost = 0,
 				cratermult = 0,
 				edgeeffectiveness = 0.45,
 				energypershot = 500,
-				explosiongenerator = "custom:genericshellexplosion-medium-beam",
+				explosiongenerator = "custom:heatray-huge",
 				firestarter = 90,
 				firetolerance = 300,
-				impulseboost = 0,
 				impulsefactor = 0,
 				laserflaresize = 6,
-				name = "Cleansing Light",
+				name = "Heavy g2g Cleansing Heat Ray",
 				noselfdamage = true,
 				predictboost = 0.3,
 				proximitypriority = 1,
@@ -146,8 +144,12 @@ return {
 				weapontype = "BeamLaser",
 				weaponvelocity = 1500,
 				damage = {
-					default = 4500,
+					default = 155,
 				},
+				
+				customparams = {
+					sweepfire=4,--multiplier for displayed dps during the 'bonus' sweepfire stage, needed for DPS calcs
+				}			
 			},
 		},
 		weapons = {
