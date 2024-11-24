@@ -141,13 +141,13 @@ local function update()
 	Move(markers[4], 3, -60 - 60 - 60)
 
 	local mdx, mdy, mdz = 0, 0, 0
+	local moveDist = postions_y[1] + postions_y[2] + postions_y[3] + postions_y[4]
+	moveDist = moveDist / 4 + 120
 
 	while true do
 		Sleep(1)
 		x, y, z = Spring.GetUnitPosition(unitID)
 		dx, _, dz = Spring.GetUnitDirection(unitID)
-
-		local test
 
 		-- move legs to current frame's matrix
 		for i = 1, 4 do
@@ -163,14 +163,14 @@ local function update()
 			da1[legPosUpd] > limitMax[legPosUpd] or da1[legPosUpd] < limitMin[legPosUpd] or
 			-- is the leg too close (important) or too far away (questionable)
 			dd1[legPosUpd] < 130 or dd1[legPosUpd] > 260
-	)
+		)
 		then
-			Spring.Echo("leg: "..legPosUpd,
-				da1[legPosUpd] > limitMax[legPosUpd] and "inward "..da1[legPosUpd] or
-				da1[legPosUpd] < limitMin[legPosUpd] and "outward "..da1[legPosUpd] or
-				dd1[legPosUpd] < 130 and "close "..dd1[legPosUpd] or
-				dd1[legPosUpd] > 260 and "far "..dd1[legPosUpd]
-			)
+			--Spring.Echo("leg: "..legPosUpd,
+				--da1[legPosUpd] > limitMax[legPosUpd] and "inward "..da1[legPosUpd] or
+				--da1[legPosUpd] < limitMin[legPosUpd] and "outward "..da1[legPosUpd] or
+				--dd1[legPosUpd] < 130 and "close "..dd1[legPosUpd] or
+				--dd1[legPosUpd] > 260 and "far "..dd1[legPosUpd]
+			--)
 			-- local velocity, no clue what i am doing with the vertical compoment, that can reach x2 higher than the other two
 			mdx, mdy, mdz = Spring.GetUnitVelocity(unitID)
 			-- mdy = math.min(math.abs(mdy), 2)
@@ -203,7 +203,10 @@ local function update()
 
 			-- prevent sitting in troughs
 			--local moveDist = math.max((tmp_sum_1 + tmp_sum_2 + frw1 + frw2) * 0.166 + 100 - y, 50)
-			local moveDist = ( math.max(postions_y[4], postions_y[3], postions_y[2], postions_y[1], frw1, frw2, y) + y ) * 0.5  - y
+			--local moveDist = ( math.max(postions_y[4], postions_y[3], postions_y[2], postions_y[1], frw1, frw2, y) + y ) * 0.5  - y
+			-- local moveDist = ( math.max(postions_y[4], postions_y[3], postions_y[2], postions_y[1], frw1, frw2) + 150 ) - y
+			moveDist = postions_y[4] + postions_y[3] + postions_y[2] + postions_y[1]
+			moveDist = moveDist / 4 + 120
 
 			-- pitch	
 			--local angle = math.atan2( (postions_y[4] + postions_y[3] - postions_y[2] - postions_y[1]) * 0.5, 360) --@TODO: 360 is a bad estimate of distance between front and back
@@ -211,16 +214,18 @@ local function update()
 			(postions_y[4] + postions_y[3] + frw2 - postions_y[2] - postions_y[1] - frw1) * 0.3333, 360)                  --@TODO: 360 is a bad estimate of distance between front and back
 			Turn(base, 1, angle)
 
-			Move(base, 2, moveDist)
-			Move(base, 3, angle * moveDist)
+
+			Move(base, 3, angle * (moveDist - y))
 
 			-- roll
 			angle = math.atan2((postions_y[3] + postions_y[1] - postions_y[4] - postions_y[2]) * 0.5, 340) --@TODO: 340 is a questionable estimate of distsance between left and right
 			Turn(base, 3, angle)
-			Move(base, 1, -angle * moveDist)
+			Move(base, 1, -angle * (moveDist - y))
 
 			updBase = false
 		end
+
+		Move(base, 2, moveDist - y)
 
 		-- rotaion matrix my beloved, and y offset
 		m3d00, m3d01, m3d02, _,
