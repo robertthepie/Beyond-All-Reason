@@ -13,6 +13,7 @@ end
 --		robert the pie; scripts, hats:
 --			baseball cap, football helmet, mini rocket pod, shoulder spikes, mahwak, pool floaty, 
 --			mini pawn head, chess pawn, party hat, fedora, tophat, weird arms, UNICORN CATHAT
+--			ugly Raindeer, ugly christmas hat, ugly bags, ugly sleights
 --		the silver hornet; hats:
 --			hard hat, construction cone, jester, proppeler hat, sunhat(unused), 
 
@@ -50,7 +51,10 @@ do
 				armwin=6,
 				armham=5,
 				corthud=6,
-			},
+			}, -- objects3d/Christmas
+			christmas = {
+				corak=3,
+				corshad=4,
 			},
 		}
 
