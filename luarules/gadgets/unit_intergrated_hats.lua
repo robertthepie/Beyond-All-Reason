@@ -53,7 +53,7 @@ do
 				corthud=6,
 			}, -- objects3d/Christmas
 			christmas = {
-				corak=3,
+				corak=4,
 				corshad=4,
 			},
 		}
