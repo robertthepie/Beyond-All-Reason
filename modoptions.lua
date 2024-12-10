@@ -178,6 +178,15 @@ local options = {
 		column	= -1.01,
 	},
 	{
+		key		= "xmascoms",
+		name	= "\255\240\190\90".."• Holiday Commanders",
+		desc	= "Commander Christmas Costumes",
+		type	= "bool",
+		def		= true,
+		section	= "options_main",
+		column	= -1.01,
+	},
+	{
 		key		= "xmas",
 		name	= "\255\240\190\90".."• Holiday decorations",
 		desc	= "Various  holiday decorations",
