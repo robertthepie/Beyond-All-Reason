@@ -55,6 +55,7 @@ do
 			christmas = {
 				corak=4,
 				corshad=4,
+				armpw=3,
 			},
 		}
 

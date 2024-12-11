@@ -134,6 +134,8 @@ function UnitDef_Post(name, uDef)
 					uDef.objectname = "Christmas/CORAK.s3o"
 				elseif name == "corshad" then
 					uDef.objectname = "Christmas/CORshad.s3o"
+				elseif name == "armpw" then
+					uDef.objectname = "Christmas/armpw.s3o"
 				end
 			end
 		end
