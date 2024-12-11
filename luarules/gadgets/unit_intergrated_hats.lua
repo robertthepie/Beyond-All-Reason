@@ -56,6 +56,7 @@ do
 				corak=4,
 				corshad=4,
 				armpw=3,
+				armthund=4,
 			},
 		}
 
