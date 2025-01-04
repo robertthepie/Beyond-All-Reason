@@ -6,8 +6,7 @@
 // piece  base, pole, flare, turret, sleeve, barrel;
 piece base, turret, strut, sleeve, barrel, flare;
 
-static-var  Static_Var_1, Static_Var_2, Static_Var_3, Static_Var_4, Static_Var_5,
-            Static_Var_6, Static_Var_7, restore_delay, wpn1_lasthead;
+static-var  restore_delay, wpn1_lasthead, firing, unlocked;
 
 // Signal definitions
 #define SIG_AIM				2
@@ -27,6 +26,8 @@ static-var  Static_Var_1, Static_Var_2, Static_Var_3, Static_Var_4, Static_Var_5
 
 Create()
 {
+	firing = 0;
+	unlocked = 0;
 	hide flare;
 	hide flare;
 	restore_delay = 300;
@@ -65,6 +66,7 @@ RestoreAfterDelay()
 
 AimPrimary(heading, pitch)
 {
+	unlocked = unlocked + 1;
 	signal SIG_AIM;
 	set-signal-mask SIG_AIM;
 	turn turret to y-axis heading speed <200.000000>;
@@ -88,7 +90,17 @@ FirePrimary()
 
 AimFromPrimary(piecenum)
 {
-	piecenum = sleeve;
+	if (unlocked > 0) {
+		unlocked = unlocked - 1;
+	} else {
+		firing = !firing;
+	}
+
+	if (firing) {
+		piecenum = sleeve;
+	} else {
+		piecenum = flare;
+	}
 }
 
 QueryPrimary(piecenum)
