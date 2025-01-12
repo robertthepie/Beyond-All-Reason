@@ -1,7 +1,7 @@
 local widgetName = "Blueprint"
 
 function skip()
-	return Spring.GetGameFrame() <= 0
+	return not Platform.gl
 end
 
 function setup()
@@ -9,14 +9,8 @@ function setup()
 
 	Test.clearMap()
 
-	initialWidgetActive = widgetHandler.knownWidgets[widgetName].active
-	if initialWidgetActive then
-		widgetHandler:DisableWidget(widgetName)
-	end
-	widgetHandler:EnableWidget(widgetName, true)
+	widget = Test.prepareWidget(widgetName)
 
-	widget = widgetHandler:FindWidget(widgetName)
-	assert(widget)
 	mock_saveBlueprintsToFile = Test.mock(widget, "saveBlueprintsToFile")
 
 	initialCameraState = Spring.GetCameraState()
@@ -28,11 +22,6 @@ end
 
 function cleanup()
 	Test.clearMap()
-
-	widgetHandler:DisableWidget(widgetName)
-	if initialWidgetActive then
-		widgetHandler:EnableWidget(widgetName, false)
-	end
 
 	Spring.SetCameraState(initialCameraState)
 end

@@ -65,7 +65,7 @@ return {
 		workertime = 811,
 		buildoptions = {
 			[1] = "legmoho",
-			[2] = "corfus",
+			[2] = "legfus",
 			[3] = "legwin",
 			[5] = "cormmkr",
 			[6] = "legadvsol",
@@ -418,6 +418,7 @@ return {
 					spawns_expire = 25,
 					spawns_surface = "LAND", -- Available: "LAND SEA"
 					spawns_mode = "random",
+					stockpilelimit = 4,
 				},
 				damage = {
 					default = 0,
