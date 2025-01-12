@@ -38,7 +38,7 @@ local legIn, legOut         = 115, 200
 local legInSqrd, legOutSqrd = legIn * legIn, legOut * legOut
 local legTotSqrd, legTot    = legInSqrd + legOutSqrd, 2 * legIn * legOut
 
--- updates the armeture p1, p2 to point twoards the target x/y/z with the passed in offset being where the armeture starts on the model
+-- updates the armature p1, p2 to point towards the target x/y/z with the passed in offset being where the armature starts on the model
 -- returns distance between joint and leg, angle around y - how far forward, angle around x - how stretched out
 local function updateLeg(leg1, leg2, target_x, target_y, target_z, legoffset_x, legoffset_y, legoffset_z)
 	-- convert our target to local space
@@ -56,24 +56,24 @@ local function updateLeg(leg1, leg2, target_x, target_y, target_z, legoffset_x, 
 	local dist3dSQRD = px2 + pz2 + py2
 	local dist3d = math.sqrt(dist3dSQRD)
 
-	-- finding the angles of the armpit and elbow, so that the armeture ends at destination
+	-- finding the angles of the armpit and elbow, so that the armature ends at destination
 	-- if the arm pieces end up the same length
-	--		| the elbow caculation can be 180 - pit - pit as the triangle would be an iscoceles
+	--		| the elbow calculation can be 180 - pit - pit as the triangle would be an isosceles
 	-- 		| alternatively the math can be simplified to `cos angle = segment len / dist / 2` so `acos(2len / dist)`?
 	local legCosAngPit = math.acos(math.min((legInSqrd + dist3dSQRD - legOutSqrd) / (2 * legIn * dist3d), 1))
 	local legCosAngElb = math.acos(math.max((legTotSqrd - dist3dSQRD) / legTot, -1))
 
-	-- angle to face around y twoards target
+	-- angle to face around y towards target
 	local angle = math.atan2(px, pz)
-	-- angle flatten our traingle to our plane
+	-- angle flatten our triangle to our plane
 	--local angle2 = math.atan2(dist, py)
 	local angle2 = -math.atan2(py, dist) - legCosAngPit
 
-	-- bend the armeture to reach the destination
+	-- bend the armature to reach the destination
 	Turn(leg1, 1, angle2)
 	Turn(leg1, 2, angle)
 	Turn(leg2, 1, 3.1415926 - legCosAngElb)
-	-- Turn(leg2, 3, angle) -- unturn the leg
+	-- Turn(leg2, 3, angle) -- un-turn the leg
 
 	return dist3d, angle, angle2
 end
@@ -82,7 +82,6 @@ local OFFSET_X, OFFSET_Y = 170, 180
 local deb1, deb2, deb3 = 0, 0, 0
 
 local function update()
-	-- local marker = Spring.CreateUnit("armflea", x, y, z, "n", Spring.GetUnitTeam(unitID))
 	local postions_x = {}
 	local postions_y = {}
 	local postions_z = {}
@@ -159,7 +158,7 @@ local function update()
 		if legFree < 1 and (
 			-- is the first bone too low or high
 			-- db1[legPosUpd] > -0.25 or db1[legPosUpd] < -1.25 or
-			-- is it in its twitshing range
+			-- is it in its twisting range
 			da1[legPosUpd] > limitMax[legPosUpd] or da1[legPosUpd] < limitMin[legPosUpd] or
 			-- is the leg too close (important) or too far away (questionable)
 			dd1[legPosUpd] < 130 or dd1[legPosUpd] > 260
@@ -218,7 +217,7 @@ local function update()
 			Move(base, 3, angle * (moveDist - y))
 
 			-- roll
-			angle = math.atan2((postions_y[3] + postions_y[1] - postions_y[4] - postions_y[2]) * 0.5, 340) --@TODO: 340 is a questionable estimate of distsance between left and right
+			angle = math.atan2((postions_y[3] + postions_y[1] - postions_y[4] - postions_y[2]) * 0.5, 340) --@TODO: 340 is a questionable estimate of distance between left and right
 			Turn(base, 3, angle)
 			Move(base, 1, -angle * (moveDist - y))
 
@@ -227,7 +226,7 @@ local function update()
 
 		Move(base, 2, moveDist - y)
 
-		-- rotaion matrix my beloved, and y offset
+		-- rotation matrix my beloved, and y offset
 		m3d00, m3d01, m3d02, _,
 		m3d10, m3d11, m3d12, _,
 		m3d20, m3d21, m3d22, _,
