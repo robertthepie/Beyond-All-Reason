@@ -53,6 +53,10 @@ if gadgetHandler:IsSyncedCode() then
 	if legcomDefID then
 		validStartUnits[legcomDefID] = true
 	end
+	local pracomDefID = UnitDefNames.prap_hive and UnitDefNames.prap_hive.id
+	if pracomDefID then
+		validStartUnits[pracomDefID] = true
+	end
 	local teams = {} -- teams[teamID] = allyID
 	local teamsCount
 

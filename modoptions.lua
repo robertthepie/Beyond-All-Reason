@@ -1443,6 +1443,20 @@ local options = {
         type    = "bool",
         def     =  false,
     },
+	{
+		key		= "playablerapotrs",
+		name	= "[PH] Playable Raptors",
+		desc	=	"Mechanic Prototypes for Player Playable Raptors"
+					.."\n    Labs build around Hives"
+					.."\n    Hives instantly build at low health"
+					.."\n    Units cost e-upkeep, no penalty for lack of energy but excess boosts metal"
+					.."\n    Corpses leave behind energy, not metal reclaim"
+					.."\n    No build assisting"
+					, --eof
+		section	= "dev",
+		type	= "bool",
+		def		= true,
+	},
 
     ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

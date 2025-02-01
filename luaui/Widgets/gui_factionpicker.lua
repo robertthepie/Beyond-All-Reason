@@ -16,6 +16,9 @@ local factions = {
 if Spring.GetModOptions().experimentallegionfaction then
 	factions[#factions+1] = { startUnit = UnitDefNames.legcom.id, faction = 'leg' }
 end
+if Spring.GetModOptions().playablerapotrs then
+	factions[#factions+1] = { startUnit = UnitDefNames.prap_hive.id, faction = 'pra' }
+end
 
 local doUpdate
 local playSounds = true
