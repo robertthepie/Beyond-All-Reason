@@ -1,10 +1,9 @@
-local base, flare1, flare2, flare3, flare4, flare5 =
-	piece("base", "flare1", "flare2", "flare3", "flare4", "flare5")
+local base, body, flare, arms =
+	piece("base", "body", "flare", "arms")
 
 function script.Create()
 	Spring.UnitScript.SetUnitValue(COB.INBUILDSTANCE, true)
 end
-
 
 function script.StartBuilding(heading, pitch)
 	return true
@@ -18,6 +17,17 @@ function script.QueryNanoPiece()
 	return base
 end
 
+function script.QueryBuildInfo()
+	return flare
+end
+
 function script.Killed()
 	return 1
+end
+
+function setBuildPoint(x, y, z)
+	Move(flare,1,x)
+	Move(flare,2,y)
+	Move(flare,3,z)
+	Turn(flare,2,math.atan2(-x,z))
 end
