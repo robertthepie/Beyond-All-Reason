@@ -57,6 +57,7 @@ prap_hive = {
 	selfdestructas= "ROOST_DEATH",
 
 	customparams= {
+		iscommander = true,
 		hive		= true,
 		isairbase	= true,
 		model_author= "FireStorm, Beherith",
@@ -130,6 +131,7 @@ prap_hive_t2 = {
 	selfdestructas= "ROOST_DEATH",
 
 	customparams= {
+		iscommander = true,
 		hive		= true,
 		isairbase	= true,
 		model_author= "FireStorm, Beherith",
