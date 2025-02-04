@@ -10,9 +10,9 @@ prap_hive = {
 	selfDestructCountdown= 0,
 
 	-- builder builds these for free, dies in the porcess, it itself is the cost
-	energycost	= 1,
-	metalcost	= 1,
-	buildtime	= 1,
+	energycost	= 0,
+	metalcost	= 450,
+	buildtime	= 750,
 
 	metalmake	= 4,
 	energymake	= 25,

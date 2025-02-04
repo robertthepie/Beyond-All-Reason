@@ -487,7 +487,6 @@ function gadget:UnitFinished(unitID, unitDefID, teamID)
 	elseif activeBuilds[unitID] then
 		local pad = activeBuilds[unitID]
 		local parent = activeHives[padToOwner[pad]]
-		Spring.Echo("parent check ", UnitDefs[unitDefID].name)
 		for i = 1, 5 do
 			if parent[i] == pad then
 				parent[i] = unitID
