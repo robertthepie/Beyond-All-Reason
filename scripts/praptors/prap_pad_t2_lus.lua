@@ -6,9 +6,9 @@ function script.Create()
 end
 
 function setAngle(angle)
-	Move(head1, 1, -40)
-	Move(head1, 2, -10)
-	Move(head1, 3, -40)
+	Move(head1, 1,  75)
+	Move(head1, 2, -20)
+	Move(head1, 3, -75)
 	local face = Spring.GetUnitBuildFacing(unitID)
 	-- -0.1 is to fix a weird edge case
 	Turn(head1, 2, angle + math.rad(face*90) - 0.01)

@@ -23,10 +23,10 @@ local hiveMexDefIDs		= {}
 local foundling			= {}
 for unitDefID, unitDef in pairs(UnitDefs) do
 	if unitDef.customParams.hive then
-		hiveDefIDs[unitDefID]		= true
+		hiveDefIDs[unitDefID]		= unitDef.customParams.hive
 		hiveUpgradables[unitDefID]	= true
-	elseif unitDef.customParams.hivepad then
-		hivePlateDefIDs[unitDefID]	= true
+	elseif unitDef.customParams.hive_t2 then
+		hivePlateDefIDs[unitDefID]	= unitDef.customParams.hive_t2
 		hiveUpgradables[unitDefID]	= true
 	elseif unitDef.extractsMetal and unitDef.extractsMetal > 0 then
 		hiveMexDefIDs[unitDefID]	= true
@@ -125,7 +125,7 @@ local function findChildMexes(a,b, range)
 end
 
 -- adds build pads for arms to a new hive
-local function handleNewHive(unitID, unitTeam)
+local function handleNewHive(unitID, unitDefID, unitTeam)
 	-- for positioning build pads and sub-hives
 	local create = Spring.CreateUnit
 	local x, y, z = Spring.GetUnitPosition(unitID)
@@ -135,7 +135,7 @@ local function handleNewHive(unitID, unitTeam)
 	-- Create Hive subhive pads
 	if face == 0 then
 		for i = 1, 3 do
-			pad = create("prap_pad", x + hivePadPos3arms[i][1], y,  z + hivePadPos3arms[i][2], face, unitTeam)
+			pad = create(hiveDefIDs[unitDefID], x + hivePadPos3arms[i][1], y,  z + hivePadPos3arms[i][2], face, unitTeam)
 			if not pad then return false end
 			ang = math.rad(i * 120 - 120 - 90)
 			Spring.SetUnitRotation(pad, 0, ang, 0)
@@ -144,7 +144,7 @@ local function handleNewHive(unitID, unitTeam)
 		end
 	elseif face == 1 then
 		for i = 1, 3 do
-			pad = create("prap_pad", x - hivePadPos3arms[i][2], y, z - hivePadPos3arms[i][1], face, unitTeam)
+			pad = create(hiveDefIDs[unitDefID], x - hivePadPos3arms[i][2], y, z - hivePadPos3arms[i][1], face, unitTeam)
 			if not pad then return false end
 			ang = -math.rad(i * 120 - 120 + 180)
 			Spring.SetUnitRotation(pad, 0, ang, 0)
@@ -153,7 +153,7 @@ local function handleNewHive(unitID, unitTeam)
 		end
 	elseif face == 2 then
 		for i = 1, 3 do
-			pad = create("prap_pad", x - hivePadPos3arms[i][1], y,  z - hivePadPos3arms[i][2], face, unitTeam)
+			pad = create(hiveDefIDs[unitDefID], x - hivePadPos3arms[i][1], y,  z - hivePadPos3arms[i][2], face, unitTeam)
 			if not pad then return false end
 			ang = math.rad(i * 120 - 120 + 180 - 90)
 			Spring.SetUnitRotation(pad, 0, ang, 0)
@@ -162,7 +162,7 @@ local function handleNewHive(unitID, unitTeam)
 		end
 	else
 		for i = 1, 3 do
-			pad = create("prap_pad", x + hivePadPos3arms[i][2], y, z + hivePadPos3arms[i][1], face, unitTeam)
+			pad = create(hiveDefIDs[unitDefID], x + hivePadPos3arms[i][2], y, z + hivePadPos3arms[i][1], face, unitTeam)
 			if not pad then return false end
 			ang = -math.rad(i * 120 - 120)
 			Spring.SetUnitRotation(pad, 0, ang, 0)
@@ -173,7 +173,7 @@ local function handleNewHive(unitID, unitTeam)
 end
 
 local function updateRotation(builderID)
-	if hivePlateDefIDs[Spring.GetUnitDefID(builderID)] then
+	if hivePlateDefIDs[Spring.GetUnitDefID(builderID)] == "prap_pad_t2" then --TODO: temp pad test
 		local env = Spring.UnitScript.GetScriptEnv(builderID)
 		if env then
 			local _, y, _ = Spring.GetUnitRotation(builderID)
@@ -184,86 +184,138 @@ end
 
 
 -- converts the arms of a preexisting hive to it's new tier and adds more
-local function handleHiveInheritance(unitID, unitTeam)
+local function handleHiveInheritance(unitID, unitDefID, unitTeam)
 	-- for positioning build pads and sub-hives
 	local create = Spring.CreateUnit
 	local x, y, z = Spring.GetUnitPosition(unitID)
 	local face = Spring.GetUnitBuildFacing(unitID)
-	local pad, ang
+	local oldPad, pad, padDef, ang
 
 	-- migrate old subhives/pads to new positions
 	if face == 0 then
 		for i = 1, 3 do
-			pad = activeHives[unitID][i]
-			Spring.SetUnitPosition(pad, x + hivePadPos5arms[((i-1)*2+1)][1], y,  z + hivePadPos5arms[((i-1)*2+1)][2])
+			oldPad = activeHives[unitID][i]
+			padDef = Spring.GetUnitDefID(oldPad)
+
+			pad = create(hivePlateDefIDs[padDef] or hiveDefIDs[unitDefID], x + hivePadPos5arms[((i-1)*2+1)][1], y,  z + hivePadPos5arms[((i-1)*2+1)][2], face, unitTeam)
+			if not pad then return false end
+			padToOwner[oldPad] = nil
+			Spring.DestroyUnit(oldPad, false, true)
+
 			ang = math.rad(((i-1)*2+1) * 72 - 72 - 90)
 			Spring.SetUnitRotation(pad, 0, ang, 0)
+			activeHives[unitID][i] = pad
 			padToOwner[pad] = unitID
-			updateRotation(pad)
+
+			--Spring.SetUnitPosition(pad, x + hivePadPos5arms[((i-1)*2+1)][1], y,  z + hivePadPos5arms[((i-1)*2+1)][2])
+			--ang = math.rad(((i-1)*2+1) * 72 - 72 - 90)
+			--Spring.SetUnitRotation(pad, 0, ang, 0)
+			--padToOwner[pad] = unitID
+			--updateRotation(pad)
 		end
 	elseif face == 1 then
 		for i = 1, 3 do
-			pad = activeHives[unitID][i]
-			Spring.SetUnitPosition(pad, x - hivePadPos5arms[((i-1)*2+1)][2], y, z - hivePadPos5arms[((i-1)*2+1)][1])
+			oldPad = activeHives[unitID][i]
+			padDef = Spring.GetUnitDefID(oldPad)
+
+			pad = create(hivePlateDefIDs[padDef] or hiveDefIDs[unitDefID], x - hivePadPos5arms[((i-1)*2+1)][2], y, z - hivePadPos5arms[((i-1)*2+1)][1], face, unitTeam)
+			if not pad then return false end
+			padToOwner[oldPad] = nil
+			Spring.DestroyUnit(oldPad, false, true)
+
 			ang = -math.rad(((i-1)*2+1) * 72 - 72 + 180)
 			Spring.SetUnitRotation(pad, 0, ang, 0)
+			activeHives[unitID][i] = pad
 			padToOwner[pad] = unitID
-			updateRotation(pad)
+
+			--Spring.SetUnitPosition(pad, x - hivePadPos5arms[((i-1)*2+1)][2], y, z - hivePadPos5arms[((i-1)*2+1)][1])
+			--ang = -math.rad(((i-1)*2+1) * 72 - 72 + 180)
+			--Spring.SetUnitRotation(pad, 0, ang, 0)
+			--padToOwner[pad] = unitID
+			--updateRotation(pad)
 		end
 	elseif face == 2 then
 		for i = 1, 3 do
-			pad = activeHives[unitID][i]
-			Spring.SetUnitPosition(pad, x - hivePadPos5arms[((i-1)*2+1)][1], y,  z - hivePadPos5arms[((i-1)*2+1)][2])
+			oldPad = activeHives[unitID][i]
+			padDef = Spring.GetUnitDefID(oldPad)
+
+			pad = create(hivePlateDefIDs[padDef] or hiveDefIDs[unitDefID], x - hivePadPos5arms[((i-1)*2+1)][1], y,  z - hivePadPos5arms[((i-1)*2+1)][2], face, unitTeam)
+			if not pad then return false end
+			padToOwner[oldPad] = nil
+			Spring.DestroyUnit(oldPad, false, true)
+
 			ang = math.rad(((i-1)*2+1) * 72 - 72 + 180 - 90)
 			Spring.SetUnitRotation(pad, 0, ang, 0)
+			activeHives[unitID][i] = pad
 			padToOwner[pad] = unitID
-			updateRotation(pad)
+
+			--Spring.SetUnitPosition(pad, x - hivePadPos5arms[((i-1)*2+1)][1], y,  z - hivePadPos5arms[((i-1)*2+1)][2])
+			--ang = math.rad(((i-1)*2+1) * 72 - 72 + 180 - 90)
+			--Spring.SetUnitRotation(pad, 0, ang, 0)
+			--padToOwner[pad] = unitID
+			--updateRotation(pad)
 		end
 	else
 		for i = 1, 3 do
-			pad = activeHives[unitID][i]
-			Spring.SetUnitPosition(pad, x + hivePadPos5arms[((i-1)*2+1)][2], y, z + hivePadPos5arms[((i-1)*2+1)][1])
+			oldPad = activeHives[unitID][i]
+			padDef = Spring.GetUnitDefID(oldPad)
+
+			pad = create(hivePlateDefIDs[padDef] or hiveDefIDs[unitDefID], x + hivePadPos5arms[((i-1)*2+1)][2], y, z + hivePadPos5arms[((i-1)*2+1)][1], face, unitTeam)
+			if not pad then return false end
+			padToOwner[oldPad] = nil
+			Spring.DestroyUnit(oldPad, false, true)
+
 			ang = -math.rad(((i-1)*2+1) * 72 - 72)
 			Spring.SetUnitRotation(pad, 0, ang, 0)
+			activeHives[unitID][i] = pad
 			padToOwner[pad] = unitID
-			updateRotation(pad)
+
+			--Spring.SetUnitPosition(pad, x + hivePadPos5arms[((i-1)*2+1)][2], y, z + hivePadPos5arms[((i-1)*2+1)][1])
+			--ang = -math.rad(((i-1)*2+1) * 72 - 72)
+			--Spring.SetUnitRotation(pad, 0, ang, 0)
+			--padToOwner[pad] = unitID
+			--updateRotation(pad)
 		end
 	end
 
 	-- Create Hive subhive pads
 	if face == 0 then
 		for i = 2, 4, 2 do
-			pad = create("prap_pad", x + hivePadPos5arms[i][1], y,  z + hivePadPos5arms[i][2], face, unitTeam)
+			pad = create(hiveDefIDs[unitDefID], x + hivePadPos5arms[i][1], y,  z + hivePadPos5arms[i][2], face, unitTeam)
 			if not pad then return false end
 			ang = math.rad(i * 72 - 72 - 90)
 			Spring.SetUnitRotation(pad, 0, ang, 0)
+			-- turn 2, 4 into 4, 5
 			activeHives[unitID][i/2+3] = pad
 			padToOwner[pad] = unitID
 		end
 	elseif face == 1 then
 		for i = 2, 4, 2 do
-			pad = create("prap_pad", x - hivePadPos5arms[i][2], y, z - hivePadPos5arms[i][1], face, unitTeam)
+			pad = create(hiveDefIDs[unitDefID], x - hivePadPos5arms[i][2], y, z - hivePadPos5arms[i][1], face, unitTeam)
 			if not pad then return false end
 			ang = -math.rad(i * 72 - 72 + 180)
 			Spring.SetUnitRotation(pad, 0, ang, 0)
+			-- turn 2, 4 into 4, 5
 			activeHives[unitID][i/2+3] = pad
 			padToOwner[pad] = unitID
 		end
 	elseif face == 2 then
 		for i = 2, 4, 2 do
-			pad = create("prap_pad", x - hivePadPos5arms[i][1], y,  z - hivePadPos5arms[i][2], face, unitTeam)
+			pad = create(hiveDefIDs[unitDefID], x - hivePadPos5arms[i][1], y,  z - hivePadPos5arms[i][2], face, unitTeam)
 			if not pad then return false end
 			ang = math.rad(i * 72 - 72 + 180 - 90)
 			Spring.SetUnitRotation(pad, 0, ang, 0)
+			-- turn 2, 4 into 4, 5
 			activeHives[unitID][i/2+3] = pad
 			padToOwner[pad] = unitID
 		end
 	else
 		for i = 2, 4, 2 do
-			pad = create("prap_pad", x + hivePadPos5arms[i][2], y, z + hivePadPos5arms[i][1], face, unitTeam)
+			pad = create(hiveDefIDs[unitDefID], x + hivePadPos5arms[i][2], y, z + hivePadPos5arms[i][1], face, unitTeam)
 			if not pad then return false end
 			ang = -math.rad(i * 72 - 72)
 			Spring.SetUnitRotation(pad, 0, ang, 0)
+			-- turn 2, 4 into 4, 5
 			activeHives[unitID][i/2+3] = pad
 			padToOwner[pad] = unitID
 		end
@@ -297,13 +349,11 @@ function gadget:UnitCreated(unitID, unitDefID, teamID, builderID)
 
 	else
 		local builderDefID = builderID and Spring.GetUnitDefID(builderID)
-		if builderDefID then
-			if foundling[builderDefID] then
-				Spring.SetUnitHealth(unitID, {health=2,build=1})
-				Spring.DestroyUnit(builderID, false, true)
-			elseif hiveUpgradables[builderDefID] then
-				activeBuilds[unitID] = builderID
-			end
+		if foundling[builderDefID] then
+			Spring.SetUnitHealth(unitID, {health=2,build=1})
+			Spring.DestroyUnit(builderID, false, true)
+		elseif hiveUpgradables[unitDefID] and hiveUpgradables[builderDefID] then
+			activeBuilds[unitID] = builderID
 		end
 	end
 end
@@ -437,7 +487,7 @@ function gadget:AllowUnitCreation(unitDefID, builderID)
 	end
 
 	local builderDefID = Spring.GetUnitDefID(builderID)
-	if hivePlateDefIDs[builderDefID] then
+	if hivePlateDefIDs[builderDefID] == "prap_pad_t2" then --TODO: temp pad test
 		local env = Spring.UnitScript.GetScriptEnv(builderID)
 		if env then
 			local _, y, _ = Spring.GetUnitRotation(builderID)
@@ -462,7 +512,7 @@ function gadget:UnitFinished(unitID, unitDefID, teamID)
 			local builderDefID = builderID and Spring.GetUnitDefID(builderID) or false
 			if builderDefID and hiveDefIDs[builderDefID] then
 				activeHives[unitID] = activeHives[builderID]
-				handleHiveInheritance(unitID, teamID)
+				handleHiveInheritance(unitID, unitDefID, teamID)
 				activeHives[builderID] = nil
 
 				hiveMexSpots[unitID] = hiveMexSpots[builderID]
@@ -476,7 +526,7 @@ function gadget:UnitFinished(unitID, unitDefID, teamID)
 		-- new born
 		else
 			activeHives[unitID] = {}
-			handleNewHive(unitID, teamID)
+			handleNewHive(unitID, unitDefID, teamID)
 
 			local x,y,z = Spring.GetUnitPosition(unitID)
 			hiveMexSpots[unitID] = findChildMexes(x,z, UnitDefs[unitDefID].buildDistance + 30)
@@ -497,7 +547,8 @@ function gadget:UnitFinished(unitID, unitDefID, teamID)
 		padToOwner[pad] = nil
 		Spring.DestroyUnit(activeBuilds[unitID], false, true)
 		activeBuilds[unitID] = nil
-	elseif hivePlateDefIDs[unitDefID] then
+	elseif hivePlateDefIDs[unitDefID] == "prap_pad_t2" then --TODO: temp pad test
+		-- ?? i forgor
 	end
 end
 
@@ -535,7 +586,8 @@ function gadget:UnitDestroyed(unitID, unitDefID, teamID, attackerID)
 		local x, y, z = Spring.GetUnitPosition(unitID)
 		local face = Spring.GetUnitBuildFacing(unitID)
 
-		local pad = Spring.CreateUnit("prap_pad", x, y, z, face, teamID)
+		local parentDefID = Spring.GetUnitDefID(padToOwner[unitID])
+		local pad = Spring.CreateUnit(hiveDefIDs[parentDefID], x, y, z, face, teamID)
 		if not pad then return --[[ we may have a big problem]] end
 
 		local x, y, z = Spring.GetUnitRotation(unitID)
