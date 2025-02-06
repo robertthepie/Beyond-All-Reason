@@ -28,15 +28,16 @@ for unitDefID, unitDef in pairs(UnitDefs) do
 	elseif unitDef.customParams.hive_t2 then
 		hivePlateDefIDs[unitDefID]	= unitDef.customParams.hive_t2
 		hiveUpgradables[unitDefID]	= true
-	elseif unitDef.extractsMetal and unitDef.extractsMetal > 0 then
+	elseif false and unitDef.extractsMetal and unitDef.extractsMetal > 0 then
 		hiveMexDefIDs[unitDefID]	= true
 	elseif false then
 		hiveEcoDefIDs[unitDefID]	= true
 	end
 end
 
-hiveEcoDefIDs[UnitDefNames["armsolar"].id]	= true
-hiveEcoDefIDs[UnitDefNames["armwin"].id]	= true
+hiveMexDefIDs[UnitDefNames["prap_mex"].id]	= true
+hiveEcoDefIDs[UnitDefNames["prap_solar"].id]= true
+hiveEcoDefIDs[UnitDefNames["prap_win"].id]	= true
 foundling[UnitDefNames["prap_foundling"].id]= true
 
 if gadgetHandler:IsSyncedCode() then
