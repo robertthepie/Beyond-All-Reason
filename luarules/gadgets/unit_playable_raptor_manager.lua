@@ -35,9 +35,9 @@ for unitDefID, unitDef in pairs(UnitDefs) do
 	end
 end
 
-hiveMexDefIDs[UnitDefNames["prap_mex"].id]	= true
-hiveEcoDefIDs[UnitDefNames["prap_solar"].id]= true
-hiveEcoDefIDs[UnitDefNames["prap_win"].id]	= true
+hiveMexDefIDs[UnitDefNames["prap_mex"].id]	= "prap_mex_t2"
+hiveEcoDefIDs[UnitDefNames["prap_solar"].id]= "prap_solar_t2"
+hiveEcoDefIDs[UnitDefNames["prap_win"].id]	= "prap_win_t2"
 foundling[UnitDefNames["prap_foundling"].id]= true
 
 if gadgetHandler:IsSyncedCode() then
@@ -185,12 +185,34 @@ end
 
 
 -- converts the arms of a preexisting hive to it's new tier and adds more
-local function handleHiveInheritance(unitID, unitDefID, unitTeam)
+local function handleHiveInheritance(unitID, unitDefID, builderID, unitTeam)
 	-- for positioning build pads and sub-hives
 	local create = Spring.CreateUnit
-	local x, y, z = Spring.GetUnitPosition(unitID)
+	local x, y, z
 	local face = Spring.GetUnitBuildFacing(unitID)
 	local oldPad, pad, padDef, ang
+
+	-- migrate eco
+	for i = 1, 20 do
+		oldPad = hiveEcoSpots[builderID][i]
+		if oldPad then
+			padDef = Spring.GetUnitDefID(oldPad)
+			x, y, z = Spring.GetUnitPosition(oldPad)
+			_, ang, _ = Spring.GetUnitRotation(oldPad)
+			padDef = hiveEcoDefIDs[padDef]
+			if padDef then
+				pad = create(padDef, x, y, z, face, unitTeam)
+				if not pad then return false end
+				hiveEcoSpots[unitID][i] = pad
+				Spring.SetUnitRotation(pad, 0, ang, 0)
+				EcoEcoSpots[pad] = hiveEcoSpots[unitID]
+				EcoEcoSpots[oldPad] = nil
+				Spring.DestroyUnit(oldPad, false, true)
+			end
+		end
+	end
+
+	x, y, z = Spring.GetUnitPosition(unitID)
 
 	-- migrate old subhives/pads to new positions
 	if face == 0 then
@@ -343,7 +365,7 @@ function gadget:UnitCreated(unitID, unitDefID, teamID, builderID)
 			for i = 1, 20 do
 				if spots[i] == false then
 					spots[i] = unitID
-					EcoEcoSpots[unitID] = hiveEcoSpots[builderID]
+					EcoEcoSpots[unitID] = spots
 				end
 			end
 		end
@@ -512,13 +534,19 @@ function gadget:UnitFinished(unitID, unitDefID, teamID)
 			local builderID = activeBuilds[unitID]
 			local builderDefID = builderID and Spring.GetUnitDefID(builderID) or false
 			if builderDefID and hiveDefIDs[builderDefID] then
-				activeHives[unitID] = activeHives[builderID]
-				handleHiveInheritance(unitID, unitDefID, teamID)
-				activeHives[builderID] = nil
 
 				hiveMexSpots[unitID] = hiveMexSpots[builderID]
-				hiveEcoSpots[unitID] = hiveEcoSpots[builderID]
+				activeHives[unitID] = activeHives[builderID]
+				hiveEcoSpots[unitID] = {[0]=0}
+
+				handleHiveInheritance(unitID, unitDefID, builderID, teamID)
+
+				-- hiveMexSpots[unitID] = hiveMexSpots[builderID]
+				-- hiveEcoSpots[unitID] = hiveEcoSpots[builderID]
+
 				hiveEcoSpots[builderID] = nil
+				hiveMexSpots[builderID] = nil
+				activeHives[builderID] = nil
 
 				Spring.DestroyUnit(builderID, false, true)
 			end
