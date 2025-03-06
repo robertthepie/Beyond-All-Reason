@@ -11,7 +11,7 @@ local torso, pelvis, head, thing, aimx1, aimy1,
 		"rturret", "rbarrel1", "rbarrel2", "rflare1", "rflare2", "rexhaust1", "rexhaust2")
 
 --local DIST0, legIn, legOut = 123, 47, 89
-local DIST0, legIn, legOut = 123, 94, 178
+local DIST0, legIn, legOut, footOffset = 78, 47, 89, 20
 local DISTX = 45
 -- local ANG1, ANG2, ANG3 = 60, 88, -28
 local legInSqrd, legOutSqrd = legIn * legIn, legOut * legOut
@@ -37,7 +37,7 @@ local function toGlobal2D_X(x)
 	return x * _dx + _x, _y, x * _dz + _z
 end
 
-local function updateLeg(leg1, leg2, target_x, target_y, target_z, legoffset_x, legoffset_y, legoffset_z)
+local function updateLeg(leg1, leg2, foot, target_x, target_y, target_z, legoffset_x, legoffset_y, legoffset_z)
 	-- convert our target to local space
 	local px, py, pz = target_x, target_y, target_z
 	--local px, py, pz = toLocalSpace2d(target_x, target_y, target_z)
@@ -69,9 +69,10 @@ local function updateLeg(leg1, leg2, target_x, target_y, target_z, legoffset_x, 
 
 	-- bend the armature to reach the destination
 	--Turn(leg1, 1, angle2 - 1.5707963)
-	Turn(leg1, 1, angle2 - 1.5707963)
+	Turn(leg1, 1, - angle2 + 1.5707963)
 	Turn(leg1, 2, angle)
-	Turn(leg2, 1, 3.1415926 - legCosAngElb)
+	Turn(leg2, 1, legCosAngElb + 3.1415926)
+	Turn(foot, 1, - legCosAngElb - 3.1415926 + angle2 - 1.5707963)
 	--Turn(leg2, 1, 3.1415926 - legCosAngElb)
 	-- Turn(leg2, 3, angle) -- un-turn the leg
 
@@ -94,8 +95,8 @@ local function update()
 
 		temp = Spring.GetGroundHeight(_x, _z)
 
-		leftRot = {updateLeg(leftLeg[1],  leftLeg[3], -DISTX, temp-_y, 0, -DISTX, DIST0, 0)}
-		updateLeg(rightLeg[1], rightLeg[3], DISTX, temp-_y, 0, DISTX, DIST0, 0)
+		leftRot = {updateLeg(leftLeg[3],  leftLeg[1], leftLeg[2], -DISTX, temp - _y + footOffset, 0, -DISTX, DIST0, 0)}
+		updateLeg(rightLeg[3], rightLeg[1], rightLeg[2], DISTX, temp - _y + footOffset, 0, DISTX, DIST0, 0)
 	end
 end
 
@@ -107,9 +108,9 @@ local function slowUpdate()
 end
 
 function script.Create()
-	Move(pelvis, 2, (-DIST0*0.5))
+	--Move(pelvis, 2, (-DIST0*0.5))
 	StartThread(update)
-	StartThread(slowUpdate)
+	--StartThread(slowUpdate)
 end
 
 function script.StartMoving()

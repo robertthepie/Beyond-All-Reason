@@ -26,7 +26,7 @@ return {
 		upright			= true,
 		useSmoothMesh	= false,
 
-		cruisealtitude	= 100,
+		cruisealtitude	= 50,
 		maxslope		= 10,
 
 		turninplaceanglelimit = 360,
