@@ -26,7 +26,7 @@ return {
 		upright			= true,
 		useSmoothMesh	= false,
 
-		cruisealtitude	= 50,
+		cruisealtitude	= 40,
 		maxslope		= 10,
 
 		turninplaceanglelimit = 360,
@@ -41,8 +41,8 @@ return {
 		explodeas		= "hugeExplosionGeneric",
 
 		--other @TODO:
-		collisionvolumeoffsets	= "1 -3 0",
-		collisionvolumescales	= "52 21 52",
+		collisionvolumeoffsets	= "0 -50 0",
+		collisionvolumescales	= "114 114 114",
 		collisionvolumetype		= "CylY",
 		seismicsignature	= 0,
 		selfdestructas		= "hugeExplosionGenericSelfd",

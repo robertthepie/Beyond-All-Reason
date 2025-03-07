@@ -1,35 +1,35 @@
 local torso, pelvis, head, thing, aimx1, aimy1,
-		rleg, rfoot, rthigh, rtoes, -- right leg
-		lleg, lfoot, lthigh, ltoes, -- left  leg
+		rRoll, rleg, rfoot, rthigh, rtoes, -- right leg
+		lRoll, lleg, lfoot, lthigh, ltoes, -- left  leg
 		lturret, lbarrel1, lbarrel2, lflare1, lflare2, lexhaust1, lexhaust2,-- left  weapon
 		rturret, rbarrel1, rbarrel2, rflare1, rflare2, rexhaust1, rexhaust2 -- right weapon
-		=
-		piece("torso", "pelvis", "head", "thing", "aimx1", "aimy1",
-		"rleg", "rfoot", "rthigh", "rtoes",
-		"lleg", "lfoot", "lthigh", "ltoes", 
-		"lturret", "lbarrel1", "lbarrel2", "lflare1", "lflare2", "lexhaust1", "lexhaust2",
-		"rturret", "rbarrel1", "rbarrel2", "rflare1", "rflare2", "rexhaust1", "rexhaust2")
+= piece("torso", "pelvis", "head", "thing", "aimx1", "aimy1",
+		"rRoll", "rleg", "rfoot", "rthigh", "rtoes", -- right leg
+		"lRoll", "lleg", "lfoot", "lthigh", "ltoes", -- left  leg
+		"lturret", "lbarrel1", "lbarrel2", "lflare1", "lflare2", "lexhaust1", "lexhaust2", -- left  weapon
+		"rturret", "rbarrel1", "rbarrel2", "rflare1", "rflare2", "rexhaust1", "rexhaust2") -- right weapon
 
 --local DIST0, legIn, legOut = 123, 47, 89
-local DIST0, legIn, legOut, footOffset = 78, 47, 89, 20
-local DISTX = 45
+local DIST2GROUND, legDistUpper, legDistLower, legDistFoot = 86, 47, 89, 20
+local DISTFROMPELVIS = 45
 -- local ANG1, ANG2, ANG3 = 60, 88, -28
-local legInSqrd, legOutSqrd = legIn * legIn, legOut * legOut
-local legTotSqrd, legTot    = legInSqrd + legOutSqrd, 2 * legIn * legOut
+local legSqrdUpper, legSqrdLower = legDistUpper * legDistUpper, legDistLower * legDistLower
+local legTotSqrd, legTot    = legSqrdUpper + legSqrdLower, 2 * legDistUpper * legDistLower
 
 local _x, _y, _z		= 0, 0, 0
 local _dx, _dy, _dz	= 0, 0, 0
+local _vx, _vy, _vz = 0,0,0
 
 -- to local unit space
 local function toLocalSpace2d(x, y, z)
-	local vx, vy, vz = 0, 0, 0
-	local ovx, ovy, ovz = 0, 0, 0
-	vx = x - _x
-	ovy = y - _y
-	vz = z - _z
+	local vx = x - _x
+	local vz = z - _z
 
-	ovx = vx * _dz + vz * -_dx
-	ovz = vx * _dx + vz * _dz
+	local ovx = vx * _dz + vz * -_dx
+	local ovz = vx * _dx + vz * _dz
+
+	local ovy = y - _y
+
 	return ovx, ovy, ovz
 end
 
@@ -37,7 +37,7 @@ local function toGlobal2D_X(x)
 	return x * _dx + _x, _y, x * _dz + _z
 end
 
-local function updateLeg(leg1, leg2, foot, target_x, target_y, target_z, legoffset_x, legoffset_y, legoffset_z)
+local function updateLeg(legRoll, leg1, leg2, foot, target_x, target_y, target_z, legoffset_x, legoffset_y, legoffset_z)
 	-- convert our target to local space
 	local px, py, pz = target_x, target_y, target_z
 	--local px, py, pz = toLocalSpace2d(target_x, target_y, target_z)
@@ -55,62 +55,59 @@ local function updateLeg(leg1, leg2, foot, target_x, target_y, target_z, legoffs
 	local dist3d = math.sqrt(dist3dSQRD)
 
 	-- finding the angles of the armpit and elbow, so that the armature ends at destination
-	-- if the arm pieces end up the same length
-	--		| the elbow calculation can be 180 - pit - pit as the triangle would be an isosceles
-	-- 		| alternatively the math can be simplified to `cos angle = segment len / dist / 2` so `acos(2len / dist)`?
-	local legCosAngPit = math.acos(math.min(math.max((legInSqrd + dist3dSQRD - legOutSqrd) / (2 * legIn * dist3d), -1), 1))
-	local legCosAngElb = math.acos(math.min(math.max((legTotSqrd - dist3dSQRD) / legTot, -1), 1))
+	local anglePelvis = math.acos(math.min(math.max((legSqrdUpper + dist3dSQRD - legSqrdLower) / (2 * legDistUpper * dist3d), -1), 1))
+	local angleKnee = math.acos(math.min(math.max((legTotSqrd - dist3dSQRD) / legTot, -1), 1))
+	local anglePelvisAdjusted = -math.atan2(py, dist) - anglePelvis
 
-	-- angle to face around y towards target
-	local angle = 0--math.atan2(px, pz)
-	-- angle flatten our triangle to our plane
-	--local angle2 = math.atan2(dist, py)
-	local angle2 = -math.atan2(py, dist) - legCosAngPit
+	-- roll the leg in and out
+	local angle = math.atan2(py, px)
+	Turn(legRoll, 3, angle + 1.5707963)
 
 	-- bend the armature to reach the destination
-	--Turn(leg1, 1, angle2 - 1.5707963)
-	Turn(leg1, 1, - angle2 + 1.5707963)
-	Turn(leg1, 2, angle)
-	Turn(leg2, 1, legCosAngElb + 3.1415926)
-	Turn(foot, 1, - legCosAngElb - 3.1415926 + angle2 - 1.5707963)
-	--Turn(leg2, 1, 3.1415926 - legCosAngElb)
-	-- Turn(leg2, 3, angle) -- un-turn the leg
+	Turn(leg1, 1, - anglePelvisAdjusted + 1.5707963)
+	Turn(leg2, 1, angleKnee + 3.1415926)
+	Turn(foot, 1, - angleKnee - 3.1415926 + anglePelvisAdjusted - 1.5707963)
+	Turn(foot, 3, -angle - 1.5707963)
 
-	return legCosAngElb, legTotSqrd, dist3dSQRD, legTot
+	return nil
 end
-local leftRot, rightRot = {},{}
+
 local function update()
-	 leftRot	= { 0, 0, 0 }
-	 rightRot	= { 0, 0, 0 }
-	local leftLeg	= { rleg, rfoot, rthigh, rtoes }
-	local rightLeg	= { lleg, lfoot, lthigh, ltoes }
-	local dd1, da1, db1 = {0,0},{0,0},{0,0}
+	local leftRot, rightRot	= {}, {}
 
 	local temp = 1
 
 	while true do
 		Sleep(1) -- sleep at the start so that i don't forget it
-		_x, _y, _z = Spring.GetUnitPosition(unitID)
+
+		-- current state
+		 _x,  _y,  _z = Spring.GetUnitPosition(unitID)
 		_dx, _dy, _dz = Spring.GetUnitDirection(unitID)
+		_vx, _vy, _vz = Spring.GetUnitVelocity(unitID)
 
-		temp = Spring.GetGroundHeight(_x, _z)
+		temp = Spring.GetGroundHeight(_x, _z) - _y + legDistFoot
 
-		leftRot = {updateLeg(leftLeg[3],  leftLeg[1], leftLeg[2], -DISTX, temp - _y + footOffset, 0, -DISTX, DIST0, 0)}
-		updateLeg(rightLeg[3], rightLeg[1], rightLeg[2], DISTX, temp - _y + footOffset, 0, DISTX, DIST0, 0)
-	end
-end
-
-local function slowUpdate()
-	while true do
-		Sleep(600)
-		Spring.Echo(leftRot[1],leftRot[2],leftRot[3],leftRot[4])
+		leftRot = {updateLeg(
+			--		thigh	lower	foot
+			lRoll,	lthigh,	lleg,	lfoot,
+			--target x, y, z
+			-DISTFROMPELVIS,	temp,	0,
+			-- thigh offset from the model centre
+			-DISTFROMPELVIS, DIST2GROUND, 0
+		)}
+		rightRot= {updateLeg(
+			--		thigh		lower		foot
+			rRoll,	rthigh, rleg, rfoot,
+			-- target x, y, z
+			DISTFROMPELVIS+10, temp , 0,
+			-- thigh offset from the model centre
+			DISTFROMPELVIS, DIST2GROUND, 0
+		)}
 	end
 end
 
 function script.Create()
-	--Move(pelvis, 2, (-DIST0*0.5))
 	StartThread(update)
-	--StartThread(slowUpdate)
 end
 
 function script.StartMoving()
