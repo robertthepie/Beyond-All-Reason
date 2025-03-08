@@ -10,7 +10,7 @@ local torso, pelvis, head, thing, aimx1, aimy1,
 		"rturret", "rbarrel1", "rbarrel2", "rflare1", "rflare2", "rexhaust1", "rexhaust2") -- right weapon
 
 --local DIST0, legIn, legOut = 123, 47, 89
-local DIST2GROUND, legDistUpper, legDistLower, legDistFoot = 86, 47, 89, 20
+local DIST2GROUND, legDistUpper, legDistLower, legDistFoot = 86, 47.04, 89.7, 20
 local DISTFROMPELVIS = 45
 -- local ANG1, ANG2, ANG3 = 60, 88, -28
 local legSqrdUpper, legSqrdLower = legDistUpper * legDistUpper, legDistLower * legDistLower
@@ -55,18 +55,18 @@ local function updateLeg(legRoll, leg1, leg2, foot, target_x, target_y, target_z
 	local dist3d = math.sqrt(dist3dSQRD)
 
 	-- finding the angles of the armpit and elbow, so that the armature ends at destination
-	local anglePelvis = math.acos(math.min(math.max((legSqrdUpper + dist3dSQRD - legSqrdLower) / (2 * legDistUpper * dist3d), -1), 1))
-	local angleKnee = math.acos(math.min(math.max((legTotSqrd - dist3dSQRD) / legTot, -1), 1))
-	local anglePelvisAdjusted = -math.atan2(py, dist) - anglePelvis
+	local anglePelvis	= math.acos(math.min(math.max((legSqrdUpper + dist3dSQRD - legSqrdLower) / (2 * legDistUpper * dist3d), -1), 1))
+	local angleKnee		= math.acos(math.min(math.max((legTotSqrd - dist3dSQRD) / legTot, -1), 1))
+	--local anglePelvisAdjusted = -math.atan2(py, dist) - anglePelvis ???
 
 	-- roll the leg in and out
 	local angle = math.atan2(py, px)
 	Turn(legRoll, 3, angle + 1.5707963)
 
 	-- bend the armature to reach the destination
-	Turn(leg1, 1, - anglePelvisAdjusted + 1.5707963)
+	Turn(leg1, 1, anglePelvis)
 	Turn(leg2, 1, angleKnee + 3.1415926)
-	Turn(foot, 1, - angleKnee - 3.1415926 + anglePelvisAdjusted - 1.5707963)
+	Turn(foot, 1, - angleKnee - 3.1415926 - anglePelvis)
 	Turn(foot, 3, -angle - 1.5707963)
 
 	return nil
