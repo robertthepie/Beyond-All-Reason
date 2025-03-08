@@ -12,6 +12,7 @@ local torso, pelvis, head, thing, aimx1, aimy1,
 --local DIST0, legIn, legOut = 123, 47, 89
 local DIST2GROUND, legDistUpper, legDistLower, legDistFoot = 86, 47.04, 89.7, 20
 local DISTFROMPELVIS = 45
+local SPEEDDISTMULT = 35
 -- local ANG1, ANG2, ANG3 = 60, 88, -28
 local legSqrdUpper, legSqrdLower = legDistUpper * legDistUpper, legDistLower * legDistLower
 local legTotSqrd, legTot    = legSqrdUpper + legSqrdLower, 2 * legDistUpper * legDistLower
@@ -83,14 +84,25 @@ local function slowUpdate()
 	end
 end
 
-local function calcFoorGoal(offset)
+local function calcFootGoal(legXOffset, moveOffset)
+	local x, y, z = _x, 0, _z
 
+	x = x + _dz * legXOffset
+	z = z - _dx * legXOffset
+
+	x = x + _vx * moveOffset
+	z = z + _vz * moveOffset
+
+	y = Spring.GetGroundHeight(x, z) + legDistFoot
+
+	return x,y,z
 end
 
 local function update()
 	local leftRot, rightRot	= {}, {}
-	local lt, rt = {0,0,0}, {0,0,0}
-	local tx, ty, tz = 0,0,0
+	local tx1, ty1, tz1 = calcFootGoal(DISTFROMPELVIS, SPEEDDISTMULT)
+	local tx2, ty2, tz2 = calcFootGoal(-DISTFROMPELVIS, SPEEDDISTMULT)
+	local ac = 0
 
 	while true do
 		Sleep(1) -- sleep at the start so that i don't forget it
@@ -100,43 +112,27 @@ local function update()
 		_dx, _dy, _dz = Spring.GetUnitDirection(unitID)
 		_vx, _vy, _vz = Spring.GetUnitVelocity(unitID)
 
-		tx = _x
-		tz = _z
-
-		tx = tx + _dz * 50
-		tz = tz - _dx * 50
-
-		tx = tx + _vx * 50
-		tz = tz + _vz * 50
-
-		ty = Spring.GetGroundHeight(tx, tz) + legDistFoot
+		if ac == 51 then
+			tx1, ty1, tz1 = calcFootGoal(DISTFROMPELVIS, SPEEDDISTMULT)
+		elseif ac == 1 then
+			tx2, ty2, tz2 = calcFootGoal(-DISTFROMPELVIS, SPEEDDISTMULT)
+		end
+		ac = ac % 100 + 1
 
 		leftRot = {updateLeg(
 			--thigh	lower	foot
 			lRoll,	lthigh,	lleg,	lfoot,
 			--target x, y, z
-			tx, ty, tz,
+			tx1, ty1, tz1,
 			--thigh offset from the model centre
 			DISTFROMPELVIS, DIST2GROUND, 0
 		)}
-
-		tx = _x
-		tz = _z
-
-		tz = tz - _dx * -50
-		tx = tx + _dz * -50
-
-		tx = tx + _vx * 50
-		tz = tz + _vz * 50
-
-
-		ty = Spring.GetGroundHeight(tx, tz) + legDistFoot
 
 		rightRot= {updateLeg(
 			--thigh		lower		foot
 			rRoll,	rthigh, rleg, rfoot,
 			--target x, y, z
-			tx, ty, tz,
+			tx2, ty2, tz2,
 			--thigh offset from the model centre
 			-DISTFROMPELVIS, DIST2GROUND, 0
 		)}
