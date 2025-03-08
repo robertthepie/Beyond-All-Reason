@@ -33,24 +33,21 @@ local function toLocalSpace2d(x, y, z)
 	return ovx, ovy, ovz
 end
 
-local function toGlobal2D_X(x)
-	return x * _dx + _x, _y, x * _dz + _z
-end
-
 local function updateLeg(legRoll, leg1, leg2, foot, target_x, target_y, target_z, legoffset_x, legoffset_y, legoffset_z)
 	-- convert our target to local space
-	local px, py, pz = target_x, target_y, target_z
-	--local px, py, pz = toLocalSpace2d(target_x, target_y, target_z)
+	local px, py, pz = toLocalSpace2d(target_x, target_y, target_z)
+	--local px, py, pz = target_x, target_y, target_z
 	--px, py, pz = toLocalSpace3d(px, py, pz)
 
 	-- compensate for leg position
 	px = px - legoffset_x
 	py = py - legoffset_y
-	pz = pz - legoffset_z
+	-- HOTFIX: TODO: figure out where i'm actually going wrong?
+	pz = -pz + legoffset_z
 
 	-- maths
 	local px2, py2, pz2 = px * px, py * py, pz * pz
-	local dist = math.sqrt(px2 + pz2)
+	local dist = math.sqrt(px2 + py2)
 	local dist3dSQRD = px2 + pz2 + py2
 	local dist3d = math.sqrt(dist3dSQRD)
 
@@ -63,19 +60,37 @@ local function updateLeg(legRoll, leg1, leg2, foot, target_x, target_y, target_z
 	local angle = math.atan2(py, px)
 	Turn(legRoll, 3, angle + 1.5707963)
 
+	local angle2 = -math.atan2(pz, dist) - anglePelvis
+
 	-- bend the armature to reach the destination
-	Turn(leg1, 1, anglePelvis)
+	Turn(leg1, 1, - angle2)
+	--Turn(leg1, 1, anglePelvis)
 	Turn(leg2, 1, angleKnee + 3.1415926)
 	Turn(foot, 1, - angleKnee - 3.1415926 - anglePelvis)
+	Turn(foot, 1, - angleKnee - 3.1415926 + angle2 )
 	Turn(foot, 3, -angle - 1.5707963)
 
 	return nil
 end
 
+local function slowUpdate()
+	local a, b, c, d
+	while true do
+		a, _, b = toGlobal2D_X(50)
+		c, _, d = toLocalSpace2d(a, _y, b)
+		Spring.Echo(a-_x, c, b-_z, d)
+		Sleep(3600)
+	end
+end
+
+local function calcFoorGoal(offset)
+
+end
+
 local function update()
 	local leftRot, rightRot	= {}, {}
-
-	local temp = 1
+	local lt, rt = {0,0,0}, {0,0,0}
+	local tx, ty, tz = 0,0,0
 
 	while true do
 		Sleep(1) -- sleep at the start so that i don't forget it
@@ -85,29 +100,52 @@ local function update()
 		_dx, _dy, _dz = Spring.GetUnitDirection(unitID)
 		_vx, _vy, _vz = Spring.GetUnitVelocity(unitID)
 
-		temp = Spring.GetGroundHeight(_x, _z) - _y + legDistFoot
+		tx = _x
+		tz = _z
+
+		tx = tx + _dz * 50
+		tz = tz - _dx * 50
+
+		tx = tx + _vx * 50
+		tz = tz + _vz * 50
+
+		ty = Spring.GetGroundHeight(tx, tz) + legDistFoot
 
 		leftRot = {updateLeg(
-			--		thigh	lower	foot
+			--thigh	lower	foot
 			lRoll,	lthigh,	lleg,	lfoot,
 			--target x, y, z
-			-DISTFROMPELVIS,	temp,	0,
-			-- thigh offset from the model centre
-			-DISTFROMPELVIS, DIST2GROUND, 0
-		)}
-		rightRot= {updateLeg(
-			--		thigh		lower		foot
-			rRoll,	rthigh, rleg, rfoot,
-			-- target x, y, z
-			DISTFROMPELVIS+10, temp , 0,
-			-- thigh offset from the model centre
+			tx, ty, tz,
+			--thigh offset from the model centre
 			DISTFROMPELVIS, DIST2GROUND, 0
+		)}
+
+		tx = _x
+		tz = _z
+
+		tz = tz - _dx * -50
+		tx = tx + _dz * -50
+
+		tx = tx + _vx * 50
+		tz = tz + _vz * 50
+
+
+		ty = Spring.GetGroundHeight(tx, tz) + legDistFoot
+
+		rightRot= {updateLeg(
+			--thigh		lower		foot
+			rRoll,	rthigh, rleg, rfoot,
+			--target x, y, z
+			tx, ty, tz,
+			--thigh offset from the model centre
+			-DISTFROMPELVIS, DIST2GROUND, 0
 		)}
 	end
 end
 
 function script.Create()
 	StartThread(update)
+	--StartThread(slowUpdate)
 end
 
 function script.StartMoving()
