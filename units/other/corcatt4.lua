@@ -26,13 +26,17 @@ return {
 		upright			= true,
 		useSmoothMesh	= false,
 
-		cruisealtitude	= 80,
+		cruisealtitude	= 70,
 		maxslope		= 10,
 
 		turninplaceanglelimit = 360,
 		footprintx		= 12,
 		footprintz		= 12,
 		maxwaterdepth	= 0,
+
+		-- air post:
+		factoryHeadingTakeoff = false,
+		airHoverFactor = 25,
 
 		-- cosmetic
 		buildpic		= "CORSEAH.DDS",

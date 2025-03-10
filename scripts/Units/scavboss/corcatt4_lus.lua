@@ -113,7 +113,7 @@ local function calcFootGoal(legXOffset, moveOffset)
 	-- movement rotation
 
 	y = Spring.GetGroundHeight(x, z) + legDistFoot
-	local gx, gy, gz = Spring.GetGroundNormal(x, z)
+	local gx, gy, gz = Spring.GetGroundNormal(x, z, true)
 
 	local toe_y = Spring.GetGroundHeight(x + (25 * _dx), z + (25 * _dz))-y+legDistFoot
 	toe_y = -math.atan2(toe_y, 25)
