@@ -9,16 +9,18 @@ local torso, pelvis, head, thing, aimx1, aimy1,
 		"lturret", "lbarrel1", "lbarrel2", "lflare1", "lflare2", "lexhaust1", "lexhaust2", -- left  weapon
 		"rturret", "rbarrel1", "rbarrel2", "rflare1", "rflare2", "rexhaust1", "rexhaust2") -- right weapon
 
---local DIST0, legIn, legOut = 123, 47, 89
-local DIST2GROUND, legDistUpper, legDistLower, legDistFoot = 86, 47.04, 89.7, 20
+
+local DIST2GROUND, legDistUpper, legDistLower, legDistFoot = 50, 47.04, 89.7, 20
 local DISTFROMPELVIS = 45
+
 local SPEEDDISTMULT = 35
--- local ANG1, ANG2, ANG3 = 60, 88, -28
+
 local legSqrdUpper, legSqrdLower = legDistUpper * legDistUpper, legDistLower * legDistLower
 local legTotSqrd, legTot    = legSqrdUpper + legSqrdLower, 2 * legDistUpper * legDistLower
 
-local _x, _y, _z		= 0, 0, 0
+local _x, _y, _z	= 0, 0, 0
 local _dx, _dy, _dz	= 0, 0, 0
+local _dvx, _dvz = 0,0
 local _vx, _vy, _vz = 0,0,0
 
 -- to local unit space
@@ -33,8 +35,11 @@ local function toLocalSpace2d(x, y, z)
 
 	return ovx, ovy, ovz
 end
+local function toLocalRotation(x, y, z)
+	return x * _dz + z * -_dx, y, x * _dx + z * _dz
+end
 
-local function updateLeg(legRoll, leg1, leg2, foot, target_x, target_y, target_z, legoffset_x, legoffset_y, legoffset_z)
+local function updateLeg(legRoll, leg1, leg2, foot, target_x, target_y, target_z, legoffset_x, legoffset_y, legoffset_z, ground_norm_x, ground_norm_y, ground_norm_z, toe, toeAngle)
 	-- convert our target to local space
 	local px, py, pz = toLocalSpace2d(target_x, target_y, target_z)
 	--local px, py, pz = target_x, target_y, target_z
@@ -65,11 +70,13 @@ local function updateLeg(legRoll, leg1, leg2, foot, target_x, target_y, target_z
 
 	-- bend the armature to reach the destination
 	Turn(leg1, 1, - angle2)
-	--Turn(leg1, 1, anglePelvis)
 	Turn(leg2, 1, angleKnee + 3.1415926)
-	Turn(foot, 1, - angleKnee - 3.1415926 - anglePelvis)
-	Turn(foot, 1, - angleKnee - 3.1415926 + angle2 )
-	Turn(foot, 3, -angle - 1.5707963)
+
+	local gnx, gny, gnz = toLocalRotation(ground_norm_x, ground_norm_y, ground_norm_z)
+	Turn(foot, 1, - angleKnee - 3.1415926 + angle2 + gnz)
+	Turn(foot, 3, -angle - 1.5707963 - gnx)
+
+	Turn(toe, 1, toeAngle-gnz)
 
 	return nil
 end
@@ -87,22 +94,51 @@ end
 local function calcFootGoal(legXOffset, moveOffset)
 	local x, y, z = _x, 0, _z
 
-	x = x + _dz * legXOffset
-	z = z - _dx * legXOffset
+	--local tx, tz =
+	--	_dvx * _dx + _dvz * _dz,
+	--	_dvx * _dz + _dvz * _dx
 
-	x = x + _vx * moveOffset
-	z = z + _vz * moveOffset
+	x = x
+	-- leg offset from centre
+	+ _dz * legXOffset
+	-- movement direction
+	+ _vx * moveOffset
+	-- movement rotation
+
+	z = z
+	-- leg offset from centre
+	- _dx * legXOffset
+	-- movement direction
+	+ _vz * moveOffset
+	-- movement rotation
 
 	y = Spring.GetGroundHeight(x, z) + legDistFoot
+	local gx, gy, gz = Spring.GetGroundNormal(x, z)
 
-	return x,y,z
+	local toe_y = Spring.GetGroundHeight(x + (25 * _dx), z + (25 * _dz))-y+legDistFoot
+	toe_y = -math.atan2(toe_y, 25)
+
+	return x,y,z, gx, gy, gz, toe_y
 end
 
 local function update()
 	local leftRot, rightRot	= {}, {}
-	local tx1, ty1, tz1 = calcFootGoal(DISTFROMPELVIS, SPEEDDISTMULT)
-	local tx2, ty2, tz2 = calcFootGoal(-DISTFROMPELVIS, SPEEDDISTMULT)
-	local ac = 0
+
+	_x,  _y,  _z = Spring.GetUnitPosition(unitID)
+	_dx, _dy, _dz = Spring.GetUnitDirection(unitID)
+	local _odx, _odz = _dx, _dz
+	_vx, _vy, _vz = Spring.GetUnitVelocity(unitID)
+	local toe1, toe2 = 0,0
+
+	local tx1, ty1, tz1, tgn1x, tgn1y, tgn1z, toe1 = calcFootGoal(DISTFROMPELVIS	-10, 0)
+	local tx1b, ty1b, tz1b = tx1, ty1, tz1
+	local tx1c, ty1c, tz1c = tx1, ty1, tz1
+	local tx2, ty2, tz2, tgn2x, tgn2y, tgn2z, toe2 = calcFootGoal(-DISTFROMPELVIS	+10, 0)
+	local tx2b, ty2b, tz2b = tx2, ty2, tz2
+	local tx2c, ty2c, tz2c = tx2, ty2, tz2
+
+	local ac, aci = 0, 1
+	local leftLeg = true
 
 	while true do
 		Sleep(1) -- sleep at the start so that i don't forget it
@@ -112,12 +148,50 @@ local function update()
 		_dx, _dy, _dz = Spring.GetUnitDirection(unitID)
 		_vx, _vy, _vz = Spring.GetUnitVelocity(unitID)
 
-		if ac == 51 then
-			tx1, ty1, tz1 = calcFootGoal(DISTFROMPELVIS, SPEEDDISTMULT)
-		elseif ac == 1 then
-			tx2, ty2, tz2 = calcFootGoal(-DISTFROMPELVIS, SPEEDDISTMULT)
+		if true then
+		ac = ac + 0.08 -- 0.04
+		if ac > 2 then
+			ac = 0
+			leftLeg = not leftLeg
+			if leftLeg then
+				tx1b, ty1b, tz1b = tx1c, ty1c, tz1c
+				tx1c, ty1c, tz1c, tgn1x, tgn1y, tgn1z, toe1 = calcFootGoal(DISTFROMPELVIS, SPEEDDISTMULT)
+			else
+				tx2b, ty2b, tz2b = tx2c, ty2c, tz2c
+				tx2c, ty2c, tz2c, tgn2x, tgn2y, tgn2z, toe2 = calcFootGoal(-DISTFROMPELVIS, SPEEDDISTMULT)
+			end
 		end
-		ac = ac % 100 + 1
+		aci = math.min(ac, 1)
+		if leftLeg then
+			tx1, ty1, tz1 =
+				--aci * tx1b + ac * tx1c,
+				--aci * ty1b + ac * ty1c,
+				--aci * tz1b + ac * tz1c
+				math.mix(tx1b, tx1c, aci),
+				math.mix(ty1b, ty1c, aci),
+				math.mix(tz1b, tz1c, aci)
+		else
+			tx2, ty2, tz2 =
+				--aci * tx2b + ac * tx2c,
+				--aci * ty2b + ac * ty2c,
+				--aci * tz2b + ac * tz2c
+				math.mix(tx2b, tx2c, aci),
+				math.mix(ty2b, ty2c, aci),
+				math.mix(tz2b, tz2c, aci)
+		end
+		else
+			tx1, ty1, tz1 = calcFootGoal(DISTFROMPELVIS, SPEEDDISTMULT)
+			if ac > 2 then
+				ac = 0
+				if leftLeg then
+					--tx1, ty1, tz1 = calcFootGoal(DISTFROMPELVIS, SPEEDDISTMULT)
+				else
+					--tx2, ty2, tz2 = calcFootGoal(-DISTFROMPELVIS, SPEEDDISTMULT)
+				end
+				leftLeg = not leftLeg
+			end
+			ac = ac + 0.08
+		end
 
 		leftRot = {updateLeg(
 			--thigh	lower	foot
@@ -125,7 +199,8 @@ local function update()
 			--target x, y, z
 			tx1, ty1, tz1,
 			--thigh offset from the model centre
-			DISTFROMPELVIS, DIST2GROUND, 0
+			DISTFROMPELVIS, DIST2GROUND, 0,
+			tgn1x, tgn1y, tgn1z, ltoes, toe1
 		)}
 
 		rightRot= {updateLeg(
@@ -134,14 +209,14 @@ local function update()
 			--target x, y, z
 			tx2, ty2, tz2,
 			--thigh offset from the model centre
-			-DISTFROMPELVIS, DIST2GROUND, 0
+			-DISTFROMPELVIS, DIST2GROUND, 0,
+			tgn2x, tgn2y, tgn2z, rtoes, toe2
 		)}
 	end
 end
 
 function script.Create()
 	StartThread(update)
-	--StartThread(slowUpdate)
 end
 
 function script.StartMoving()
