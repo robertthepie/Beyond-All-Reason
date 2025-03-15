@@ -19,6 +19,7 @@ local history = {
 	{x=0,y=0,z=0, gnx=0, gny=0, gnz=0},
 	{x=0,y=0,z=0, gnx=0, gny=0, gnz=0},
 }
+local _reversing = false
 
 local function toLocalSpace2d(x, y, z)
 	local vx, vy, vz = 0, 0, 0
@@ -34,6 +35,10 @@ end
 
 local function toLocalRotation(x, y, z)
 	return x * _rz + z * -_rx, y, x * _rx + z * _rz
+end
+
+function script.StartMoving(reversing)
+	_reversing = reversing == 1
 end
 
 local function update()
@@ -55,69 +60,129 @@ local function update()
 
 		_x, _y, _z = Spring.GetUnitPosition(unitID)
 		_rx, _ry, _rz = Spring.GetUnitDirection(unitID)
+		if _reversing then
+			hx, _, hz = Spring.GetUnitPiecePosDir(unitID, tail)
+			hy = Spring.GetGroundHeight(hx, hz)
+			dx, dy, dz =
+				history[7].x - hx,
+				history[7].y - hy,
+				history[7].z - hz
 
-		hx, _, hz = Spring.GetUnitPiecePosDir(unitID, head)
-		hy = Spring.GetGroundHeight(hx, hz)
-		dx, dy, dz =
-			phx - hx,
-			phy - hy,
-			phz - hz
+			progress = math.sqrt(
+				dx*dx
+				+ (dy*dy*2) -- abstact value that felt right due to noticable stretching when moving vertically
+				+ dz*dz)
 
-		progress = math.sqrt(
-			  dx*dx
-			+ (dy*dy*2) -- abstact value that felt right due to noticable stretching when moving vertically
-			+ dz*dz)
+			if progress >= TAILGAP then
+				progress = progress - TAILGAP
+				for i = 1, 7, 1 do
+					history[i] = history[i+1]
+				end
 
-		if progress >= TAILGAP then
-			progress = progress - TAILGAP
-			phx, phy, phz = hx, hy ,hz
-			for i = 7, 1, -1 do
-				history[i+1] = history[i]
+				gnx, gny, gnz = Spring.GetGroundNormal(hx, hz, true)
+				history[7] = {x=hx, y=hy, z=hz, gnx=gnx, gny=gny, gnz=gnz}
+
 			end
+			float_progress = 1 - progress/TAILGAP
+			plx, plz = 0, 96 -- 96 is distance to head
+			sh = history[1]
+			for i = 1, 6 do
+				currentTail = tails[i]
+				sh2 = sh
+				sh = history[i+1]
+				lx, ly, lz = toLocalSpace2d(
+					math.mix(sh.x, sh2.x, float_progress),
+					math.mix(sh.y, sh2.y, float_progress),
+					math.mix(sh.z, sh2.z, float_progress)
+				)
+				Move(currentTail, 1, lx)
+				Move(currentTail, 2, ly+16)
+				Move(currentTail, 3, lz)
+				dlx, dlz = plx-lx, plz-lz
+				Turn(
+					currentTail,
+					2,
+					math.atan2(dlx, dlz)
+				)
+				gnx, gny, gnz = toLocalRotation(
+					math.mix(sh.gnx, sh2.gnx, float_progress),
+					math.mix(sh.gny, sh2.gny, float_progress),
+					math.mix(sh.gnz, sh2.gnz, float_progress)
+				)
+				Turn(
+					currentTail,
+					1,
+					gnz
+				)
+				Turn(
+					currentTail,
+					3,
+					-gnx
+				)
+				plx, plz = lx, lz
+			end
+		else
+			hx, _, hz = Spring.GetUnitPiecePosDir(unitID, head)
+			hy = Spring.GetGroundHeight(hx, hz)
+			dx, dy, dz =
+				history[1].x - hx,
+				history[1].y - hy,
+				history[1].z - hz
 
-			gnx, gny, gnz = Spring.GetGroundNormal(hx, hz, true)
-			history[1] = {x=hx, y=hy, z=hz, gnx=gnx, gny=gny, gnz=gnz}
+			progress = math.sqrt(
+				dx*dx
+				+ (dy*dy*2) -- abstact value that felt right due to noticable stretching when moving vertically
+				+ dz*dz)
 
+			if progress >= TAILGAP then
+				progress = progress - TAILGAP
+				for i = 7, 1, -1 do
+					history[i+1] = history[i]
+				end
+
+				gnx, gny, gnz = Spring.GetGroundNormal(hx, hz, true)
+				history[1] = {x=hx, y=hy, z=hz, gnx=gnx, gny=gny, gnz=gnz}
+
+			end
+			float_progress = progress/TAILGAP
+			plx, plz = 0, 96 -- 96 is distance to head
+			sh = history[1]
+			for i = 1, 6 do
+				currentTail = tails[i]
+				sh2 = sh
+				sh = history[i+1]
+				lx, ly, lz = toLocalSpace2d(
+					math.mix(sh.x, sh2.x, float_progress),
+					math.mix(sh.y, sh2.y, float_progress),
+					math.mix(sh.z, sh2.z, float_progress)
+				)
+				Move(currentTail, 1, lx)
+				Move(currentTail, 2, ly+16)
+				Move(currentTail, 3, lz)
+				dlx, dlz = plx-lx, plz-lz
+				Turn(
+					currentTail,
+					2,
+					math.atan2(dlx, dlz)
+				)
+				gnx, gny, gnz = toLocalRotation(
+					math.mix(sh.gnx, sh2.gnx, float_progress),
+					math.mix(sh.gny, sh2.gny, float_progress),
+					math.mix(sh.gnz, sh2.gnz, float_progress)
+				)
+				Turn(
+					currentTail,
+					1,
+					gnz
+				)
+				Turn(
+					currentTail,
+					3,
+					-gnx
+				)
+				plx, plz = lx, lz
+			end
 		end
-		float_progress = progress/TAILGAP
-		plx, plz = 0, 96 -- 96 is distance to head
-		sh = history[1]
-		for i = 1, 6 do
-			currentTail = tails[i]
-			sh2 = sh
-			sh = history[i+1]
-			lx, ly, lz = toLocalSpace2d(
-				math.mix(sh.x, sh2.x, float_progress),
-				math.mix(sh.y, sh2.y, float_progress),
-				math.mix(sh.z, sh2.z, float_progress)
-			)
-			Move(currentTail, 1, lx)
-			Move(currentTail, 2, ly+16)
-			Move(currentTail, 3, lz)
-			dlx, dlz = plx-lx, plz-lz
-			Turn(
-				currentTail,
-				2,
-				math.atan2(dlx, dlz)
-			)
-			gnx, gny, gnz = toLocalRotation(
-				math.mix(sh.gnx, sh2.gnx, float_progress),
-				math.mix(sh.gny, sh2.gny, float_progress),
-				math.mix(sh.gnz, sh2.gnz, float_progress)
-			)
-			Turn(
-				currentTail,
-				1,
-				gnz
-			)
-			Turn(
-				currentTail,
-				3,
-				-gnx
-			)
-			plx, plz = lx, lz
-		end
-
 	end
 end
 
@@ -149,10 +214,6 @@ end
 
 
 
-
-function script.StartMoving()
-
-end
 
 function script.StopMoving()
 

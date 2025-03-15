@@ -20,6 +20,7 @@ return {
 		mass = 200000,
 		health = 28000,
 		speed = 51.0,
+		rSpeed = 51.0,
 		maxwaterdepth = 12,
 		movementclass = "HTBOT4",
 		mygravity = 10000,
