@@ -1,6 +1,19 @@
-local base, head, tail, t1, t2, t3, t4, t5, t6 =piece("base",
-	"head", "tail", -- goals
-	"base1", "base2", "base3", "base4", "base5", "base6" -- body pieces
+local base, head, tail,
+	t1, t2, t3, t4, t5, t6,
+	legr1, legrb1, legl1, leglb1,
+	legr2, legrb2, legl2, leglb2,
+	legr3, legrb3, legl3, leglb3,
+	legr4, legrb4, legl4, leglb4,
+	legr5, legrb5, legl5, leglb5,
+	legr6, legrb6, legl6, leglb6
+	= piece("base", "head", "tail", -- goals
+	"base1", "base2", "base3", "base4", "base5", "base6", -- body pieces
+	"legr1", "legrb1", "legl1", "leglb1",
+	"legr2", "legrb2", "legl2", "leglb2",
+	"legr3", "legrb3", "legl3", "leglb3",
+	"legr4", "legrb4", "legl4", "leglb4",
+	"legr5", "legrb5", "legl5", "leglb5",
+	"legr6", "legrb6", "legl6", "leglb6"
 	)
 
 local _x, _y, _z = 0,0,0
@@ -41,6 +54,12 @@ function script.StartMoving(reversing)
 	_reversing = reversing == 1
 end
 
+local leg1 = {
+	{legr2, legrb2, legl2, leglb2}, {legl1, leglb1, legr1, legrb1},
+	{legr4, legrb4, legl4, leglb4}, {legl3, leglb3, legr3, legrb3},
+	{legr6, legrb6, legl6, leglb6}, {legl5, leglb5, legr5, legrb5},
+}
+
 local function update()
 	local progress, float_progress = 0, 0
 
@@ -75,6 +94,11 @@ local function update()
 
 			if progress >= TAILGAP then
 				progress = progress - TAILGAP
+
+				--hx = history[7].x + (dx)/progress
+				--hz = history[7].z + (dz)/progress
+				--hy = Spring.GetGroundHeight(hx, hz)
+
 				for i = 1, 7, 1 do
 					history[i] = history[i+1]
 				end
@@ -136,6 +160,11 @@ local function update()
 
 			if progress >= TAILGAP then
 				progress = progress - TAILGAP
+
+				--hx = history[1].x + (dx)/progress
+				--hz = history[1].z + (dz)/progress
+				--hy = Spring.GetGroundHeight(hx, hz)
+
 				for i = 7, 1, -1 do
 					history[i+1] = history[i]
 				end
@@ -182,6 +211,19 @@ local function update()
 				)
 				plx, plz = lx, lz
 			end
+		end
+		float_progress=float_progress*2*3.1415
+		local angle = math.sin(float_progress)
+		local angle2 = -math.cos(float_progress)
+		for _, left in pairs(leg1) do
+			Turn(left[2], 3, angle)
+			Turn(left[2], 1, angle2)
+			Turn(left[1], 3, -angle)
+			Turn(left[1], 1, -angle2)
+			Turn(left[3], 3, angle)
+			Turn(left[3], 1, angle2)
+			Turn(left[4], 3, -angle)
+			Turn(left[4], 1, -angle2)
 		end
 	end
 end
