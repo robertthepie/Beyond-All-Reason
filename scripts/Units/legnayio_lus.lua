@@ -55,9 +55,9 @@ function script.StartMoving(reversing)
 end
 
 local leg1 = {
-	{legr2, legrb2, legl2, leglb2}, {legl1, leglb1, legr1, legrb1},
-	{legr4, legrb4, legl4, leglb4}, {legl3, leglb3, legr3, legrb3},
-	{legr6, legrb6, legl6, leglb6}, {legl5, leglb5, legr5, legrb5},
+	{legr2, legrb2, legl1, leglb1}, {legl2, leglb2, legr1, legrb1},
+	{legr4, legrb4, legl3, leglb3}, {legl4, leglb4, legr3, legrb3},
+	{legr6, legrb6, legl5, leglb5}, {legl6, leglb6, legr5, legrb5},
 }
 
 local function update()
