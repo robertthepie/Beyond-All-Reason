@@ -175,7 +175,6 @@ return {
 		"corshiva",
 		"corkarg",
 		"corcat",
-		"legpede",
 
 		-- Vehicles
 		"legkeres",

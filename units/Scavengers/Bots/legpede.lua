@@ -8,7 +8,7 @@ return {
 		buildtime = 110000,
 		canattack = false,
 		canmove = true,
-		collisionvolumeoffsets = "0 5 -6",
+		collisionvolumeoffsets = "0 5 0",
 		collisionvolumescales = "26 28 144",
 		collisionvolumetype = "Box",
 		corpse = "DEAD",
