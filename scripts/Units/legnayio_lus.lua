@@ -83,21 +83,22 @@ local function update()
 			hx, _, hz = Spring.GetUnitPiecePosDir(unitID, tail)
 			hy = Spring.GetGroundHeight(hx, hz)
 			dx, dy, dz =
-				history[7].x - hx,
-				history[7].y - hy,
-				history[7].z - hz
+				hx - history[7].x,
+				hy - history[7].y,
+				hz - history[7].z
 
 			progress = math.sqrt(
 				dx*dx
-				+ (dy*dy*2) -- abstact value that felt right due to noticable stretching when moving vertically
+				+ (dy*dy) -- abstact value that felt right due to noticable stretching when moving vertically
 				+ dz*dz)
 
 			if progress >= TAILGAP then
-				progress = progress - TAILGAP
 
-				--hx = history[7].x + (dx)/progress
-				--hz = history[7].z + (dz)/progress
-				--hy = Spring.GetGroundHeight(hx, hz)
+				hx = history[7].x + ((dx) / progress * 28)
+				hz = history[7].z + ((dz) / progress * 28)
+				hy = Spring.GetGroundHeight(hx, hz)
+
+				progress = progress - TAILGAP
 
 				for i = 1, 7, 1 do
 					history[i] = history[i+1]
@@ -108,7 +109,7 @@ local function update()
 
 			end
 			float_progress = 1 - progress/TAILGAP
-			plx, plz = 0, 96 -- 96 is distance to head
+			plx, plz = 0, -110 -- 96 is distance to head
 			sh = history[1]
 			for i = 1, 6 do
 				currentTail = tails[i]
@@ -149,21 +150,22 @@ local function update()
 			hx, _, hz = Spring.GetUnitPiecePosDir(unitID, head)
 			hy = Spring.GetGroundHeight(hx, hz)
 			dx, dy, dz =
-				history[1].x - hx,
-				history[1].y - hy,
-				history[1].z - hz
+				hx - history[1].x,
+				hy - history[1].y,
+				hz - history[1].z
 
 			progress = math.sqrt(
 				dx*dx
-				+ (dy*dy*2) -- abstact value that felt right due to noticable stretching when moving vertically
+				+ (dy*dy) -- abstact value that felt right due to noticable stretching when moving vertically
 				+ dz*dz)
 
 			if progress >= TAILGAP then
-				progress = progress - TAILGAP
 
-				--hx = history[1].x + (dx)/progress
-				--hz = history[1].z + (dz)/progress
-				--hy = Spring.GetGroundHeight(hx, hz)
+				hx = history[1].x + ((dx) / progress * 28)
+				hz = history[1].z + ((dz) / progress * 28)
+				hy = Spring.GetGroundHeight(hx, hz)
+
+				progress = progress - TAILGAP
 
 				for i = 7, 1, -1 do
 					history[i+1] = history[i]
@@ -174,7 +176,7 @@ local function update()
 
 			end
 			float_progress = progress/TAILGAP
-			plx, plz = 0, 96 -- 96 is distance to head
+			plx, plz = 0, 110 -- 96 is distance to head
 			sh = history[1]
 			for i = 1, 6 do
 				currentTail = tails[i]
@@ -232,7 +234,10 @@ local function update()
 	end
 end
 
+
 function script.Create()
+	Move(head, 3, 0)
+	Move(tail, 3, 0)
 	_x, _y, _z, _rx, _ry, _rz = Spring.GetUnitPiecePosDir(unitID, head)
 	for i, past in pairs(history) do
 		-- i wish i bloody knew
