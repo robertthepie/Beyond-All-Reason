@@ -214,20 +214,20 @@ local function update()
 		end
 		float_progress=float_progress*2*3.1415
 		local angle = math.max(math.min(math.sin(float_progress), 0.5), -0.5)
-		local angle2 = math.cos(float_progress)
+		local angle2 = math.cos(float_progress) * .5
 		for _, left in pairs(leg1) do
 			Turn(left[1], 3, -angle)
 			Turn(left[1], 2, -angle2)
 
 			Turn(left[2], 3, angle)
-			Turn(left[2], 2, angle2)
+			--Turn(left[2], 2, 0)--angle2)
 
 
 			Turn(left[3], 3, angle)
 			Turn(left[3], 2, angle2)
 
 			Turn(left[4], 3, -angle)
-			Turn(left[4], 2, -angle2)
+			--Turn(left[4], 2, 0)---angle2)
 		end
 	end
 end
