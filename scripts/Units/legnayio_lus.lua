@@ -108,13 +108,13 @@ local function update()
 				history[7] = {x=hx, y=hy, z=hz, gnx=gnx, gny=gny, gnz=gnz}
 
 			end
-			float_progress = 1 - progress/TAILGAP
+			float_progress = progress/TAILGAP
 			plx, plz = 0, -110 -- 96 is distance to head
-			sh = history[1]
-			for i = 1, 6 do
+			sh = history[7]
+			for i = 6, 1, -1 do
 				currentTail = tails[i]
 				sh2 = sh
-				sh = history[i+1]
+				sh = history[i]
 				lx, ly, lz = toLocalSpace2d(
 					math.mix(sh.x, sh2.x, float_progress),
 					math.mix(sh.y, sh2.y, float_progress),
@@ -127,7 +127,7 @@ local function update()
 				Turn(
 					currentTail,
 					2,
-					math.atan2(dlx, dlz)
+					math.atan2(-dlx, -dlz)
 				)
 				gnx, gny, gnz = toLocalRotation(
 					math.mix(sh.gnx, sh2.gnx, float_progress),
@@ -146,6 +146,7 @@ local function update()
 				)
 				plx, plz = lx, lz
 			end
+			float_progress = -float_progress
 		else
 			hx, _, hz = Spring.GetUnitPiecePosDir(unitID, head)
 			hy = Spring.GetGroundHeight(hx, hz)
