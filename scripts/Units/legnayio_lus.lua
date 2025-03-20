@@ -1,3 +1,10 @@
+--[[
+TODO:
+- do we unroll tail pieces into local space to get true rotation to rotate by? otherwise unit looks weird on cliffs, pieces don't face the next one
+- might be better to do 1 and 6 unwrapped: as to point head and tail to their goals instead of path when doing oppisite
+- custom interpolation for ground normal,
+]]
+
 local base, head, tail,
 	t1, t2, t3, t4, t5, t6,
 	legr1, legrb1, legl1, leglb1,
