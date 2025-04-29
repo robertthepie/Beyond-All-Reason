@@ -925,7 +925,9 @@ local options = {
         type   	= "bool",
         def    	= false,
         section	= "options_extra",
-        unlock  = {"map_lavatiderhym"},
+        unlock  = {"map_lavatiderhym", "map_lavatidemode", "map_lavahighlevel", "map_lavahighdwell", "map_lavalowlevel", "map_lavalowdwell"},
+        lock    = {"sub_header_lava3", "sub_header_lava4"},
+        bitmask = 1,
     },
 
     {
@@ -939,20 +941,21 @@ local options = {
         items	= {
             { key= "default", 	name= "Default", desc= "Map Settings.",
                 lock = 
-                    {"map_lavatidemode", "map_lavahighlevel", "map_lavahighdwell", "map_lavalowlevel", "map_lavalowdwell"},
+                    {"map_lavatidemode", "map_lavahighlevel", "map_lavahighdwell", "map_lavalowlevel", "map_lavalowdwell", "sub_header_lava3", "sub_header_lava4"},
                 unlock =
                     { "sub_header_lava1", "sub_header_lava2"}},
             { key= "enabled",	name= "Enable/Override",desc= "If Lava is present it will have tides",
                 unlock = 
-                    {"map_lavatidemode", "map_lavahighlevel", "map_lavahighdwell", "map_lavalowlevel", "map_lavalowdwell"},
+                    {"map_lavatidemode", "map_lavahighlevel", "map_lavahighdwell", "map_lavalowlevel", "map_lavalowdwell", "sub_header_lava3", "sub_header_lava4"},
                 lock =
                     { "sub_header_lava1", "sub_header_lava2"}},
             { key= "disabled",	name= "Disable",desc= "Lava will not have tides, even on maps that noramlly have it.",
                 lock = 
-                    {"map_lavatidemode", "map_lavahighlevel", "map_lavahighdwell", "map_lavalowlevel", "map_lavalowdwell"},
+                    {"map_lavatidemode", "map_lavahighlevel", "map_lavahighdwell", "map_lavalowlevel", "map_lavalowdwell", "sub_header_lava3", "sub_header_lava4"},
                 unlock =
                     { "sub_header_lava1", "sub_header_lava2"}},
         },
+        bitmask = 2,
     },
 
     {
@@ -1021,20 +1024,11 @@ local options = {
         column	= 2.0,
     },
 
-    {
-        key     = "sub_header_lava1",
-        section = "options_extra",
-        type    = "subheader",
-        name    = "",
-    },
-    
-    {
-        key     = "sub_header_lava2",
-        section = "options_extra",
-        type    = "subheader",
-        name    = "",
-    },
-    
+    { key = "sub_header_lava1", section = "options_extra", type    = "subheader", name = "",},
+    { key = "sub_header_lava2", section = "options_extra", type    = "subheader", name = "",},
+    { key = "sub_header_lava3", section = "options_extra", type    = "subheader", name = "",},
+    { key = "sub_header_lava4", section = "options_extra", type    = "subheader", name = "",},
+
     {
         key     = "sub_header",
         section = "options_extra",
