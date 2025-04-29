@@ -50,11 +50,11 @@ for _, filename in pairs(extraSidedata) do
 			Spring.Log("customContent", LOG.ERROR, "Bad return table from: " .. filename)
 
 		else
-			if sidedata.name and sidedata.startunit then
+			if type(sidedata.name) == "string" and type(sidedata.startunit) == "string" then
 				table.insert(outputSidedata, sidedata)
 			else
-				for _, sidedataEntry in pairs() do
-					if sidedataEntry.name and sidedataEntry.startunit then
+				for _, sidedataEntry in pairs(sidedata) do
+					if type(sidedataEntry.name) == "string" and type(sidedataEntry.startunit) == "string" then
 						table.insert(outputSidedata, sidedataEntry)
 					end
 				end
