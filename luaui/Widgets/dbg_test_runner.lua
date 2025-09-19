@@ -1,3 +1,5 @@
+local widget = widget ---@type Widget
+
 function widget:GetInfo()
 	return {
 		name = "Test Runner",
@@ -39,7 +41,6 @@ local config = {
 	gameStartTestPatterns = nil,
 	testResultsFilePath = nil,
 	testRoots = {
-		"LuaUI/Widgets/tests",
 		"LuaUI/Tests",
 	},
 	scenarioRoots = {
@@ -143,7 +144,7 @@ local function findTestFiles(directory, patterns, rootDirectory, result)
 		result = {}
 	end
 
-	for _, filename in ipairs(VFS.DirList(directory, "*", VFS.RAW_FIRST)) do
+	for _, filename in ipairs(VFS.DirList(directory, "*.lua", VFS.RAW_FIRST)) do
 		local relativePath = string.sub(filename, string.len(rootDirectory) + 1)
 		local withoutExtension = Util.removeFileExtension(relativePath)
 		if patterns == nil or #patterns == 0 or matchesPatterns(withoutExtension, patterns) then
@@ -492,6 +493,11 @@ local function startTests(patterns)
 						   'Cheats are disabled; attempting to enable them...',
 						   'Could not enable cheats; tests cannot be run.'}
 	end
+	if not Spring.IsDevLuaEnabled() then
+		neededActions[#neededActions+1] = {'devlua',
+						   'DevLua mode disabled; attempting to enable it...',
+						   'Could not enable DevLua mode; tests cannot be run.'}
+	end
 	if Spring.GetModOptions().deathmode ~= 'neverend' and not Spring.GetGameRulesParam('testEndConditionsOverride') then
 		neededActions[#neededActions+1] = {'luarules setTestEndConditions',
 						   "Disabling end conditions...",
@@ -772,7 +778,7 @@ Test = {
 	clearMap = function()
 		SyncedRun(function()
 			for _, unitID in ipairs(Spring.GetAllUnits()) do
-				Spring.DestroyUnit(unitID, false, true, nil, true)
+				Spring.DestroyUnit(unitID, false, true, nil, false)
 			end
 			for _, featureID in ipairs(Spring.GetAllFeatures()) do
 				Spring.DestroyFeature(featureID)
@@ -992,6 +998,7 @@ local function initializeTestEnvironment()
 		Engine = Engine,
 		Platform = Platform,
 		Game = Game,
+		GameCMD = GameCMD,
 		gl = gl,
 		GL = GL,
 		CMD = CMD,

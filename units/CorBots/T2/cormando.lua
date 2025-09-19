@@ -61,6 +61,7 @@ return {
 			subfolder = "CorBots/T2",
 			techlevel = 2,
 			unitgroup = "buildert2",
+			water_fall_damage_multiplier = 0,
 		},
 		sfxtypes = {
 			explosiongenerators = {

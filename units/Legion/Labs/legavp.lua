@@ -42,15 +42,15 @@ return {
         oo oo oo oo oo oo oo oo oo
         oo oo oo oo oo oo oo oo oo
         oo oo oo oo oo oo oo oo oo
-        oo oo oc cc cc cc co oo oo
-        oo oo oc cc cc cc co oo oo
-        oo oo oc cc cc cc co oo oo
-        oo oo oc cc cc cc co oo oo
-        oo oo oc cc cc cc co oo oo
-        oo oo oc cc cc cc co oo oo
-        oo oo oc cc cc cc co oo oo
-        oo oo oc cc cc cc co oo oo
-        oo oo oc cc cc cc co oo oo
+        oo oo oe ee ee ee eo oo oo
+        oo oo oe ee ee ee eo oo oo
+        oo oo oe ee ee ee eo oo oo
+        oo oo oe ee ee ee eo oo oo
+        oo oo oe ee ee ee eo oo oo
+        oo oo oe ee ee ee eo oo oo
+        oo oo oe ee ee ee eo oo oo
+        oo oo oe ee ee ee eo oo oo
+        oo oo oe ee ee ee eo oo oo
         ]],
 		buildoptions = {
 			"legacv",
@@ -63,14 +63,15 @@ return {
 			"legvcarry",
 			"legavroc",
 			"leginf",
-			"corsent",
+			"legvflak",
 			"cormabm",
 			"legavjam",
 			"legavrad",
+			"legafcv"
 		},
 		customparams = {
 			usebuildinggrounddecal = false,
-			buildinggrounddecaltype = "decals/coravp_aoplane.dds",
+			buildinggrounddecaltype = "decals/legavp_aoplane.dds",
 			buildinggrounddecalsizey = 12,
 			buildinggrounddecalsizex = 12,
 			buildinggrounddecaldecayspeed = 0.01,

@@ -33,7 +33,7 @@ return {
 		script = "Units/legphoenix.cob",
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd",
-		sightdistance = 300,
+		sightdistance = 430,
 		speedtofront = 0.063,
 		turnradius = 64,
 		turnrate = 400,
@@ -118,6 +118,7 @@ return {
 				beamttl = 0.099,
 				camerashake = 0.1,
 				corethickness = 0.4,
+				collidefriendly = false,
 				craterareaofeffect = 120,
 				craterboost = 0,
 				cratermult = 0,
@@ -141,7 +142,6 @@ return {
 				soundstart = "",
 				soundstartvolume = 0,
 				soundtrigger = 0,
-				targetmoveerror = 0.1,
 				thickness = 4.5,
 				turret = true,
 				weapontype = "BeamLaser",
@@ -183,6 +183,7 @@ return {
 				customparams = {
 					bogus = 1,
 					nodecal = 1,
+					water_splash = 0, -- targetting weapon aircraftbomb
 				},
 			},
 			legphsound = {
