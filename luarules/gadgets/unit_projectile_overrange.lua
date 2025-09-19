@@ -1,3 +1,5 @@
+local gadget = gadget ---@type Gadget
+
 function gadget:GetInfo()
 	return {
 		name = "Projectile Over-Range and Leashing",
@@ -105,7 +107,7 @@ for weaponDefID, weaponDef in pairs(WeaponDefs) do
 		end
 
 		defWatchTable[weaponDefID] = watchParams
-		Script.SetWatchWeapon(weaponDefID, true)
+		Script.SetWatchProjectile(weaponDefID, true)
 	end
 end
 
@@ -170,6 +172,9 @@ function gadget:ProjectileCreated(proID, proOwnerID, weaponDefID)
 
 	local metaData = { weaponDefID = weaponDefID, proOwnerID = proOwnerID }
 	local originX, _, originZ = spGetUnitPosition(proOwnerID)
+	if not originX then
+		originX, _, originZ = spGetProjectilePosition(proID)
+	end
 	metaData.originX = originX
 	metaData.originZ = originZ
 

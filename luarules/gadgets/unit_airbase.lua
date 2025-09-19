@@ -1,3 +1,5 @@
+local gadget = gadget ---@type Gadget
+
 function gadget:GetInfo()
 	return {
 		name = "Airbase Manager",
@@ -21,12 +23,16 @@ CMD[CMD_LAND_AT_SPECIFIC_AIRBASE] = "LAND_AT_SPECIFIC_AIRBASE"
 local tractorDist = 100 ^ 2 -- default sqr tractor distance
 local isAirbase = {}
 local isAirUnit = {}
+local isAirCon = {}
 for unitDefID, unitDef in pairs(UnitDefs) do
 	if unitDef.customParams.isairbase then
 		isAirbase[unitDefID] = { tractorDist, unitDef.buildSpeed }
 	end
 	if unitDef.isAirUnit and unitDef.canFly then
 		isAirUnit[unitDefID] = true
+		if unitDef.isBuilder then
+    		isAirCon[unitDefID] = true
+		end
 	end
 end
 
@@ -87,6 +93,8 @@ if gadgetHandler:IsSyncedCode() then
 		cursor = 'landatairbase',
 		type = CMDTYPE.ICON,
 		tooltip = "Airbase: Tells the unit to land at the nearest available airbase for repairs",
+		hidden = true,
+		queueing = true,
 	}
 
 	local landAtSpecificAirbaseCmd = {
@@ -96,11 +104,13 @@ if gadgetHandler:IsSyncedCode() then
 		cursor = 'landatspecificairbase',
 		type = CMDTYPE.ICON_UNIT,
 		tooltip = "Airbase: Tells the unit to land at an airbase for repairs ",
+		hidden = true,
+		queueing = true,
 	}
 
 	function InsertLandAtAirbaseCommands(unitID)
-		--Spring.InsertUnitCmdDesc(unitID, landAtSpecificAirbaseCmd)
 		Spring.InsertUnitCmdDesc(unitID, landAtAnyAirbaseCmd)
+		Spring.InsertUnitCmdDesc(unitID, landAtSpecificAirbaseCmd)
 	end
 
 	---------------------------------------
@@ -475,7 +485,7 @@ if gadgetHandler:IsSyncedCode() then
 					pendingLanders[unitID] = nil
 					Spring.SetUnitLoadingTransport(unitID, airbaseID)
 					RemoveOrderFromQueue(unitID, CMD_LAND_AT_AIRBASE)
-					Spring.GiveOrderToUnit(unitID, CMD_INSERT, { 0, CMD_LAND_AT_SPECIFIC_AIRBASE, 0, airbaseID }, { "alt" }) --fixme: it fails without "alt", but idk why
+					Spring.GiveOrderToUnit(unitID, CMD_INSERT, { 0, CMD_LAND_AT_SPECIFIC_AIRBASE, 0, airbaseID }, { "alt" })
 				end
 			end
 		end
@@ -643,21 +653,21 @@ else	-- Unsynced
 	end
 
 	function gadget:DefaultCommand(type, id, cmd)
-		if type ~= "unit" then
+		if type == "unit" and isAirbase[spGetUnitDefID(id)] then
+			if Spring.GetUnitIsBeingBuilt(id) or not spAreTeamsAllied(myTeamID, spGetUnitTeam(id)) then
+				return
+			end
 
-		elseif not spAreTeamsAllied(myTeamID, spGetUnitTeam(id)) then
+			local units = spGetSelectedUnits()
 
-		elseif not isAirbase[spGetUnitDefID(id)] then
+			for i = 1, #units do
+				local unitDefID = spGetUnitDefID(units[i])
 
-		else
-			local sUnits = spGetSelectedUnits()
-			for i = 1, #sUnits do
-				if isAirUnit[spGetUnitDefID(sUnits[i])] then
+				if isAirUnit[unitDefID] and not isAirCon[unitDefID] then
 					return CMD_LAND_AT_SPECIFIC_AIRBASE
 				end
 			end
 		end
-		return false
 	end
 
 end
