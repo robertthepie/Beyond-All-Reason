@@ -121,7 +121,6 @@ local function update()
 	_dx, _dy, _dz = Spring.GetUnitDirection(unitID)
 	local _odx, _odz = _dx, _dz
 	_vx, _vy, _vz = Spring.GetUnitVelocity(unitID)
-	local toe1, toe2 = 0,0
 
 	local tx1, ty1, tz1, tgn1x, tgn1y, tgn1z, toe1 = calcFootGoal(DISTFROMPELVIS	-10, 0)
 	local tx1b, ty1b, tz1b = tx1, ty1, tz1
