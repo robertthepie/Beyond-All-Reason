@@ -13,7 +13,7 @@ local torso, pelvis, head, thing, aimx1, aimy1,
 local DIST2GROUND, legDistUpper, legDistLower, legDistFoot = 50, 47.04, 89.7, 20
 local DISTFROMPELVIS = 45
 
-local SPEEDDISTMULT = 35
+local SPEEDDISTMULT = 55
 
 local legSqrdUpper, legSqrdLower = legDistUpper * legDistUpper, legDistLower * legDistLower
 local legTotSqrd, legTot    = legSqrdUpper + legSqrdLower, 2 * legDistUpper * legDistLower
@@ -21,7 +21,7 @@ local legTotSqrd, legTot    = legSqrdUpper + legSqrdLower, 2 * legDistUpper * le
 local _x, _y, _z	= 0, 0, 0
 local _dx, _dy, _dz	= 0, 0, 0
 local _dvx, _dvz = 0,0
-local _vx, _vy, _vz = 0,0,0
+local _vx, _vy, _vz, _vt = 0,0,0, 0
 
 -- to local unit space
 local function toLocalSpace2d(x, y, z)
@@ -45,8 +45,10 @@ local function updateLeg(legRoll, leg1, leg2, foot, target_x, target_y, target_z
 	--local px, py, pz = target_x, target_y, target_z
 	--px, py, pz = toLocalSpace3d(px, py, pz)
 
+	local extra_x, _, _ = Spring.UnitScript.GetPieceTranslation(pelvis)
+
 	-- compensate for leg position
-	px = px - legoffset_x
+	px = px - legoffset_x - extra_x
 	py = py - legoffset_y
 	-- HOTFIX: TODO: figure out where i'm actually going wrong?
 	pz = -pz + legoffset_z
@@ -78,18 +80,9 @@ local function updateLeg(legRoll, leg1, leg2, foot, target_x, target_y, target_z
 
 	Turn(toe, 1, toeAngle-gnz)
 
-	return nil
+	return dist3dSQRD, dist3d
 end
 
-local function slowUpdate()
-	local a, b, c, d
-	while true do
-		a, _, b = toGlobal2D_X(50)
-		c, _, d = toLocalSpace2d(a, _y, b)
-		Spring.Echo(a-_x, c, b-_z, d)
-		Sleep(3600)
-	end
-end
 
 local function calcFootGoal(legXOffset, moveOffset)
 	local x, y, z = _x, 0, _z
@@ -121,8 +114,8 @@ local function calcFootGoal(legXOffset, moveOffset)
 	return x,y,z, gx, gy, gz, toe_y
 end
 
+local leftRot, rightRot	= {}, {}
 local function update()
-	local leftRot, rightRot	= {}, {}
 
 	_x,  _y,  _z = Spring.GetUnitPosition(unitID)
 	_dx, _dy, _dz = Spring.GetUnitDirection(unitID)
@@ -138,7 +131,7 @@ local function update()
 	local tx2c, ty2c, tz2c = tx2, ty2, tz2
 
 	local ac, aci = 0, 1
-	local leftLeg = true
+	local leftLeg, lifted = true, true
 
 	while true do
 		Sleep(1) -- sleep at the start so that i don't forget it
@@ -146,51 +139,47 @@ local function update()
 		-- current state
 		 _x,  _y,  _z = Spring.GetUnitPosition(unitID)
 		_dx, _dy, _dz = Spring.GetUnitDirection(unitID)
-		_vx, _vy, _vz = Spring.GetUnitVelocity(unitID)
+		_vx, _vy, _vz, _vt = Spring.GetUnitVelocity(unitID)
+		_vt = _vt * 5
 
-		if true then
-		ac = ac + 0.08 -- 0.04
+		ac = ac + 0.04 -- 0.04
 		if ac > 2 then
 			ac = 0
 			leftLeg = not leftLeg
 			if leftLeg then
 				tx1b, ty1b, tz1b = tx1c, ty1c, tz1c
-				tx1c, ty1c, tz1c, tgn1x, tgn1y, tgn1z, toe1 = calcFootGoal(DISTFROMPELVIS, SPEEDDISTMULT)
+				tx1c, ty1c, tz1c, tgn1x, tgn1y, tgn1z, toe1 = calcFootGoal(DISTFROMPELVIS - _vt, _vt*5)
 			else
 				tx2b, ty2b, tz2b = tx2c, ty2c, tz2c
-				tx2c, ty2c, tz2c, tgn2x, tgn2y, tgn2z, toe2 = calcFootGoal(-DISTFROMPELVIS, SPEEDDISTMULT)
+				tx2c, ty2c, tz2c, tgn2x, tgn2y, tgn2z, toe2 = calcFootGoal(-DISTFROMPELVIS + _vt, _vt*5)
+			end
+			lifted = true
+		end
+		if lifted and ac > 1 then
+			lifted = false
+			if leftLeg then
+				Move(pelvis, 1, _vt, 25)
+			else
+				Move(pelvis, 1, -_vt, 25)
 			end
 		end
 		aci = math.min(ac, 1)
 		if leftLeg then
 			tx1, ty1, tz1 =
-				--aci * tx1b + ac * tx1c,
-				--aci * ty1b + ac * ty1c,
-				--aci * tz1b + ac * tz1c
 				math.mix(tx1b, tx1c, aci),
 				math.mix(ty1b, ty1c, aci),
 				math.mix(tz1b, tz1c, aci)
+			local temp = (math.abs(aci+aci-1))
+			temp = temp * temp
+			ty1 = ty1 + (25 * (1-temp))
 		else
 			tx2, ty2, tz2 =
-				--aci * tx2b + ac * tx2c,
-				--aci * ty2b + ac * ty2c,
-				--aci * tz2b + ac * tz2c
 				math.mix(tx2b, tx2c, aci),
 				math.mix(ty2b, ty2c, aci),
-				math.mix(tz2b, tz2c, aci)
-		end
-		else
-			tx1, ty1, tz1 = calcFootGoal(DISTFROMPELVIS, SPEEDDISTMULT)
-			if ac > 2 then
-				ac = 0
-				if leftLeg then
-					--tx1, ty1, tz1 = calcFootGoal(DISTFROMPELVIS, SPEEDDISTMULT)
-				else
-					--tx2, ty2, tz2 = calcFootGoal(-DISTFROMPELVIS, SPEEDDISTMULT)
-				end
-				leftLeg = not leftLeg
-			end
-			ac = ac + 0.08
+			math.mix(tz2b, tz2c, aci)
+			local temp = (math.abs(aci+aci-1))
+			temp = temp * temp
+			ty2 = ty2 + (25 * (1-temp))
 		end
 
 		leftRot = {updateLeg(
@@ -212,11 +201,29 @@ local function update()
 			-DISTFROMPELVIS, DIST2GROUND, 0,
 			tgn2x, tgn2y, tgn2z, rtoes, toe2
 		)}
+		
+		-- if overextending a leg, speed up so that we can lift it up sooner
+		if leftLeg then
+			if rightRot[2] > 120 then
+				ac = ac + 0.04
+			end
+		else
+			if leftRot[2] > 120 then
+				ac = ac + 0.04
+			end
+		end
+	end
+end
+
+local function slowUpdate()
+	while true do
+		Sleep(300)
 	end
 end
 
 function script.Create()
 	StartThread(update)
+	StartThread(slowUpdate)
 end
 
 function script.StartMoving()
