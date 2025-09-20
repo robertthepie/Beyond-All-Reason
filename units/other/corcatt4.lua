@@ -36,7 +36,7 @@ return {
 
 		-- air post:
 		factoryHeadingTakeoff = false,
-		airHoverFactor = 25,
+		airHoverFactor = 0,
 
 		-- cosmetic
 		buildpic		= "CORSEAH.DDS",
@@ -50,6 +50,7 @@ return {
 		collisionvolumetype		= "CylY",
 		seismicsignature	= 0,
 		selfdestructas		= "hugeExplosionGenericSelfd",
+		selfDCountdown		= 0,
 		customparams		= {
 			model_author	= "__TMP",
 			normaltex		= "unittextures/cor_normal.dds",
