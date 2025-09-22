@@ -80,7 +80,7 @@ local function updateLeg(legRoll, leg1, leg2, foot, target_x, target_y, target_z
 
 	Turn(toe, 1, toeAngle-gnz)
 
-	return dist3dSQRD, dist3d
+	return dist3d, angle
 end
 
 
@@ -105,8 +105,11 @@ local function calcFootGoal(legXOffset, moveOffset)
 	+ _vz * moveOffset
 	-- movement rotation
 
-	y = Spring.GetGroundHeight(x, z) + legDistFoot
+	y = Spring.GetGroundHeight(x, z)
 	local gx, gy, gz = Spring.GetGroundNormal(x, z, true)
+	x = x + legDistFoot * gx
+	y = y + legDistFoot * gy
+	z = z + legDistFoot * gz
 
 	local toe_y = Spring.GetGroundHeight(x + (25 * _dx), z + (25 * _dz))-y+legDistFoot
 	toe_y = -math.atan2(toe_y, 25)
@@ -175,7 +178,7 @@ local function update()
 			tx2, ty2, tz2 =
 				math.mix(tx2b, tx2c, aci),
 				math.mix(ty2b, ty2c, aci),
-			math.mix(tz2b, tz2c, aci)
+				math.mix(tz2b, tz2c, aci)
 			local temp = (math.abs(aci+aci-1))
 			temp = temp * temp
 			ty2 = ty2 + (25 * (1-temp))
@@ -203,11 +206,11 @@ local function update()
 		
 		-- if overextending a leg, speed up so that we can lift it up sooner
 		if leftLeg then
-			if rightRot[2] > 120 then
+			if rightRot[1] > 120 then
 				ac = ac + 0.04
 			end
 		else
-			if leftRot[2] > 120 then
+			if leftRot[1] > 120 then
 				ac = ac + 0.04
 			end
 		end
