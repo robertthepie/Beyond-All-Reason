@@ -12,7 +12,7 @@ return {
 
 		-- movement
 		maxacc			= 0.15,
-		maxdec			= 0.5,
+		maxdec			= 0.15,
 		speed			= 66,
 		turnrate		= 150,
 
