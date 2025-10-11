@@ -14,6 +14,7 @@ return {
 		maxacc			= 0.15,
 		maxdec			= 0.15,
 		speed			= 66,
+		rspeed			= 66,
 		turnrate		= 150,
 
 		-- movement constraints
@@ -45,8 +46,8 @@ return {
 		explodeas		= "hugeExplosionGeneric",
 
 		--other @TODO:
-		collisionvolumeoffsets	= "0 -50 0",
-		collisionvolumescales	= "114 114 114",
+		collisionvolumeoffsets	= "0 0 0",
+		collisionvolumescales	= "114 50 114",
 		collisionvolumetype		= "CylY",
 		selectionvolumeoffsets	= "0 50 0",
 		selectionvolumescales	= "50 50 150",
@@ -60,5 +61,42 @@ return {
 		},
 		sfxtypes = {},
 		sounds = {},
+
+		weapondefs = {
+			dummy_weapon = {
+				areaofeffect = 4,
+				avoidfeature = false,
+				craterareaofeffect = 0,
+				craterboost = 0,
+				cratermult = 0,
+				edgeeffectiveness = 0.15,
+				explosiongenerator = "",
+				gravityaffected = "true",
+				hightrajectory = 1,
+				impulsefactor = 0.123,
+				name = "HeavyCannon",
+				noselfdamage = true,
+				metalpershot = 15,
+				energypershot = 500,
+				range = 1100,
+				reloadtime = 2.5,
+				size = 0,
+				soundhit = "",
+				soundhitwet = "",
+				soundstart = "",
+				turret = true,
+				weapontype = "Cannon",
+				weaponvelocity = 1000,
+				damage = {
+					default = 0,
+				},
+			}
+		},
+		weapons = {
+			[1] = {
+				def = "DUMMY_WEAPON",
+				onlytargetcategory = "SURFACE",
+			},
+		},
 	},
 }
