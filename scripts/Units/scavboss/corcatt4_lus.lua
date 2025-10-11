@@ -247,6 +247,26 @@ local function updateNotTimer()
 		_vt = _vt * 5
 
 		ac = ac + 0.04 -- 0.04
+
+		aci = math.min(ac, 1)
+		if leftLeg then
+			tx1, ty1, tz1 =
+				math.mix(tx1b, tx1c, aci),
+				math.mix(ty1b, ty1c, aci),
+				math.mix(tz1b, tz1c, aci)
+			local temp = (math.abs(aci+aci-1))
+			temp = temp * temp
+			ty1 = ty1 + (25 * (1-temp))
+		else
+			tx2, ty2, tz2 =
+				math.mix(tx2b, tx2c, aci),
+				math.mix(ty2b, ty2c, aci),
+				math.mix(tz2b, tz2c, aci)
+			local temp = (math.abs(aci+aci-1))
+			temp = temp * temp
+			ty2 = ty2 + (25 * (1-temp))
+		end
+
 		if ac > 1 then
 			alternate = not alternate
 
@@ -282,24 +302,6 @@ local function updateNotTimer()
 			else
 				Move(pelvis, 1, -_vt, 25)
 			end
-		end
-		aci = math.min(ac, 1)
-		if leftLeg then
-			tx1, ty1, tz1 =
-				math.mix(tx1b, tx1c, aci),
-				math.mix(ty1b, ty1c, aci),
-				math.mix(tz1b, tz1c, aci)
-			local temp = (math.abs(aci+aci-1))
-			temp = temp * temp
-			ty1 = ty1 + (25 * (1-temp))
-		else
-			tx2, ty2, tz2 =
-				math.mix(tx2b, tx2c, aci),
-				math.mix(ty2b, ty2c, aci),
-				math.mix(tz2b, tz2c, aci)
-			local temp = (math.abs(aci+aci-1))
-			temp = temp * temp
-			ty2 = ty2 + (25 * (1-temp))
 		end
 
 		leftRot = {updateLeg(

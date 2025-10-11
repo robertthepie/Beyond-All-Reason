@@ -40,6 +40,5 @@ function gadget:Initialize()
 		local unitTeamID = Spring.GetUnitTeam(unitID)
 		---@diagnostic disable-next-line: missing-parameter, param-type-mismatch
 		gadget:UnitCreated(unitID, unitDefID, unitTeamID)
-		Spring.Echo("unit is transported", Spring.GetUnitTransporter(unitID))
 	end
 end
