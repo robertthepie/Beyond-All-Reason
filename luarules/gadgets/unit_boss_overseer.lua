@@ -23,22 +23,43 @@ for _, name in ipairs({"corcatt4"}) do
 		bossDefIDs[UnitDefNames[name].id] = true
 	end
 end
+
+local cat = nil
+local leftNode, rightNode = nil, nil
+
 function gadget:UnitCreated(unitID, unitDefID, teamID)
 	if bossDefIDs[unitDefID] then
+		cat = unitID
 		Spring.Echo("cat found, adding fleas")
-		Spring.Echo(Spring.GetUnitPieceList(unitID))
-		local flea = Spring.CreateUnit("corgol", 1, 1, 1, 1, teamID)
-		Spring.UnitAttach(unitID, flea, 12)
-		local flea = Spring.CreateUnit("corgol", 1, 1, 1, 1, teamID)
-		Spring.UnitAttach(unitID, flea, 20)
+		leftNode = Spring.CreateUnit("corgol", 1, 1, 1, 1, teamID)
+		rightNode = Spring.CreateUnit("corgol", 1, 1, 1, 1, teamID)
+		Spring.MoveCtrl.Enable(leftNode)
+		Spring.MoveCtrl.Enable(rightNode)
+	end
+end
+
+function gadget:GameFrame(frame)
+	if not cat then return end
+	if leftNode then
+		local x,y,z = Spring.GetUnitPiecePosDir(cat, 12)
+		Spring.MoveCtrl.SetPosition(leftNode, x, y, z)
+	end
+	if rightNode then
+		local x,y,z = Spring.GetUnitPiecePosDir(cat, 20)
+		Spring.MoveCtrl.SetPosition(rightNode, x, y, z)
 	end
 end
 
 function gadget:Initialize()
+	local toRemove = UnitDefNames.corgol.id
 	for _, unitID in ipairs(Spring.GetAllUnits()) do
 		local unitDefID = Spring.GetUnitDefID(unitID)
 		local unitTeamID = Spring.GetUnitTeam(unitID)
+		if unitDefID == toRemove then
+			Spring.DestroyUnit(unitID, false, true)
+		else
 		---@diagnostic disable-next-line: missing-parameter, param-type-mismatch
 		gadget:UnitCreated(unitID, unitDefID, unitTeamID)
+		end
 	end
 end
