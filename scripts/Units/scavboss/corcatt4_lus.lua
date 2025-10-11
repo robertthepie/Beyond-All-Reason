@@ -262,7 +262,7 @@ local function updateNotTimer()
 					tx1c, ty1c, tz1c, tgn1x, tgn1y, tgn1z, toe1 = calcFootGoal(DISTFROMPELVIS - _vt, _vt*5)
 					ac = 0
 					lifted = true
-					Spring.Echo("Lifted Left Leg", leftRot[1], leftRot[2])
+					--Spring.Echo("Lifted Left Leg", leftRot[1], leftRot[2])
 					needToLift = false
 				end
 			elseif needToLift or rightRot[1] > EXERTANGLE then
@@ -271,7 +271,7 @@ local function updateNotTimer()
 				tx2c, ty2c, tz2c, tgn2x, tgn2y, tgn2z, toe2 = calcFootGoal(-DISTFROMPELVIS + _vt, _vt*5)
 				ac = 0
 				lifted = true
-				Spring.Echo("Lifted Right Leg", rightRot[1], rightRot[2])
+				--Spring.Echo("Lifted Right Leg", rightRot[1], rightRot[2])
 				needToLift = false
 			end
 		end
@@ -338,7 +338,7 @@ end
 local function slowUpdate()
 	while true do
 		Sleep(300)
-		Spring.Echo(tempGlobal, (20 + _vt + _vt), tempGlobal > (20 + _vt + _vt))
+		--Spring.Echo(tempGlobal, (20 + _vt + _vt), tempGlobal > (20 + _vt + _vt))
 	end
 end
 
