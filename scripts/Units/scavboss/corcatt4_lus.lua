@@ -14,6 +14,7 @@ local DIST2GROUND, legDistUpper, legDistLower, legDistFoot = 50, 47.04, 89.7, 20
 local DISTFROMPELVIS = 45
 
 local SPEEDDISTMULT = 55
+local EXERTANGLE = 137
 
 local legSqrdUpper, legSqrdLower = legDistUpper * legDistUpper, legDistLower * legDistLower
 local legTotSqrd, legTot    = legSqrdUpper + legSqrdLower, 2 * legDistUpper * legDistLower
@@ -216,15 +217,133 @@ local function update()
 		end
 	end
 end
+local tempGlobal = 0
+local function updateNotTimer()
+	
+	_x,  _y,  _z = Spring.GetUnitPosition(unitID)
+	_dx, _dy, _dz = Spring.GetUnitDirection(unitID)
+	local _odx, _odz = _dx, _dz
+	_vx, _vy, _vz = Spring.GetUnitVelocity(unitID)
+
+	local tx1, ty1, tz1, tgn1x, tgn1y, tgn1z, toe1 = calcFootGoal(DISTFROMPELVIS	-10, 0)
+	local tx1b, ty1b, tz1b = tx1, ty1, tz1
+	local tx1c, ty1c, tz1c = tx1, ty1, tz1
+	local tx2, ty2, tz2, tgn2x, tgn2y, tgn2z, toe2 = calcFootGoal(-DISTFROMPELVIS	+10, 0)
+	local tx2b, ty2b, tz2b = tx2, ty2, tz2
+	local tx2c, ty2c, tz2c = tx2, ty2, tz2
+
+	local ac, aci = 0, 1
+	local leftLeg, lifted = true, true
+	local alternate = true
+	local needToLift = false
+
+	while true do
+		Sleep(1) -- sleep at the start so that i don't forget it
+
+		-- current state
+		 _x,  _y,  _z = Spring.GetUnitPosition(unitID)
+		_dx, _dy, _dz = Spring.GetUnitDirection(unitID)
+		_vx, _vy, _vz, _vt = Spring.GetUnitVelocity(unitID)
+		_vt = _vt * 5
+
+		ac = ac + 0.04 -- 0.04
+		if ac > 1 then
+			alternate = not alternate
+
+			local temp1, temp2, temp3 = tx1c + tx2c, ty1c + ty2c, tz1c + tz2c
+			temp1, temp2, temp3 = temp1 * 0.5, temp2 * 0.5, temp3 * 0.5
+			tempGlobal = math.distance2d(temp1,temp3, _x, _z)
+			
+			if tempGlobal > (20 + _vt + _vt) then needToLift = true end
+			if alternate then
+				if needToLift or leftRot[1] > EXERTANGLE then
+					leftLeg = true
+					tx1b, ty1b, tz1b = tx1c, ty1c, tz1c
+					tx1c, ty1c, tz1c, tgn1x, tgn1y, tgn1z, toe1 = calcFootGoal(DISTFROMPELVIS - _vt, _vt*5)
+					ac = 0
+					lifted = true
+					Spring.Echo("Lifted Left Leg", leftRot[1], leftRot[2])
+					needToLift = false
+				end
+			elseif needToLift or rightRot[1] > EXERTANGLE then
+				leftLeg = false
+				tx2b, ty2b, tz2b = tx2c, ty2c, tz2c
+				tx2c, ty2c, tz2c, tgn2x, tgn2y, tgn2z, toe2 = calcFootGoal(-DISTFROMPELVIS + _vt, _vt*5)
+				ac = 0
+				lifted = true
+				Spring.Echo("Lifted Right Leg", rightRot[1], rightRot[2])
+				needToLift = false
+			end
+		end
+		if lifted and ac > 1 then
+			lifted = false
+			if leftLeg then
+				Move(pelvis, 1, _vt, 25)
+			else
+				Move(pelvis, 1, -_vt, 25)
+			end
+		end
+		aci = math.min(ac, 1)
+		if leftLeg then
+			tx1, ty1, tz1 =
+				math.mix(tx1b, tx1c, aci),
+				math.mix(ty1b, ty1c, aci),
+				math.mix(tz1b, tz1c, aci)
+			local temp = (math.abs(aci+aci-1))
+			temp = temp * temp
+			ty1 = ty1 + (25 * (1-temp))
+		else
+			tx2, ty2, tz2 =
+				math.mix(tx2b, tx2c, aci),
+				math.mix(ty2b, ty2c, aci),
+				math.mix(tz2b, tz2c, aci)
+			local temp = (math.abs(aci+aci-1))
+			temp = temp * temp
+			ty2 = ty2 + (25 * (1-temp))
+		end
+
+		leftRot = {updateLeg(
+			--thigh	lower	foot
+			lRoll,	lthigh,	lleg,	lfoot,
+			--target x, y, z
+			tx1, ty1, tz1,
+			--thigh offset from the model centre
+			DISTFROMPELVIS, DIST2GROUND, 0,
+			tgn1x, tgn1y, tgn1z, ltoes, toe1
+		)}
+
+		rightRot= {updateLeg(
+			--thigh		lower		foot
+			rRoll,	rthigh, rleg, rfoot,
+			--target x, y, z
+			tx2, ty2, tz2,
+			--thigh offset from the model centre
+			-DISTFROMPELVIS, DIST2GROUND, 0,
+			tgn2x, tgn2y, tgn2z, rtoes, toe2
+		)}
+		
+		-- if overextending a leg, speed up so that we can lift it up sooner
+		if leftLeg then
+			if rightRot[1] > EXERTANGLE then
+				ac = ac + 0.04
+			end
+		else
+			if leftRot[1] > EXERTANGLE then
+				ac = ac + 0.04
+			end
+		end
+	end
+end
 
 local function slowUpdate()
 	while true do
 		Sleep(300)
+		Spring.Echo(tempGlobal, (20 + _vt + _vt), tempGlobal > (20 + _vt + _vt))
 	end
 end
 
 function script.Create()
-	StartThread(update)
+	StartThread(updateNotTimer)
 	StartThread(slowUpdate)
 end
 
