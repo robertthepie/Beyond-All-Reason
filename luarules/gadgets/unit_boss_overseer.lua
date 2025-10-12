@@ -31,13 +31,13 @@ local leftNode, rightNode = nil, nil
 function gadget:UnitCreated(unitID, unitDefID, teamID)
 	if bossDefIDs[unitDefID] then
 		cat = unitID
-		leftNode = Spring.CreateUnit("corgol", 1, 1, 1, 1, teamID)
+		leftNode = Spring.CreateUnit("corcatt4_leftpod", 1, 1, 1, 1, teamID)
 		if not leftNode then
 			Spring.DestroyUnit(unitID, false, true)
 			Spring.Echo("Warning: Failed to handle Epic Catapult:[left]")
 			return
 		end
-		rightNode = Spring.CreateUnit("corgol", 1, 1, 1, 1, teamID)
+		rightNode = Spring.CreateUnit("corcatt4_leftpod", 1, 1, 1, 1, teamID)
 		if not rightNode then
 			Spring.Echo("Warning: Failed to handle Epic Catapult:[right]")
 			Spring.DestroyUnit(leftNode, false, true)
@@ -64,7 +64,7 @@ function gadget:GameFrame(frame)
 end
 
 function gadget:Initialize()
-	local toRemove = UnitDefNames.corgol.id
+	local toRemove = UnitDefNames.corcatt4_leftpod.id
 	for _, unitID in ipairs(Spring.GetAllUnits()) do
 		local unitDefID = Spring.GetUnitDefID(unitID)
 		local unitTeamID = Spring.GetUnitTeam(unitID)
@@ -93,9 +93,9 @@ function gadget:DrawScreen()
 	local mouseX, mouseY = Spring.GetMouseState()
 	local overType, overID = Spring.TraceScreenRay(mouseX, mouseY)
 	if overType == "unit" then
-		if overID == cat then
+		--[[if overID == cat then
 			gl.SetUnitBufferUniforms(cat, {2}, 6)
-		elseif overID == leftNode then
+		else]]if overID == leftNode then
 			last = true
 			gl.SetUnitBufferUniforms(cat, {4}, 6)
 		elseif overID == rightNode then

@@ -1,4 +1,4 @@
-return {
+epic_catapult = {
 	corcatt4 = {
 		-- stats
 		health			= 1830,
@@ -47,7 +47,7 @@ return {
 
 		--other @TODO:
 		collisionvolumeoffsets	= "0 0 0",
-		collisionvolumescales	= "114 50 114",
+		collisionvolumescales	= "114 100 114",
 		collisionvolumetype		= "CylY",
 		selectionvolumeoffsets	= "0 50 0",
 		selectionvolumescales	= "50 50 150",
@@ -100,3 +100,58 @@ return {
 		},
 	},
 }
+local nodeTemplate = {
+	health		= epic_catapult.corcatt4.health,
+	energycost	= epic_catapult.corcatt4.energycost,
+	metalcost	= epic_catapult.corcatt4.metalcost,
+	script		= "corcatt4_node_common_lus.lua",
+	objectname	= "blank.s3o",
+	customparams		= {
+		model_author	= "__TMP",
+		normaltex		= "unittextures/cor_normal.dds",
+	},
+	sfxtypes = {},
+	sounds = {},
+	footprintx = 1,
+	footprintz = 1,
+	collisionvolumeoffsets	= "0 0 0",
+	collisionvolumescales	= "0 0 0",
+	collisionvolumetype		= "sphere",
+	selectionvolumeoffsets	= "0 0 0",
+	selectionvolumescales	= "0 0 0",
+	selectionvolumetype		= "sphere",
+}
+local _node
+local function newNode(name)
+	_node = table.copy(nodeTemplate)
+	epic_catapult[name] = _node
+end
+local function setNodeSize(x, y, z, px, py, pz)
+	if not x and _node then return end
+	if y and z then
+		local offset = px and py and pz and (px.." "..py.." "..pz) or "0 0 0"
+		local size = x and y and z and (x.." "..y.." "..z) or "0 0 0"
+		_node.collisionvolumeoffsets	= offset
+		_node.collisionvolumescales	= size
+		_node.collisionvolumetype	= "box"
+		_node.selectionvolumeoffsets	= offset
+		_node.selectionvolumescales	= size
+		_node.selectionvolumetype	= "box"
+	else
+		local offset = px and py and pz and (px.." "..py.." "..pz) or "0 0 0"
+		local size = x and (x.." "..x.." "..x) or "0 0 0"
+		_node.collisionvolumeoffsets	= offset
+		_node.collisionvolumescales	= size
+		_node.collisionvolumetype	= "sphere"
+		_node.selectionvolumeoffsets	= offset
+		_node.selectionvolumescales	= size
+		_node.selectionvolumetype	= "sphere"
+	end
+	local aproxSize = x*0.1
+	_node.footprintx = aproxSize
+	_node.footprintz = aproxSize
+end
+newNode("corcatt4_leftpod")
+setNodeSize(65)
+
+return epic_catapult
