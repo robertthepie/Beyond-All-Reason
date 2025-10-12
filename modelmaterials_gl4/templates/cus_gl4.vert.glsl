@@ -585,6 +585,9 @@ void main(void)
 
 	// Pack selectedness into teamCol.a
 	teamCol.a = UNITUNIFORMS.userDefined[1].z;
+	if (teamCol.a > 3 && teamCol.a != pieceIndex) {
+		teamCol.a = 0;
+	}
 
 	#if (RENDERING_MODE != 2) //non-shadow pass
 

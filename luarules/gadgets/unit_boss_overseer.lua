@@ -13,9 +13,10 @@ function gadget:GetInfo()
 	}
 end
 
-if not gadgetHandler:IsSyncedCode() then
-	return false
-end
+if gadgetHandler:IsSyncedCode() then
+--------------
+--- SYNCED ---
+--------------
 
 local bossDefIDs = {}
 for _, name in ipairs({"corcatt4"}) do
@@ -30,11 +31,23 @@ local leftNode, rightNode = nil, nil
 function gadget:UnitCreated(unitID, unitDefID, teamID)
 	if bossDefIDs[unitDefID] then
 		cat = unitID
-		Spring.Echo("cat found, adding fleas")
 		leftNode = Spring.CreateUnit("corgol", 1, 1, 1, 1, teamID)
+		if not leftNode then
+			Spring.DestroyUnit(unitID, false, true)
+			Spring.Echo("Warning: Failed to handle Epic Catapult:[left]")
+			return
+		end
 		rightNode = Spring.CreateUnit("corgol", 1, 1, 1, 1, teamID)
+		if not rightNode then
+			Spring.Echo("Warning: Failed to handle Epic Catapult:[right]")
+			Spring.DestroyUnit(leftNode, false, true)
+			Spring.DestroyUnit(unitID, false, true)
+			return
+		end
 		Spring.MoveCtrl.Enable(leftNode)
 		Spring.MoveCtrl.Enable(rightNode)
+		Spring.Echo("trying to send", cat, leftNode, rightNode)
+		SendToUnsynced("setBossNodes", cat, leftNode, rightNode)
 	end
 end
 
@@ -63,3 +76,32 @@ function gadget:Initialize()
 		end
 	end
 end
+
+else
+--------------
+---UNSYNCED---
+--------------
+local cat, leftNode, rightNode
+local function setNodes(a, b, c ,d)
+	cat, leftNode, rightNode = b, c, d
+end
+function gadget:Initialize()
+	gadgetHandler:AddSyncAction("setBossNodes", setNodes)
+end
+function gadget:DrawScreen()
+	local mouseX, mouseY = Spring.GetMouseState()
+	local overType, overID = Spring.TraceScreenRay(mouseX, mouseY)
+	if overType == "unit" then
+		if overID == cat then
+			gl.SetUnitBufferUniforms(cat, {1}, 6)
+		elseif overID == leftNode then
+			gl.SetUnitBufferUniforms(cat, {13}, 6)
+		elseif overID == rightNode then
+			gl.SetUnitBufferUniforms(cat, {21}, 6)
+		end
+	end
+end
+end
+--------------
+---   EOF  ---
+--------------
