@@ -88,17 +88,25 @@ end
 function gadget:Initialize()
 	gadgetHandler:AddSyncAction("setBossNodes", setNodes)
 end
+local last = false
 function gadget:DrawScreen()
 	local mouseX, mouseY = Spring.GetMouseState()
 	local overType, overID = Spring.TraceScreenRay(mouseX, mouseY)
 	if overType == "unit" then
 		if overID == cat then
-			gl.SetUnitBufferUniforms(cat, {1}, 6)
+			gl.SetUnitBufferUniforms(cat, {2}, 6)
 		elseif overID == leftNode then
-			gl.SetUnitBufferUniforms(cat, {13}, 6)
+			last = true
+			gl.SetUnitBufferUniforms(cat, {4}, 6)
 		elseif overID == rightNode then
-			gl.SetUnitBufferUniforms(cat, {21}, 6)
+			last = true
+			gl.SetUnitBufferUniforms(cat, {12}, 6)
 		end
+		return
+	end
+	if last then
+		gl.SetUnitBufferUniforms(cat, {0}, 6)
+		last = false
 	end
 end
 end
