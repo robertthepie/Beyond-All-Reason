@@ -51,7 +51,8 @@ if gadgetHandler:IsSyncedCode() then
 	do
 		local modoptions = Spring.GetModOptions()
 		local factionlimiter = tonumber(modoptions.factionlimiter) or 0
-		if factionlimiter > 0 then
+		local raptor_teams = tonumber(modoptions.raptor_teams) or 0
+		if factionlimiter > 0 or raptor_teams > 0 then
 			local legcomDefID = modoptions.experimentallegionfaction and UnitDefNames.legcom and UnitDefNames.legcom.id
 			local armcomDefID = UnitDefNames.armcom and UnitDefNames.armcom.id
 			local corcomDefID = UnitDefNames.corcom and UnitDefNames.corcom.id
@@ -69,22 +70,31 @@ if gadgetHandler:IsSyncedCode() then
 				local allyTeamBitmask = math.bit_and(math.floor(factionlimiter/2^(allyTeam*3)), FULL_BITMASK)
 				allyTeamBitmask = allyTeamBitmask == 0 and FULL_BITMASK or allyTeamBitmask
 
-				if legcomDefID then
-					if math.bit_and(allyTeamBitmask, LEG_MASK) ~= 0 then
-						allyStartUnits[unitsCount] = legcomDefID
+				-- dedicated/custom
+				-- raptors
+				if math.bit_and(raptor_teams, 2^allyTeam) ~= 0 then
+					allyStartUnits = {[1]= UnitDefNames.corcv.id }
+				else
+
+					-- default factions
+					if legcomDefID then
+						if math.bit_and(allyTeamBitmask, LEG_MASK) ~= 0 then
+							allyStartUnits[unitsCount] = legcomDefID
+							unitsCount = unitsCount + 1
+						end
+					elseif allyTeamBitmask == LEG_MASK then
+						allyTeamBitmask = FULL_BITMASK
+					end
+
+					if armcomDefID and math.bit_and(allyTeamBitmask, ARM_MASK) ~= 0 then
+						allyStartUnits[unitsCount] = armcomDefID
 						unitsCount = unitsCount + 1
 					end
-				elseif allyTeamBitmask == LEG_MASK then
-					allyTeamBitmask = FULL_BITMASK
-				end
+					if corcomDefID and math.bit_and(allyTeamBitmask, COR_MASK) ~= 0 then
+						allyStartUnits[unitsCount] = corcomDefID
+						unitsCount = unitsCount + 1
+					end
 
-				if armcomDefID and math.bit_and(allyTeamBitmask, ARM_MASK) ~= 0 then
-					allyStartUnits[unitsCount] = armcomDefID
-					unitsCount = unitsCount + 1
-				end
-				if corcomDefID and math.bit_and(allyTeamBitmask, COR_MASK) ~= 0 then
-					allyStartUnits[unitsCount] = corcomDefID
-					unitsCount = unitsCount + 1
 				end
 
 				local packedOptions = allyStartUnits[1]

@@ -1675,6 +1675,17 @@ local options = {
 			{ key = "leggren",		name = "Legion Green", 		desc = "description" },
         }
     },
+        {
+        key    	= "raptor_teams",
+        name   	= "Raptor Teams (bitmask)",
+        desc   	= "bit or of 2^allyTeam",
+        type   	= "number",
+        section = "dev",
+        def     =  0,
+        min    	= 0,
+        max    	= 16777215,-- math hard, 24 bit limitish?
+        step   	= 1,
+    },
     {
         key     = "debugcommands",
         name    = "Debug Commands",
