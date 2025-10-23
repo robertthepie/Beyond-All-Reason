@@ -26,6 +26,10 @@ local singleplayer = {		-- note: these permissions override others when singlepl
 	sysinfo = false,
 }
 
+everything		= 31
+moderator		= 13
+singleplayer	= 1
+
 return {
 	[-1] = singleplayer,		-- SPECIAL NAME/ADDITION: dont change it
 

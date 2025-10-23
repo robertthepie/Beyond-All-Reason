@@ -1801,6 +1801,33 @@ Example: Armada VS Cortex VS Legion: 273 or 100 010 001 or 256 + 16 + 1]],
         section = "options_cheats",
         type    = "separator",
     },
+    {
+        key     = "sub_header",
+        name    = "-- Cheats ".."\255\128\128\128".."(via ingame chat)",
+        desc    = "",
+        section = "options_cheats",
+        type    = "subheader",
+        def     =  true,
+    },
+    {
+        key		= "bosscheats",
+        name	= "Cheats Enabled",
+        desc	= "Enables cheats, in singleplayer /cheats can still be run",
+        type	= "list",
+        def		= "default",
+        section	= "options_cheats",
+        items	= {
+            { key= "off", name= "Off", desc="Cheats are not enabled, in singleplayer /cheats can still be run"},
+            { key= "cosmetic", name= "Cosmetic/Terraform", desc="[Mutliplayer Room Boss] Certain cosmetic/terraforming cheats such as `/luarules nightmode` are available"},
+            { key= "boss", name= "Boss",    desc="[Singleplayer] Autoruns /cheats, [Multiplayer] Bosses may use cheats"},
+        }
+    },
+
+    {
+        key     = "sub_header",
+        section = "options_cheats",
+        type    = "separator",
+    },
 
     {
         key     = "sub_header",
