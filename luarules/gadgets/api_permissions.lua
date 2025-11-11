@@ -52,6 +52,16 @@ end
 _G.powerusers = powerusers
 _G.permissions = permissions
 
+
+
+
+
+
+
+
+
+
+
 --[[ Brainstorming table, do not lean against, fragile
 	LEVEL:	|admin	|cheat	| mod	| cheat	| cosmetic		examples
 			|		|sp		| 		| boss	|
@@ -59,15 +69,23 @@ Allowed:----+-------+-------+-------+-------+-------+
 01cosmetic	| 1		| 1		| 1		| post	| post	|		nightmode, terraform, waterlevel
 02cheat		| 1		| post	| 0		| post	| 0		|		give
 04mod		| 1		| 0		| 1		| 0		| 0		|		
-08unsafe	| 1		| post	| 1		| 0		| 0		|		desync / dev helpers
+08unsafe	| 1		| post	| 1		| 0		| 0		|		desync / dev helpers?
 16admin		| 1		| 0		| 0		| 0		| 0		|		
 
-32?	undo?	| 1		| 1		| 1		| 0?	| 0		|		perchance? mayhaps?
+32?	undo?	| 1		| 1		| 1		| 1		| 0		|		perchance? mayhaps?
+32?	undo?	| 1		| 1		| 1		| post	| 0		|		perchance? mayhaps?
 
 totalWPost	| 31	| 11	| 13	| 3		| 1
 total		| 31	| 1		| 13	| 1		| 1
+totalWUndo	| 63	| 33	| 45	| 1		| 1
 ]]
 
+local powerusersBitmasked = {}
+for user, perms in pairs(powerusers) do
+	powerusersBitmasked[user] =
+		perms["playerdata"] and 31 or
+		perms["sysinfo"]	and 13 or 1
+end
 local cheatsModoption = Spring.GetModOption("bosscheats")
 local levelToBitmask = {
 	["cosmetic"]= 01,
@@ -75,11 +93,12 @@ local levelToBitmask = {
 	["mod"]		= 04,
 	["unsafe"]	= 08,
 	["admin"]	= 16,
+	["undo"]	= 32,
 }
 local cachedPermLevel = {}
 ---comment
 ---@param playerID number
----@param level "cosmetic"|"cheats"|"mod"|"unsafe"|"admin"
+---@param level "cosmetic"|"cheats"|"mod"|"unsafe"|"admin"|"undo"
 ---@return boolean authorised can the player use the command of this level
 local function isAuthorised(playerID, level)
 	local levelBitmask = levelToBitmask[level] or 2
@@ -87,8 +106,8 @@ local function isAuthorised(playerID, level)
 	if not playerPermLevel then
 		local playername,_,_,_,_,_,_,_,_,_,accountInfo = Spring.GetPlayerInfo(playerID)
 		local accountID = (accountInfo and accountInfo.accountid) and tonumber(accountInfo.accountid) or -1
-		if (powerusers[playerID]) then
-			playerPermLevel = powerusers[accountID]
+		if (powerusersBitmasked[playerID]) then
+			playerPermLevel = powerusersBitmasked[accountID]
 		else
 			playerPermLevel = 0
 			if cheatsModoption == "cosmetic" then
@@ -111,7 +130,7 @@ end
 
 ---Wrapper to put inside gadgetHandler:AddChatAction, so that luarules are blocked behind the right permissions
 ---@param func function(cmd, line, words, playerID)
----@param level "cosmetic"|"cheats"|"moderator"|"unsafe"|"admin"
+---@param level "cosmetic"|"cheats"|"moderator"|"unsafe"|"admin"|"undo"
 local function isAuthorisedChatWrapper(func, level)
 	return function(cmd, line, words, playerID)
 		if isAuthorised(playerID, level) then
@@ -120,5 +139,12 @@ local function isAuthorisedChatWrapper(func, level)
 	end
 end
 
-GG.isAuthorised = isAuthorised
-GG.isAuthorisedChatWrapper = isAuthorisedChatWrapper
+function gadget:Initialize()
+	GG.isAuthorised = isAuthorised
+	GG.isAuthorisedChatWrapper = isAuthorisedChatWrapper
+end
+
+function gadget:Shutdown()
+	GG.isAuthorised = nil
+	GG.isAuthorisedChatWrapper = nil
+end
