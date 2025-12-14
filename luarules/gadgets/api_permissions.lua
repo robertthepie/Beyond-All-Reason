@@ -98,7 +98,8 @@ local levelToBitmask = {
 local cachedPermLevel = {}
 ---comment
 ---@param playerID number
----@param level "cosmetic"|"cheats"|"mod"|"unsafe"|"admin"|"undo"
+---@diagnostic disable-next-line: undefined-doc-name
+---@param level GG.PermLevel
 ---@return boolean authorised can the player use the command of this level
 local function isAuthorised(playerID, level)
 	local levelBitmask = levelToBitmask[level] or 2
@@ -130,7 +131,8 @@ end
 
 ---Wrapper to put inside gadgetHandler:AddChatAction, so that luarules are blocked behind the right permissions
 ---@param func function(cmd, line, words, playerID)
----@param level "cosmetic"|"cheats"|"moderator"|"unsafe"|"admin"|"undo"
+---@diagnostic disable-next-line: undefined-doc-name
+---@param level GG.PermLevel
 local function isAuthorisedChatWrapper(func, level)
 	return function(cmd, line, words, playerID)
 		if isAuthorised(playerID, level) then
@@ -142,6 +144,7 @@ end
 function gadget:Initialize()
 	GG.isAuthorised = isAuthorised
 	GG.isAuthorisedChatWrapper = isAuthorisedChatWrapper
+	GG.PermLevel = levelToBitmask
 end
 
 function gadget:Shutdown()
