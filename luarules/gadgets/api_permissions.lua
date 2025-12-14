@@ -83,8 +83,12 @@ totalWUndo	| 63	| 33	| 45	| 1		| 1
 local powerusersBitmasked = {}
 for user, perms in pairs(powerusers) do
 	powerusersBitmasked[user] =
+		-- admin
 		perms["playerdata"] and 31 or
-		perms["sysinfo"]	and 13 or 1
+		-- mod
+		perms["sysinfo"]	and 13 or
+		-- singleplayer user
+		1
 end
 local cheatsModoption = Spring.GetModOption("bosscheats")
 local levelToBitmask = {
@@ -93,42 +97,58 @@ local levelToBitmask = {
 	["mod"]		= 04,
 	["unsafe"]	= 08,
 	["admin"]	= 16,
-	["undo"]	= 32,
+	--["undo"]	= 32,
 }
 local cachedPermLevel = {}
----comment
+
+---Caculate the player perm level, adds it to the cache, and returns it. Does not account for singleplayer cheats
+---@param playerID number
+local function makeUserPermCache(playerID)
+	local playername,_,_,_,_,_,_,_,_,_,accountInfo = Spring.GetPlayerInfo(playerID)
+	local playerPermLevel
+	local accountID = (accountInfo and accountInfo.accountid) and tonumber(accountInfo.accountid) or -1
+	if (powerusersBitmasked[playerID]) then
+		playerPermLevel = powerusersBitmasked[accountID]
+	else
+		playerPermLevel = 0
+		if cheatsModoption == "cosmetic" then
+			if accountInfo and accountInfo.boss == "1" then
+				playerPermLevel = 1
+			end
+		elseif cheatsModoption == "boss" then
+			if accountInfo and accountInfo.boss == "1" then
+				playerPermLevel = 3
+			end
+		end
+	end
+	cachedPermLevel[playerID] = playerPermLevel
+	return playerPermLevel
+end
+
+
+
+---Checks if the user can perform actions of this permission level
 ---@param playerID number
 ---@diagnostic disable-next-line: undefined-doc-name
 ---@param level GG.PermLevel
----@return boolean authorised can the player use the command of this level
+---@return boolean isAuthorised can the player use the command of this level
 local function isAuthorised(playerID, level)
 	local levelBitmask = levelToBitmask[level] or 2
-	local playerPermLevel = cachedPermLevel[playerID]
-	if not playerPermLevel then
-		local playername,_,_,_,_,_,_,_,_,_,accountInfo = Spring.GetPlayerInfo(playerID)
-		local accountID = (accountInfo and accountInfo.accountid) and tonumber(accountInfo.accountid) or -1
-		if (powerusersBitmasked[playerID]) then
-			playerPermLevel = powerusersBitmasked[accountID]
-		else
-			playerPermLevel = 0
-			if cheatsModoption == "cosmetic" then
-				if accountInfo and accountInfo.boss == "1" then
-					playerPermLevel = 1
-				end
-			elseif cheatsModoption == "boss" then
-				if accountInfo and accountInfo.boss == "1" then
-					playerPermLevel = 3
-				end
-			end
-			cachedPermLevel[playerID] = playerPermLevel
-		end
-	end
+	local playerPermLevel = cachedPermLevel[playerID] or makeUserPermCache(playerID)
+
+	-- cheats check after perms for if singleplayer they get toggled
 	if Spring.IsCheatingEnabled() then
 		playerPermLevel = math.bit_or(playerPermLevel, 11)
 	end
+
 	return math.bit_and(levelBitmask, playerPermLevel) ~= 0
 end
 
+
+
+
+
+-- TODO: move this into an actual add chat action perchance?
 ---Wrapper to put inside gadgetHandler:AddChatAction, so that luarules are blocked behind the right permissions
 ---@param func function(cmd, line, words, playerID)
 ---@diagnostic disable-next-line: undefined-doc-name
@@ -140,6 +160,10 @@ local function isAuthorisedChatWrapper(func, level)
 		end
 	end
 end
+
+
+
+
 
 function gadget:Initialize()
 	GG.isAuthorised = isAuthorised
