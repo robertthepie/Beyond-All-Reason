@@ -4,6 +4,18 @@
 local script, piece, StartThread, Move, Turn = script, piece, StartThread, Move, Turn
 -- End Of Suppressants
 
+--[[
+todos:
+	- tail unused? consider revisitng reversing?
+		\ or fully commit to moving head inwards on sharp turns
+	- weapon aiming
+	- any room for performance improvements?
+	- figure out how to minimize rare cases where body is nowhere near the middle,the targeting point
+		\ (using set mid point seems to give mixed results, cost of it is unknown)
+	- consider moving snake behaviour twoards dragging the previous segment twoards the next, instead of the tails following the exact path of the head,
+		\ or some form offset basic spline smoothing
+]]
+
 local	root, turnTable, head, tail,
 		base1, base2, base3, base4, base5, base6
 = piece("root", "turnTable", "head", "tail",
@@ -59,18 +71,18 @@ local function toLocalRotation(x, z, vx, vz)
 		x * vx + z * vz
 end
 
-local rep = 1
+local turnYold, turnYHistory
 
 local function bodySlitherLoop()
 	local progress, totalProgress = 0, 0
 	local _posDirHead = {[5] = 1}
-	local turnYold, turnYHistory = Spring.GetUnitRotation(unitID), 0
+	turnYold, turnYHistory = -Spring.GetUnitHeading(unitID, true), 0
 	while true do
 		Sleep(1)
 
-		local _, turnY = Spring.GetUnitRotation(unitID)
+		local turnY = -Spring.GetUnitHeading(unitID, true)
 		Turn(turnTable, 2, turnY)
-		
+
 		local dif = turnY - turnYold
 		if dif > 3 then
 			dif = dif - 6.283185
@@ -78,9 +90,9 @@ local function bodySlitherLoop()
 			dif = dif + 6.283185
 		end
 		turnYold = turnY
-		turnYHistory = turnYHistory + (dif * 6)
-		turnYHistory = turnYHistory * 0.925
-		
+		turnYHistory = turnYHistory + (dif * 6.5)
+		turnYHistory = turnYHistory * 0.94
+
 		_posDir = {Spring.GetUnitPiecePosDir(unitID, root)}
 		local _, groundNormalY = Spring.GetGroundNormal(_posDir[1], _posDir[3])
 		if groundNormalY > _posDirHead[5] then
@@ -236,20 +248,19 @@ end
 function script.Create()
 	Move(head, 3, length * 3.5)
 	Move(tail, 3, length)
+
+	-- fill the starting rolling list so that the tail is behind the head straight
 	local temp = {Spring.GetUnitPiecePosDir(unitID, head)}
+	local startDirection = -Spring.GetUnitHeading(unitID, true)
+	local lenX, lenY = sin(startDirection) * length, cos(startDirection) * length
 	for i = 1, 7 do
 		rollingList[i] = {
-			temp[1], temp[2], temp[3]+(length * i),
+			temp[1] + (lenX * i),
+			temp[2],
+			temp[3] - (lenY * i),
 			0, 1, 0
 		}
 	end
-
-	Move(base1, 2, -50)
-	Move(base2, 2, -50)
-	Move(base3, 2, -50)
-	Move(base4, 2, -50)
-	Move(base5, 2, -50)
-	Move(base6, 2, -50)
 
 	StartThread(bodySlitherLoop)
 end
